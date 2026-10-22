@@ -45,6 +45,42 @@
       "expect": "Deduplicated results with zero duplicate DOIs"
     },
     {
+      "id": "P3_MALFORMED_REPAIR_FAILURE",
+      "type": "phase3",
+      "severity": "critical",
+      "input": "LLM returns malformed JSON on initial try and repair retry",
+      "expect": "HTTP 422 with defined failure message: 'The AI returned an invalid response. Your progress is saved — retry Stage X.' and database state intact"
+    },
+    {
+      "id": "P3_POLICY_REFUSAL",
+      "type": "phase3",
+      "severity": "critical",
+      "input": "Out-of-policy non-research or abusive prompt submitted to AI agent",
+      "expect": "HTTP 400 polite refusal before any paid API call with cost_myr 0.00 in ai_calls log"
+    },
+    {
+      "id": "P3_QUOTA_EXHAUSTION",
+      "type": "phase3",
+      "severity": "critical",
+      "input": "User with 0 remaining generation quota invokes AI stage",
+      "expect": "HTTP 429 quota refusal before any paid call with cost_myr 0.00 in ai_calls log"
+    },
+    {
+      "id": "P3_DEMO_MODE_PIPELINE",
+      "type": "phase3",
+      "severity": "critical",
+      "input": "DEMO_MODE=true with zero API keys runs full 4-stage pipeline",
+      "expect": "All stages complete on fixtures with status no_key_mode and cost_myr 0.00"
+    },
+    {
+      "id": "P3_STATE_PERSISTENCE_REFRESH",
+      "type": "phase3",
+      "severity": "critical",
+      "input": "Simulated browser refresh mid-pipeline after Stage 2 and Stage 3",
+      "expect": "Exact state restored from projects.state_json with last_saved metadata and zero duplication"
+    },
+
+    {
       "id": "N1",
       "type": "normal",
       "severity": "major",

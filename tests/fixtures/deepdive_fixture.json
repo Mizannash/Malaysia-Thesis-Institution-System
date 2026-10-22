@@ -1,0 +1,66 @@
+{
+  "chosen_title": "Empirical Analysis of Cybersecurity Trust Deficits in QR-Based Mobile Payment Adoption Among Semi-Rural Malaysian Micro-Enterprises",
+  "gap_id": "GAP-1",
+  "papers": [
+    {
+      "title": "Cybersecurity Vulnerabilities and Consumer Trust in Malaysian Cashless Payment Ecosystems",
+      "authors": ["Wei Lun Tan", "Mohd Hashim Ibrahim"],
+      "year": 2022,
+      "doi": "10.11113/jt.v84.92305",
+      "url": "https://doi.org/10.11113/jt.v84.92305",
+      "abstract": "Digital payment solutions have surged across urban Malaysian commercial centers. However, fraud vectors, unauthorized micro-transactions, and QR code tampering remain key obstacles for small micro-merchants.",
+      "source": "openalex",
+      "citation_count": 21
+    },
+    {
+      "title": "DuitNow QR Adoption Factors in Rural Malaysian Traditional Retailers: A TOE Framework Analysis",
+      "authors": ["Muhammad Arif Ismail", "Noraini Mat"],
+      "year": 2024,
+      "doi": "10.1108/JFM-08-2023-0091",
+      "url": "https://doi.org/10.1108/JFM-08-2023-0091",
+      "abstract": "Drawing on the Technology-Organization-Environment (TOE) framework, this research evaluates national interoperable QR code integration among rural grocery merchants across Pahang and Kelantan.",
+      "source": "openalex",
+      "citation_count": 12
+    },
+    {
+      "title": "Determinants of E-Wallet Adoption among Malaysian Small and Medium Enterprises: A UTAUT2 Perspective",
+      "authors": ["Ahmad Razak", "Siti Nurhaliza"],
+      "year": 2023,
+      "doi": "10.11113/mjitcs.v15n2.98124",
+      "url": "https://doi.org/10.11113/mjitcs.v15n2.98124",
+      "abstract": "This study examines the behavioral intentions of Malaysian SMEs toward continuous adoption of digital e-wallets using an extended UTAUT2 model incorporating transaction security.",
+      "source": "openalex",
+      "citation_count": 34
+    },
+    {
+      "title": "Mobile Payment System Architecture and Compliance with Bank Negara Malaysia Regulatory Framework",
+      "authors": ["Norhayati Sulaiman"],
+      "year": 2021,
+      "doi": "10.11113/englet.v30.89100",
+      "url": "https://doi.org/10.11113/englet.v30.89100",
+      "abstract": "Architectural analysis of payment gateway latency, compliance requirements under the Financial Services Act 2013, and customer authentication protocols.",
+      "source": "utm",
+      "citation_count": 16
+    },
+    {
+      "title": "Fintech Adoption In Retail Food and Beverage Micro-Enterprises Across Johor Southern Corridor",
+      "authors": ["Harpreet Kaur", "Zalina Yusof"],
+      "year": 2023,
+      "doi": "10.11113/utmpj.v19n1.101452",
+      "url": "https://doi.org/10.11113/utmpj.v19n1.101452",
+      "abstract": "Investigating operational transitions from physical cash handling to DuitNow QR and Touch 'n Go eWallet platforms during post-pandemic recovery among hawkers in Iskandar Malaysia.",
+      "source": "utm",
+      "citation_count": 15
+    },
+    {
+      "title": "Assessing AI-Based Credit Scoring and Fraud Detection for Unbanked Micro-Merchants in Southeast Asia",
+      "authors": ["Syed Mokhtar", "Lim Boon Kiat"],
+      "year": 2024,
+      "doi": "10.1016/j.eswa.2024.123456",
+      "url": "https://doi.org/10.1016/j.eswa.2024.123456",
+      "abstract": "A machine learning framework using e-wallet transaction velocity to predict credit default and fraudulent behavior among micro-entrepreneurs lacking conventional records.",
+      "source": "openalex",
+      "citation_count": 14
+    }
+  ]
+}

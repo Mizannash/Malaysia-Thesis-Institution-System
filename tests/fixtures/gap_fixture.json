@@ -1,0 +1,19 @@
+{
+  "gaps": [
+    {
+      "gap_id": "GAP-1",
+      "description": "While general e-wallet adoption in Malaysian urban centers has been extensively modeled via UTAUT2 (P1), existing empirical frameworks fail to account for specific micro-merchant cybersecurity trust deficits and QR tampering vulnerabilities in semi-rural commercial corridors (P2, P4).",
+      "supporting_paper_ids": ["P1", "P2", "P4"]
+    },
+    {
+      "gap_id": "GAP-2",
+      "description": "Although national fintech digitization policies subsidize merchant acquisition (P1, P3), the dual barrier of Merchant Discount Rate (MDR) transaction fees and digital financial illiteracy among traditional family-run grocers in East Malaysia remains unaddressed in standard technology acceptance literature (P3, P5).",
+      "supporting_paper_ids": ["P3", "P5"]
+    },
+    {
+      "gap_id": "GAP-3",
+      "description": "Current literature investigates post-pandemic operational transitions for urban F&B micro-enterprises (P6) and Shariah compliance perception in digital wallets (P7), yet there is a critical gap evaluating how BNM regulatory compliance requirements (P9) constrain Islamic fintech feature innovation for rural micro-retailers.",
+      "supporting_paper_ids": ["P6", "P7", "P9"]
+    }
+  ]
+}

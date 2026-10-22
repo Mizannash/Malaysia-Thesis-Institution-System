@@ -1,0 +1,23 @@
+{
+  "titles": [
+    {
+      "title": "Empirical Analysis of Cybersecurity Trust Deficits in QR-Based Mobile Payment Adoption Among Semi-Rural Malaysian Micro-Enterprises",
+      "language": "EN",
+      "gap_id": "GAP-1",
+      "rationale": "Directly models the intersection of UTAUT2 performance expectancy and perceived cyber-fraud risks in non-metropolitan commercial zones."
+    },
+    {
+      "title": "Analisis Empirikal Halangan Keselamatan Siber dan Kepercayaan Peniaga Mikro Terhadap Penggunaan E-Dompet di Johor",
+      "language": "BM",
+      "gap_id": "GAP-1",
+      "rationale": "Sesuai untuk tesis pascasiswazah dalam Bahasa Melayu yang memberi tumpuan kepada peniaga mikro di koridor perniagaan Johor."
+    },
+    {
+      "title": "A Moderated Structural Equation Model of Merchant Discount Rates and Digital Financial Literacy on Cashless Persistence in Sabah",
+      "language": "EN",
+      "gap_id": "GAP-1",
+      "rationale": "Addresses the specific economic friction of transaction costs versus policy incentives in East Malaysian MSMEs."
+    }
+
+  ]
+}

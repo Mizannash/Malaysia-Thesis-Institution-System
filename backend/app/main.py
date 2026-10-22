@@ -11,7 +11,8 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.config import settings
 from app.database import init_db
-from app.routers import health, auth, projects, search
+from app.routers import health, auth, projects, search, pipeline
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -100,6 +101,8 @@ app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(projects.router)
 app.include_router(search.router)
+app.include_router(pipeline.router)
+
 
 
 @app.get("/")

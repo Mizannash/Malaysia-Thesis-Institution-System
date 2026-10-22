@@ -94,3 +94,49 @@ class ErrorResponse(BaseModel):
     error: str
     message: str
     detail: Optional[Any] = None
+
+
+class GapItem(BaseModel):
+    gap_id: str
+    description: str
+    supporting_paper_ids: list[str] = Field(default_factory=list)
+
+
+class GapAnalysisResponse(BaseModel):
+    gaps: list[GapItem]
+
+
+class TitleItem(BaseModel):
+    title: str
+    language: str = "EN"  # "EN" | "BM"
+    gap_id: str
+    rationale: Optional[str] = None
+
+
+class TitleSuggestionsResponse(BaseModel):
+    titles: list[TitleItem]
+
+
+class DeepDiveResponse(BaseModel):
+    chosen_title: str
+    gap_id: str
+    papers: list[Paper]
+
+
+class GapAnalysisRequest(BaseModel):
+    project_id: Optional[str] = None
+    papers: Optional[list[Paper]] = None
+
+
+class TitleSuggestionsRequest(BaseModel):
+    project_id: Optional[str] = None
+    gap_id: Optional[str] = None
+    gap: Optional[GapItem] = None
+    language: Optional[str] = "EN"
+
+
+class DeepDiveRequest(BaseModel):
+    project_id: Optional[str] = None
+    chosen_title: str
+    gap_id: str
+

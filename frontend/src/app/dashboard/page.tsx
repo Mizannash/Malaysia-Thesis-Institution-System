@@ -271,11 +271,17 @@ export default function DashboardPage() {
                       <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
                         Stage: <span style={{ color: "var(--primary)", textTransform: "capitalize" }}>{p.stage}</span> • ID: <code>{p.id}</code>
                       </div>
+                      {p.state_json?.last_saved_stage && (
+                        <div style={{ fontSize: "0.75rem", color: "#38bdf8", marginTop: "0.25rem" }}>
+                          Last saved: {p.state_json.last_saved_stage}, {new Date(p.state_json.last_saved_at || p.updated_at).toLocaleString()}
+                        </div>
+                      )}
                     </div>
                     <span className="badge badge-student">Owner: {p.user_id}</span>
                   </div>
                 ))}
               </div>
+
             )}
           </div>
 
