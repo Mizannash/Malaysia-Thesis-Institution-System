@@ -37,4 +37,13 @@ Git Diff:
 $diff
 "@
 
-& $hermesPython -c "import sys; sys.path.insert(0, r'$hermesAgent'); from hermes_cli.main import main; sys.argv=['hermes', '-z', '''$prompt''']; main()"
+$promptFile = [System.IO.Path]::GetTempFileName()
+[System.IO.File]::WriteAllText($promptFile, $prompt, [System.Text.Encoding]::UTF8)
+
+try {
+    & $hermesPython -c "import sys; sys.path.insert(0, r'$hermesAgent'); from hermes_cli.main import main; p = open(r'$promptFile', encoding='utf-8').read(); sys.argv=['hermes', '-z', p]; main()"
+} finally {
+    if (Test-Path $promptFile) {
+        Remove-Item $promptFile -Force -ErrorAction SilentlyContinue
+    }
+}

@@ -3,6 +3,27 @@
   "gate": "Every case passes",
   "cases": [
     {
+      "id": "P1_HEALTH",
+      "type": "phase1",
+      "severity": "critical",
+      "input": "GET /health",
+      "expect": "status is ok and service is mtis-backend"
+    },
+    {
+      "id": "P1_AUTH_REDIRECT",
+      "type": "phase1",
+      "severity": "critical",
+      "input": "Unauthenticated access to /dashboard",
+      "expect": "Redirect to /login within 5 seconds with 401 unauthenticated enforcement"
+    },
+    {
+      "id": "P1_CROSS_TENANT_REFUSAL",
+      "type": "phase1",
+      "severity": "critical",
+      "input": "User in Tenant A requests project in Tenant B via GET /projects/{id}",
+      "expect": "HTTP 403 Forbidden with cross-tenant refusal message and zero data leaked"
+    },
+    {
       "id": "N1",
       "type": "normal",
       "severity": "major",
