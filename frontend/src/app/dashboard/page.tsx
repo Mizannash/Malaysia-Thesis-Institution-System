@@ -724,7 +724,7 @@ export default function DashboardPage() {
 
   // Active stage determination
   const curStage = selectedProject?.stage || "search";
-  const stageIndex = curStage === "search" ? 1 : curStage === "gap" ? 2 : curStage === "title" ? 3 : curStage === "deepdive" ? 4 : 5;
+  const stageIndex = curStage === "search" ? 1 : curStage === "gap" ? 2 : curStage === "title" ? 3 : (curStage === "deepdive" || curStage === "deep-dive") ? 4 : 5;
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", backgroundColor: "var(--surface-canvas)" }}>
@@ -1669,6 +1669,108 @@ export default function DashboardPage() {
                 </div>
               </div>
             )}
+
+            {/* Deep-Dive Papers Strip (Stage 4) */}
+            {selectedProject?.state_json?.deepdive_papers && selectedProject.state_json.deepdive_papers.length > 0 && (
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem" }}>
+                  <h3 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, color: "var(--on-surface)", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                    <Compass size={16} color="var(--primary)" />
+                    Stage 4 Deep-Dive Literature ({selectedProject.state_json.deepdive_papers.length} targeted papers)
+                  </h3>
+                  <span className="badge badge-primary">Methodology Aligned</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  {selectedProject.state_json.deepdive_papers.map((p: any, i: number) => (
+                    <div key={i} style={{ background: "#ffffff", border: "1px solid var(--border-subtle)", borderRadius: "8px", padding: "0.75rem 1rem" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem" }}>
+                        <div style={{ fontWeight: 600, fontSize: "0.88rem", color: "var(--on-surface)" }}>
+                          {p.title}
+                        </div>
+                        <span className="badge badge-secondary" style={{ fontSize: "0.7rem", flexShrink: 0 }}>
+                          {p.source?.toUpperCase() || "OPENALEX"}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: "0.76rem", color: "var(--outline)", marginTop: "0.25rem", display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+                        <span>Authors: {Array.isArray(p.authors) ? p.authors.join(", ") : p.authors || "N/A"}</span>
+                        <span>Year: {p.year || "N/A"}</span>
+                        {p.citation_count !== undefined && <span>Citations: {p.citation_count}</span>}
+                      </div>
+                      {p.abstract && (
+                        <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", marginTop: "0.4rem", lineHeight: 1.4 }}>
+                          {p.abstract}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Stage 5: Research Plan Preview */}
+            {(selectedProject?.current_plan_json || selectedProject?.state_json?.plan) && (() => {
+              const activePlan = selectedProject?.current_plan_json || selectedProject?.state_json?.plan;
+              return (
+                <div style={{ background: "#ffffff", border: "1.5px solid var(--primary)", borderRadius: "10px", padding: "1.25rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                    <div>
+                      <span className="badge badge-primary" style={{ marginBottom: "0.25rem" }}>Stage 5: Research Plan Ready</span>
+                      <h3 style={{ fontSize: "1.05rem", fontWeight: 700, margin: "0.2rem 0", color: "var(--on-surface)" }}>
+                        {activePlan.title || selectedProject.title}
+                      </h3>
+                      <div style={{ fontSize: "0.78rem", color: "var(--outline)" }}>
+                        Plan ID: {activePlan.plan_id || "plan-active"} • Version {activePlan.version || selectedProject.plan_version || 1}
+                      </div>
+                    </div>
+                    <Link
+                      href={`/plan?projectId=${selectedProject.id}`}
+                      className="btn-primary"
+                      style={{ fontSize: "0.82rem", padding: "0.45rem 0.85rem", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}
+                    >
+                      Open Full Plan Canvas <ChevronRight size={14} />
+                    </Link>
+                  </div>
+
+                  {activePlan.methodology_summary && (
+                    <div style={{ background: "var(--surface-low)", padding: "0.75rem", borderRadius: "6px", marginBottom: "0.75rem", fontSize: "0.84rem", lineHeight: 1.45 }}>
+                      <strong>Methodology Summary:</strong> {activePlan.methodology_summary}
+                    </div>
+                  )}
+
+                  {activePlan.objectives && activePlan.objectives.length > 0 && (
+                    <div style={{ marginBottom: "0.75rem" }}>
+                      <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--on-surface)", marginBottom: "0.35rem" }}>
+                        Research Objectives ({activePlan.objectives.length}):
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                        {activePlan.objectives.map((obj: any, idx: number) => (
+                          <div key={idx} style={{ fontSize: "0.82rem", display: "flex", gap: "0.4rem", alignItems: "flex-start" }}>
+                            <span style={{ fontWeight: 700, color: "var(--primary)", minWidth: "40px" }}>{obj.objective_id || `RO-${idx + 1}`}:</span>
+                            <span style={{ color: "var(--on-surface)" }}>{obj.text || obj}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {activePlan.key_milestones && activePlan.key_milestones.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--on-surface)", marginBottom: "0.35rem" }}>
+                        Key Research Milestones ({activePlan.key_milestones.length}):
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "0.5rem" }}>
+                        {activePlan.key_milestones.slice(0, 4).map((m: any, idx: number) => (
+                          <div key={idx} style={{ background: "var(--surface-low)", padding: "0.5rem 0.75rem", borderRadius: "6px", fontSize: "0.78rem" }}>
+                            <div style={{ fontWeight: 700, color: "var(--primary)" }}>{m.target_month || `Phase ${idx + 1}`}: {m.title}</div>
+                            <div style={{ color: "var(--on-surface-variant)", marginTop: "2px", lineHeight: 1.35 }}>{m.description}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Right Column: Coach Companion & Active Context */}

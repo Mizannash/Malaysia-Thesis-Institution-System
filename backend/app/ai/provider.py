@@ -256,14 +256,28 @@ def call_llm_provider(
                 status="no_key_mode"
             )
         elif stage == "deepdive":
-            import re
-            gap_match = re.search(r'"gap_id":\s*"([^"]+)"', messages_text)
-            title_match = re.search(r'"chosen_title":\s*"([^"]+)"', messages_text)
-            target_gap = gap_match.group(1) if gap_match else "GAP-1"
-            chosen_title = title_match.group(1) if title_match else "Thesis Research"
+            import re, copy
+            title_match = re.search(r'"chosen_title":\s*"((?:[^"\\]|\\.)*)"', messages_text)
+            if not title_match:
+                title_match = re.search(r'"title":\s*"((?:[^"\\]|\\.)*)"', messages_text)
+            if title_match:
+                try:
+                    chosen_title = json.loads(f'"{title_match.group(1)}"')
+                except Exception:
+                    chosen_title = title_match.group(1).replace(r'\"', '"')
+            else:
+                chosen_title = "Empirical Evaluation of Digital Simulation Integration and Technical Competency Acquisition in Malaysian TVET Polytechnics"
+
+            gap_match = re.search(r'"gap_id":\s*"((?:[^"\\]|\\.)*)"', messages_text)
+            if gap_match:
+                try:
+                    target_gap = json.loads(f'"{gap_match.group(1)}"')
+                except Exception:
+                    target_gap = gap_match.group(1)
+            else:
+                target_gap = "GAP-1"
 
             is_tvet = "tvet" in messages_text.lower() or "vocational" in messages_text.lower() or "polytechnic" in messages_text.lower()
-            is_fintech = "wallet" in messages_text.lower() or "fintech" in messages_text.lower() or "payment" in messages_text.lower()
 
             if is_tvet:
                 fixture_data = {
@@ -271,54 +285,140 @@ def call_llm_provider(
                     "chosen_title": chosen_title,
                     "papers": [
                         {
-                            "paper_id": "DD-01",
                             "title": "Work-Based Learning and Digital Pedagogy in Malaysian TVET: Current Challenges and Future Outlook",
                             "authors": ["Mohd Yusof, H.", "Ahmad, N. A.", "Razali, M."],
                             "year": 2023,
+                            "doi": "10.11113/jt.v84.92305",
+                            "url": "http://eprints.utm.my/id/eprint/tvet01",
                             "abstract": "This empirical study investigates the operational integration of interactive simulations and technical workshop facilities across Malaysian public vocational institutions, highlighting critical gaps in curriculum responsiveness.",
                             "citation_count": 34,
-                            "source": "utm",
-                            "url": "http://eprints.utm.my/id/eprint/tvet01"
+                            "source": "utm"
                         },
                         {
-                            "paper_id": "DD-02",
                             "title": "Industry 4.0 Readiness and Apprenticeship Retention in Malaysian Technical Training Institutes",
                             "authors": ["Ibrahim, Z.", "Kassim, R."],
                             "year": 2024,
+                            "doi": "10.1016/j.tvet.2024.102341",
+                            "url": "https://doi.org/10.1016/j.tvet.2024.102341",
                             "abstract": "An evaluation of institutional-industrial collaboration models in Johor and Selangor, identifying key factors influencing vocational apprentice workplace readiness and skills retention.",
                             "citation_count": 28,
-                            "source": "openalex",
-                            "url": "https://doi.org/10.1016/j.tvet.2024.102341"
+                            "source": "openalex"
                         },
                         {
-                            "paper_id": "DD-03",
                             "title": "Assessing Vocational Teacher Competency and Digital Tool Adoption in Malaysian Vocational Colleges",
                             "authors": ["Sulaiman, S.", "Alias, M."],
                             "year": 2022,
+                            "doi": "10.11113/mjitcs.v15n2.98124",
+                            "url": "http://eprints.utm.my/id/eprint/tvet03",
                             "abstract": "A quantitative assessment of technical instructors in MARA and MOE vocational colleges, measuring self-efficacy in virtual training environment execution.",
                             "citation_count": 41,
-                            "source": "utm",
-                            "url": "http://eprints.utm.my/id/eprint/tvet03"
+                            "source": "utm"
                         },
                         {
-                            "paper_id": "DD-04",
                             "title": "National Qualification Frameworks and Employer Perception of Malaysian TVET Graduates",
                             "authors": ["Tan, K. L.", "Othman, B."],
                             "year": 2023,
+                            "doi": "10.1108/ET-08-2023-0199",
+                            "url": "https://doi.org/10.1108/ET-08-2023-0199",
                             "abstract": "Examines the alignment between Malaysian Skills Certification (SKM) standards and industry employer requirements in high-growth manufacturing sectors.",
                             "citation_count": 19,
-                            "source": "openalex",
-                            "url": "https://doi.org/10.1108/ET-08-2023-0199"
+                            "source": "openalex"
+                        },
+                        {
+                            "title": "Smart Polytechnic Framework: Enhancing Technical and Vocational Training via Cloud Simulation Platforms",
+                            "authors": ["Che Ahmad, C. N.", "Yahya, S."],
+                            "year": 2023,
+                            "doi": "10.11113/englet.v30.89100",
+                            "url": "http://eprints.utm.my/id/eprint/tvet05",
+                            "abstract": "Evaluates the infrastructure requirements and instructional design strategies for implementing digital simulation labs in polytechnic engineering departments across Malaysia.",
+                            "citation_count": 22,
+                            "source": "utm"
+                        },
+                        {
+                            "title": "Employability Outcomes of TVET Graduates in the Malaysian High-Tech Sector: A PLS-SEM Analysis",
+                            "authors": ["Kamal, M. R.", "Zakaria, A."],
+                            "year": 2024,
+                            "doi": "10.1016/j.ijedudev.2024.103112",
+                            "url": "https://doi.org/10.1016/j.ijedudev.2024.103112",
+                            "abstract": "An empirical structural equation modeling analysis assessing the alignment between technical diploma curricula and Industry 4.0 job competency profiles in Malaysian economic corridors.",
+                            "citation_count": 17,
+                            "source": "openalex"
                         }
                     ]
                 }
             else:
-                fixture_data = _load_fixture_data("deepdive_fixture.json")
-                if fixture_data:
-                    if gap_match:
-                        fixture_data["gap_id"] = gap_match.group(1)
-                    if title_match:
-                        fixture_data["chosen_title"] = title_match.group(1)
+                loaded = _load_fixture_data("deepdive_fixture.json")
+                if loaded:
+                    fixture_data = copy.deepcopy(loaded)
+                    fixture_data["gap_id"] = target_gap
+                    fixture_data["chosen_title"] = chosen_title
+                else:
+                    fixture_data = {
+                        "gap_id": target_gap,
+                        "chosen_title": chosen_title,
+                        "papers": [
+                            {
+                                "title": "Empirical Evaluation of Digital Adoption Barriers in Malaysian Higher Education",
+                                "authors": ["Zulkafli, A.", "Hamid, R."],
+                                "year": 2023,
+                                "doi": "10.11113/jt.v84.92305",
+                                "url": "https://doi.org/10.11113/jt.v84.92305",
+                                "abstract": "Investigates institutional and technological barriers affecting digital learning adoption across Malaysian public universities.",
+                                "citation_count": 21,
+                                "source": "openalex"
+                            },
+                            {
+                                "title": "Technological Frameworks for Sustainable Institutional Transformation in Malaysia",
+                                "authors": ["Tan, W. L.", "Ibrahim, M. H."],
+                                "year": 2024,
+                                "doi": "10.1108/JFM-08-2023-0091",
+                                "url": "https://doi.org/10.1108/JFM-08-2023-0091",
+                                "abstract": "Examines operational transitions and compliance mechanisms under national higher education blueprints.",
+                                "citation_count": 18,
+                                "source": "openalex"
+                            },
+                            {
+                                "title": "Structural Equation Modeling of Digital Tool Persistence in Malaysian Institutions",
+                                "authors": ["Sulaiman, N.", "Othman, B."],
+                                "year": 2023,
+                                "doi": "10.11113/mjitcs.v15n2.98124",
+                                "url": "https://doi.org/10.11113/mjitcs.v15n2.98124",
+                                "abstract": "Empirical survey modeling behavioral intentions and persistence among postgraduate researchers.",
+                                "citation_count": 29,
+                                "source": "utm"
+                            },
+                            {
+                                "title": "Collaborative Research Frameworks and Knowledge Sharing Across Malaysian HEIs",
+                                "authors": ["Kaur, H.", "Yusof, Z."],
+                                "year": 2022,
+                                "doi": "10.11113/englet.v30.89100",
+                                "url": "https://doi.org/10.11113/englet.v30.89100",
+                                "abstract": "Evaluates cross-institutional knowledge transfer and collaborative repository networks.",
+                                "citation_count": 15,
+                                "source": "utm"
+                            },
+                            {
+                                "title": "Predictive Modeling of Academic Competency Acquisition in Malaysian Technical Degrees",
+                                "authors": ["Razak, A.", "Nurhaliza, S."],
+                                "year": 2023,
+                                "doi": "10.11113/utmpj.v19n1.101452",
+                                "url": "https://doi.org/10.11113/utmpj.v19n1.101452",
+                                "abstract": "Assesses curriculum alignment and technical competency acquisition in Malaysian engineering faculties.",
+                                "citation_count": 16,
+                                "source": "openalex"
+                            },
+                            {
+                                "title": "Industry-Academia Partnerships and Graduate Readiness in Malaysian Research Universities",
+                                "authors": ["Lim, B. K.", "Mokhtar, S."],
+                                "year": 2024,
+                                "doi": "10.1016/j.eswa.2024.123456",
+                                "url": "https://doi.org/10.1016/j.eswa.2024.123456",
+                                "abstract": "A multi-stakeholder assessment evaluating graduate readiness and industry research translation in Malaysia.",
+                                "citation_count": 14,
+                                "source": "openalex"
+                            }
+                        ]
+                    }
 
             return ProviderResponse(
                 content=json.dumps(fixture_data),
@@ -328,14 +428,28 @@ def call_llm_provider(
                 status="no_key_mode"
             )
         elif stage in ("plan", "refine"):
-            import re
-            title_match = re.search(r'"title":\s*"([^"]+)"', messages_text)
-            gap_match = re.search(r'"gap_id":\s*"([^"]+)"', messages_text)
-            target_gap = gap_match.group(1) if gap_match else "GAP-1"
-            chosen_title = title_match.group(1) if title_match else "Thesis Research"
+            import re, copy
+            title_match = re.search(r'"chosen_title":\s*"((?:[^"\\]|\\.)*)"', messages_text)
+            if not title_match:
+                title_match = re.search(r'"title":\s*"((?:[^"\\]|\\.)*)"', messages_text)
+            if title_match:
+                try:
+                    chosen_title = json.loads(f'"{title_match.group(1)}"')
+                except Exception:
+                    chosen_title = title_match.group(1).replace(r'\"', '"')
+            else:
+                chosen_title = "Empirical Thesis Research Plan in Malaysian Context"
+
+            gap_match = re.search(r'"gap_id":\s*"((?:[^"\\]|\\.)*)"', messages_text)
+            if gap_match:
+                try:
+                    target_gap = json.loads(f'"{gap_match.group(1)}"')
+                except Exception:
+                    target_gap = gap_match.group(1)
+            else:
+                target_gap = "GAP-1"
 
             is_tvet = "tvet" in messages_text.lower() or "vocational" in messages_text.lower() or "polytechnic" in messages_text.lower()
-            is_fintech = "wallet" in messages_text.lower() or "fintech" in messages_text.lower()
 
             if is_tvet:
                 fixture_data = {
@@ -344,64 +458,198 @@ def call_llm_provider(
                     "gap_id": target_gap,
                     "version": 1,
                     "objectives": [
-                        "To evaluate the baseline digital simulation integration and technical laboratory facilities across Malaysian public TVET polytechnics.",
-                        "To determine the impact of Industry 4.0 technical curriculum alignment on apprentice practical competency acquisition and retention.",
-                        "To develop and empirically validate a structural equation model of vocational instructor efficacy, industrial partnership support, and graduate workplace employability."
+                        {
+                            "objective_id": "RO-1",
+                            "text": "To evaluate the current state and operational barriers of digital simulation lab integration across Malaysian public TVET polytechnics."
+                        },
+                        {
+                            "objective_id": "RO-2",
+                            "text": "To determine the empirical relationship between Industry 4.0 technical curriculum alignment and apprentice practical competency acquisition."
+                        },
+                        {
+                            "objective_id": "RO-3",
+                            "text": "To formulate and validate a predictive structural model of vocational instructor digital efficacy and graduate workplace employability."
+                        }
                     ],
-                    "methodology_summary": "A mixed-methods empirical study combining a cross-sectional questionnaire survey administered across 350 TVET students and instructors in Malaysian polytechnics with qualitative semi-structured expert interviews from participating industrial manufacturing partners, analyzed via PLS-SEM (SmartPLS 4).",
+                    "methodology_summary": "A mixed-methods empirical investigation combining a cross-sectional questionnaire survey administered across 350 TVET students and instructors in Malaysian polytechnics with qualitative expert interviews from manufacturing partners, analyzed via PLS-SEM (SmartPLS 4).",
                     "key_milestones": [
                         {
                             "milestone_id": "M1",
-                            "phase": "Literature Synthesis & Instrument Design",
-                            "month": 2,
-                            "description": "Finalize conceptual framework from OpenAlex & UTM literature and conduct pilot testing of the TVET digital readiness questionnaire."
+                            "title": "Literature Synthesis & Instrument Design",
+                            "description": "Synthesize literature from OpenAlex and UTM repositories, draft survey instrument, and conduct pilot reliability testing.",
+                            "target_month": "Month 3"
                         },
                         {
                             "milestone_id": "M2",
-                            "phase": "Data Collection across Malaysian TVET Institutions",
-                            "month": 5,
-                            "description": "Administer cross-sectional survey to cohorts across selected polytechnics in Johor, Selangor, and Penang."
+                            "title": "Field Sampling & Institutional Data Collection",
+                            "description": "Administer cross-sectional survey to TVET cohorts across selected polytechnics in Johor, Selangor, and Penang.",
+                            "target_month": "Month 6"
                         },
                         {
                             "milestone_id": "M3",
-                            "phase": "Structural Model Estimation & Thesis Defense",
-                            "month": 8,
-                            "description": "Execute PLS-SEM convergent validity and hypothesis testing; complete final thesis manuscript for supervisor review."
+                            "title": "Structural Equation Modeling & Hypothesis Testing",
+                            "description": "Execute measurement model verification, discriminant validity, and structural path coefficient estimation in SmartPLS 4.",
+                            "target_month": "Month 9"
+                        },
+                        {
+                            "milestone_id": "M4",
+                            "title": "Dissertation Finalization & Viva Voce",
+                            "description": "Complete final 5-chapter thesis manuscript, incorporate supervisory feedback, and defend findings in oral examination.",
+                            "target_month": "Month 12"
                         }
                     ],
                     "timeline": [
                         {
-                            "phase": "Phase 1: Conceptualization & Ethics",
-                            "duration_months": 3,
-                            "deliverable": "Approved research proposal and ethical clearance from institutional review board."
+                            "phase_name": "Phase 1: Conceptualization & Ethics",
+                            "months": "Months 1 - 3",
+                            "tasks": [
+                                "Conduct systematic literature synthesis on TVET digital simulation integration",
+                                "Formulate research hypotheses and measurement indicators",
+                                "Secure institutional review board ethical clearance"
+                            ]
                         },
                         {
-                            "phase": "Phase 2: Empirical Fieldwork & SEM Analysis",
-                            "duration_months": 4,
-                            "deliverable": "Dataset collation, measurement model assessment, and structural path coefficient estimation."
+                            "phase_name": "Phase 2: Empirical Fieldwork & SEM Analysis",
+                            "months": "Months 4 - 8",
+                            "tasks": [
+                                "Distribute bilingual survey questionnaire across 10 polytechnic campuses",
+                                "Perform data cleaning, normality screening, and common method bias testing",
+                                "Execute PLS-SEM bootstrapping and path analysis"
+                            ]
                         },
                         {
-                            "phase": "Phase 3: Thesis Writing & Viva Voce Preparation",
-                            "duration_months": 3,
-                            "deliverable": "Complete 5-chapter thesis submission and mock viva defense."
+                            "phase_name": "Phase 3: Synthesis, Thesis Defense & Policy Translation",
+                            "months": "Months 9 - 12",
+                            "tasks": [
+                                "Formulate practical recommendations for MOHE TVET Division",
+                                "Draft 5-chapter thesis dissertation",
+                                "Complete final viva voce defense"
+                            ]
                         }
                     ],
                     "necessary_resources": [
-                        "Statistical analysis software (SmartPLS 4, IBM SPSS 29)",
-                        "Institutional survey permissions from Ministry of Higher Education (MOHE) TVET division",
-                        "Travel budget for vocational institute site visits across Peninsular Malaysia"
+                        {
+                            "category": "Software & Analytical Tools",
+                            "item": "SmartPLS 4 & IBM SPSS Statistics 29",
+                            "justification": "Required for partial least squares structural equation modeling and exploratory factor analysis."
+                        },
+                        {
+                            "category": "Institutional Access",
+                            "item": "Ministry of Higher Education (MOHE) TVET Division Research Permit",
+                            "justification": "Mandatory clearance for administering survey instruments across Malaysian polytechnics."
+                        },
+                        {
+                            "category": "Field Travel",
+                            "item": "Polytechnic Campus Site Visit Travel Grant",
+                            "justification": "Required for in-person instructor interviews and workshop facility benchmarking across Selangor, Penang, and Johor."
+                        }
                     ]
                 }
             else:
-                fixture_data = _load_fixture_data("plan_fixture.json") or {}
-                if title_match and fixture_data:
-                    fixture_data["title"] = title_match.group(1)
-                if gap_match and fixture_data:
-                    fixture_data["gap_id"] = gap_match.group(1)
+                loaded = _load_fixture_data("plan_fixture.json")
+                if loaded:
+                    fixture_data = copy.deepcopy(loaded)
+                    fixture_data["title"] = chosen_title
+                    fixture_data["gap_id"] = target_gap
+                else:
+                    fixture_data = {
+                        "plan_id": "plan-general-01",
+                        "title": chosen_title,
+                        "gap_id": target_gap,
+                        "version": 1,
+                        "objectives": [
+                            {
+                                "objective_id": "RO-1",
+                                "text": "To investigate the institutional and empirical factors influencing academic adoption across Malaysian higher education."
+                            },
+                            {
+                                "objective_id": "RO-2",
+                                "text": "To formulate and empirically evaluate an extended structural equation model (PLS-SEM) of institutional readiness."
+                            },
+                            {
+                                "objective_id": "RO-3",
+                                "text": "To provide evidence-based policy recommendations for Malaysian higher education institutions and regulatory agencies."
+                            }
+                        ],
+                        "key_milestones": [
+                            {
+                                "milestone_id": "M1",
+                                "title": "Systematic Literature Review & Proposal Defense",
+                                "description": "Synthesize existing literature, complete conceptual framework, and obtain proposal defense approval.",
+                                "target_month": "Month 3"
+                            },
+                            {
+                                "milestone_id": "M2",
+                                "title": "Instrumentation & Pilot Validation",
+                                "description": "Design survey instrument, conduct pilot study, and establish reliability and validity.",
+                                "target_month": "Month 6"
+                            },
+                            {
+                                "milestone_id": "M3",
+                                "title": "Field Sampling & PLS-SEM Estimation",
+                                "description": "Administer survey across target institutions and execute structural path analysis in SmartPLS 4.",
+                                "target_month": "Month 9"
+                            },
+                            {
+                                "milestone_id": "M4",
+                                "title": "Thesis Dissertation Submission & Viva",
+                                "description": "Draft complete 5-chapter thesis dissertation, address supervisor feedback, and defend in oral viva voce.",
+                                "target_month": "Month 12"
+                            }
+                        ],
+                        "necessary_resources": [
+                            {
+                                "category": "Software & Analytical Tools",
+                                "item": "SmartPLS 4 & IBM SPSS Statistics",
+                                "justification": "Required for partial least squares structural equation modeling."
+                            },
+                            {
+                                "category": "Ethics & Clearances",
+                                "item": "Institutional Human Research Ethics Clearance",
+                                "justification": "Mandatory prior to field sampling and survey distribution."
+                            },
+                            {
+                                "category": "Institutional Access",
+                                "item": "Higher Education Institutional Registry Access",
+                                "justification": "Sampling frame access for target participants."
+                            }
+                        ],
+                        "timeline": [
+                            {
+                                "phase_name": "Phase 1: Conceptualization & Ethics",
+                                "months": "Months 1 - 3",
+                                "tasks": [
+                                    "Complete systematic literature synthesis",
+                                    "Formulate conceptual model and hypotheses",
+                                    "Obtain institutional ethics board approval"
+                                ]
+                            },
+                            {
+                                "phase_name": "Phase 2: Empirical Fieldwork & SEM Analysis",
+                                "months": "Months 4 - 8",
+                                "tasks": [
+                                    "Administer survey to target cohorts",
+                                    "Screen data and evaluate measurement model",
+                                    "Run bootstrapping for structural path significance"
+                                ]
+                            },
+                            {
+                                "phase_name": "Phase 3: Thesis Writing & Defense",
+                                "months": "Months 9 - 12",
+                                "tasks": [
+                                    "Synthesize findings and practical implications",
+                                    "Complete 5-chapter thesis submission",
+                                    "Prepare and complete viva voce defense"
+                                ]
+                            }
+                        ],
+                        "methodology_summary": "Cross-sectional quantitative empirical design utilizing structural equation modeling (PLS-SEM) across Malaysian higher education institutions to evaluate structural relationships and institutional adoption factors.",
+                        "version": 1
+                    }
 
             if stage == "refine":
                 feedback_match = re.search(r'(?:Feedback|revision instructions|user_prompt)[:\s]*([^\n"]+)', messages_text, re.IGNORECASE)
-                feedback = feedback_match.group(1) if feedback_match else "Focused refinement on Malaysian institutions"
+                feedback = feedback_match.group(1).strip() if feedback_match else "Focused refinement on Malaysian institutions"
                 fixture_data["version"] = fixture_data.get("version", 1) + 1
                 fixture_data["methodology_summary"] = (
                     f"{fixture_data.get('methodology_summary', '')} Refined based on feedback: {feedback}."
