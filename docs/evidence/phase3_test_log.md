@@ -11,7 +11,7 @@
 
 ### Verification Findings:
 1. **Zero Unvalidated Output**:
-   - In [`backend/app/agents/gap_agent.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/agents/gap_agent.py), [`title_agent.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/agents/title_agent.py), and [`deepdive_agent.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/agents/deepdive_agent.py), all LLM outputs route strictly through `execute_contract_with_retry()` in [`backend/app/ai/contract.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/ai/contract.py).
+   - In [`backend/app/agents/gap_agent.py`](backend/app/agents/gap_agent.py), [`title_agent.py`](backend/app/agents/title_agent.py), and [`deepdive_agent.py`](backend/app/agents/deepdive_agent.py), all LLM outputs route strictly through `execute_contract_with_retry()` in [`backend/app/ai/contract.py`](backend/app/ai/contract.py).
    - Validates JSON parsing and strict Pydantic models (`GapAnalysisResponse`, `TitleSuggestionsResponse`, `DeepDiveResponse`).
    - If invalid, executes exactly ONE repair prompt. If still invalid, raises `AIContractError` with defined user message:
      `"The AI returned an invalid response. Your progress is saved — retry Stage X."`
@@ -85,12 +85,12 @@ Inspected log entries confirm exact status codes and verified token/cost metrics
 ## 4. Task 4: State Persistence & UI Indicator Verification (Rubric D3)
 
 1. **Immediate Atomic Writes**:
-   - In [`backend/app/routers/pipeline.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/routers/pipeline.py), each stage completion creates an updated copy of `project.state_json`, executes `flag_modified(project, "state_json")`, and commits to the database immediately.
+   - In [`backend/app/routers/pipeline.py`](backend/app/routers/pipeline.py), each stage completion creates an updated copy of `project.state_json`, executes `flag_modified(project, "state_json")`, and commits to the database immediately.
 2. **Metadata Markers**:
    - `last_saved_stage`: set to human-readable stage name (e.g., `"Stage 2 (Gap Analysis)"`).
    - `last_saved_at`: ISO 8601 UTC timestamp.
 3. **UI Rendering**:
-   - Verified [`frontend/src/app/dashboard/page.tsx`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/frontend/src/app/dashboard/page.tsx) renders `Last saved: {p.state_json.last_saved_stage}, {timestamp}` on research project cards.
+   - Verified [`frontend/src/app/dashboard/page.tsx`](frontend/src/app/dashboard/page.tsx) renders `Last saved: {p.state_json.last_saved_stage}, {timestamp}` on research project cards.
 4. **Refresh Mid-Pipeline**:
    - Tested in `test_refresh_mid_pipeline_restores_exact_state`: simulating browser refresh restores candidate gaps, suggested titles, and citations without loss or duplication.
 
@@ -98,8 +98,8 @@ Inspected log entries confirm exact status codes and verified token/cost metrics
 
 ## 5. Task 5: Documentation & Viva Runbook Audit (Rubric D6)
 
-- [`demo/reflection.md`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/demo/reflection.md): Verified present. Contains in-depth engineering reflection on AI contract layers, failure modes, pre-call refusal economics, and explicit references to all 6 stress tests and agent modules.
-- [`docs/viva_runbook.md`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/docs/viva_runbook.md): Verified present. Details exact live demonstration steps for the viva examination panel (D1 value hooks, D2 RLS isolation, D3 state persistence, D4 stress-hardening proofs, and D5 test suite).
+- [`demo/reflection.md`](demo/reflection.md): Verified present. Contains in-depth engineering reflection on AI contract layers, failure modes, pre-call refusal economics, and explicit references to all 6 stress tests and agent modules.
+- [`docs/viva_runbook.md`](docs/viva_runbook.md): Verified present. Details exact live demonstration steps for the viva examination panel (D1 value hooks, D2 RLS isolation, D3 state persistence, D4 stress-hardening proofs, and D5 test suite).
 
 ---
 

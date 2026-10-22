@@ -21,7 +21,7 @@ MTIS was engineered from the ground up to eliminate these failure modes through 
 
 ## 2. Architecture of the Mandatory AI Contract Layer (Rubric D4)
 
-Implemented in [`backend/app/ai/contract.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/ai/contract.py) and bridged via [`backend/ai/contract.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/ai/contract.py):
+Implemented in [`backend/app/ai/contract.py`](backend/app/ai/contract.py) and bridged via [`backend/ai/contract.py`](backend/ai/contract.py):
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -60,28 +60,28 @@ Implemented in [`backend/app/ai/contract.py`](file:///c:/Users/user/Desktop/mala
 
 ### Key Engineering Decisions:
 1. **Zero Unvalidated Output**: Every reasoning agent (`gap_agent.py`, `title_agent.py`, `deepdive_agent.py`) routes through `execute_contract_with_retry()`. No raw LLM string ever reaches the user without passing strict Pydantic model validation (`GapAnalysisResponse`, `TitleSuggestionsResponse`, `DeepDiveResponse`).
-2. **Targeted Repair Retry**: Rather than failing immediately upon detecting minor formatting anomalies, the system logs `status: "retry"` in [`logs/ai_calls.jsonl`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/logs/ai_calls.jsonl) and issues a repair prompt containing the exact parser error.
+2. **Targeted Repair Retry**: Rather than failing immediately upon detecting minor formatting anomalies, the system logs `status: "retry"` in [`logs/ai_calls.jsonl`](logs/ai_calls.jsonl) and issues a repair prompt containing the exact parser error.
 3. **Defined, Human-Readable Failure Messages**: If the response remains invalid after the retry attempt, the system logs `status: "rejected_malformed"` and returns:
    > *"The AI returned an invalid response. Your progress is saved — retry Stage X."*  
    The application never displays a blank white screen, raw Python traceback, or half-saved garbage.
 4. **Pre-Call Refusal Economics**: Non-research/abusive queries (`check_out_of_policy`) and depleted quotas (`check_user_quota`) are blocked **BEFORE** any LLM API call is dispatched. Both log `tokens: 0` and `cost_myr: 0.00`, protecting unit margins.
-5. **Deterministic NO-KEY Demo Mode**: In `DEMO_MODE=true` (or when external API keys are absent), [`backend/app/ai/provider.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/ai/provider.py) executes the full pipeline using pre-vetted fixtures in [`tests/fixtures/`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/tests/fixtures/), logging `status: "no_key_mode"` with `cost_myr: 0.00`.
+5. **Deterministic NO-KEY Demo Mode**: In `DEMO_MODE=true` (or when external API keys are absent), [`backend/app/ai/provider.py`](backend/app/ai/provider.py) executes the full pipeline using pre-vetted fixtures in [`tests/fixtures/`](tests/fixtures/), logging `status: "no_key_mode"` with `cost_myr: 0.00`.
 
 ---
 
 ## 3. Database State Persistence & Refresh Restoration (Rubric D3)
 
 In academic research, users routinely step away from their desk, refresh their browser, or switch devices.
-- **Immediate Atomic Writes**: In [`backend/app/routers/pipeline.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/routers/pipeline.py), the moment a reasoning agent finishes, `projects.state_json` is immediately updated with `flag_modified(project, "state_json")` and committed.
+- **Immediate Atomic Writes**: In [`backend/app/routers/pipeline.py`](backend/app/routers/pipeline.py), the moment a reasoning agent finishes, `projects.state_json` is immediately updated with `flag_modified(project, "state_json")` and committed.
 - **Timestamped Stage Tracking**: Every save records `last_saved_stage` (e.g. `"Stage 2 (Gap Analysis)"`) and `last_saved_at` (ISO timestamp).
-- **UI Visibility**: Rendered directly on the project card in [`frontend/src/app/dashboard/page.tsx`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/frontend/src/app/dashboard/page.tsx) as `Last saved: stage X, <timestamp>`.
+- **UI Visibility**: Rendered directly on the project card in [`frontend/src/app/dashboard/page.tsx`](frontend/src/app/dashboard/page.tsx) as `Last saved: stage X, <timestamp>`.
 - **Zero Loss / Zero Duplication**: Verified in acceptance test `test_refresh_mid_pipeline_restores_exact_state`: simulating a browser refresh restores exact gap citations, suggested titles, and search parameters.
 
 ---
 
 ## 4. Test Suite & Verification Matrix (Rubric D4 & D5)
 
-The stress-hardening suite in [`tests/acceptance/test_ai_stress.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/tests/acceptance/test_ai_stress.py) covers every edge case:
+The stress-hardening suite in [`tests/acceptance/test_ai_stress.py`](tests/acceptance/test_ai_stress.py) covers every edge case:
 
 | Test Case | Edge Condition Simulated | Expected Behavior | Outcome |
 |---|---|---|---|

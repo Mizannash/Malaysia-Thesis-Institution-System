@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-low": "#eff4ff", "secondary": "#006c49", "on-tertiary": "#ffffff", "surface-container-lowest": "#ffffff", "on-error": "#ffffff", "on-primary": "#ffffff", "on-surface-variant": "#3f4850", "on-tertiary-fixed-variant": "#653e00", "secondary-fixed-dim": "#4edea3", "primary-container": "#007bb9", "tertiary-container": "#a36700", "tertiary-fixed-dim": "#ffb95f", "on-primary-fixed-variant": "#004b73", "inverse-on-surface": "#eaf1ff", "on-secondary": "#ffffff", "on-primary-container": "#fdfcff", "on-surface": "#0b1c30", "primary-fixed": "#cce5ff", "inverse-surface": "#213145", "surface-container": "#e5eeff", "error-container": "#ffdad6", "outline-variant": "#bfc7d2", "outline": "#707881", "surface-dim": "#cbdbf5", "on-background": "#0b1c30", "surface-container-high": "#dce9ff", "on-primary-fixed": "#001d31", "tertiary": "#825100", "on-secondary-fixed-variant": "#005236", "surface-container-highest": "#d3e4fe", "error": "#ba1a1a", "on-error-container": "#93000a", "surface-tint": "#006398", "secondary-fixed": "#6ffbbe", "background": "#f8f9ff", "inverse-primary": "#93ccff", "on-secondary-container": "#00714d", "on-tertiary-fixed": "#2a1700", "on-secondary-fixed": "#002113", "tertiary-fixed": "#ffddb8", "secondary-container": "#6cf8bb", "surface": "#f8f9ff", "primary-fixed-dim": "#93ccff", "on-tertiary-container": "#fffbff", "surface-bright": "#f8f9ff", "surface-variant": "#d3e4fe", "primary": "#006194" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin": "2rem", "space-md": "1rem", "margin-sm": "1rem", "space-xl": "2.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "gutter": "1.5rem", "space-lg": "1.5rem", "gutter-sm": "1rem" }, "fontFamily": { "body-lg": ["Plus Jakarta Sans"], "code-sm": ["JetBrains Mono"], "headline-xl": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "label-sm": ["Inter"], "headline-xl-mobile": ["Plus Jakarta Sans"], "display-lg-mobile": ["Plus Jakarta Sans"], "display-lg": ["Plus Jakarta Sans"], "label-md": ["Inter"] }, "fontSize": { "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }], "code-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-sm": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-xl-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "display-lg-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-margin flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg flex-shrink-0"><div class="flex items-center gap-space-sm"><img alt="ScholarPulse Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4PcSa-USNVo2BpPf7VunsFTJy3atak5-VTFAqam8JdMeN_zgAss2eVPdECkeyJABuU8DC4Mt3VTbXJ1GoL9nUK_ff9f5Vy6AggX1ZpyDqMXebgIpYG_ALhWMPYOjZoClwN4lbIYc6XKDxGikMzR_lB2eCItj3iJwDAF22IfTub9dlSs1cqImAcQEEVDaBG5NtDv7t2_OCSwyT5MLF7Ry1KuOtaMl0mhGOIu9vxJGpXccvmkOoMW4k"/><span class="font-headline-sm text-headline-sm text-on-surface">ScholarPulse</span><span class="font-label-sm text-label-sm px-space-sm py-0.5 rounded-full bg-surface-container-high text-primary font-semibold">Academic Coach v2.4</span></div><div class="hidden xl:flex items-center gap-space-xs px-space-sm py-1.5 rounded-lg bg-surface-container-low text-on-surface"><span class="material-symbols-outlined text-outline text-base">school</span><span class="font-body-sm text-body-sm max-w-[260px] truncate font-medium">PhD Thesis: Neural Attention in Protein Folding</span><span class="material-symbols-outlined text-outline text-sm">unfold_more</span></div></div><nav class="hidden lg:flex items-center gap-space-xs" data-active-classes="bg-surface-container-high text-primary font-semibold"><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-space-md py-space-sm rounded-lg transition-colors" data-path="control-panel" href="#">Control Panel</a><a aria-current="page" class="px-space-md py-space-sm rounded-lg transition-colors bg-surface-container-high text-primary font-semibold" data-path="research-plan" href="#">Research Plan</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-space-md py-space-sm rounded-lg transition-colors" data-path="literature-search" href="#">Literature Search</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-space-md py-space-sm rounded-lg transition-colors" data-path="timeline-and-milestones" href="#">Timeline &amp; Milestones</a></nav><div class="flex items-center gap-space-md flex-shrink-0"><div class="hidden sm:flex items-center gap-space-xs px-space-md py-1 rounded-full bg-secondary-container/30 text-on-secondary-container font-label-md text-label-md"><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span><span>Coach Ready • All citations synced</span></div><button aria-label="Help &amp; Guidance" class="p-space-xs rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors" type="button"><span class="material-symbols-outlined">help_outline</span></button><div class="flex items-center gap-space-sm pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwg47uGfyec8jWTwLNc_nDQgbF8OjWLhH8icF7iFQyC0Ng_p3Mu8lG3rUR5vl4nCuc1gL1XUBrut6aD4D-_YfE6T5bdeTgt1HTpuDV_HqQhyYZzYas-lzOcxdQPO8l7LQ4qIeYF9VJvy0GZEIBJJMNynHe6xuIXSaw_NxQ0om0shNtB-UAZ3XleRTmWq7t4ZCjqahlXZa4Nb1XoA0kp38dW9K76bSX5T3WdOVlZg0BqNC8mirgqHX6"/><div class="hidden md:flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface">Elena Vance</span><span class="font-label-sm text-label-sm text-on-surface-variant">Doctoral Fellow</span></div></div></div></div></header><main class="w-full pt-16 bg-surface flex-1"><div class="flex flex-col w-full">
+<!-- Interactive Top Action Sub-bar & Document Context -->
+<div class="w-full bg-surface-container-lowest px-margin py-space-md shadow-sm sticky top-16 z-40">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<!-- Breadcrumb & Metadata -->
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline px-2.5 py-1 rounded bg-surface-container-low font-semibold">Chapter 03</span>
+<span class="text-outline-variant font-label-md">/</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Methodology &amp; Computational Setup</span>
+<span class="text-outline-variant font-label-md">•</span>
+<div class="flex items-center gap-1.5 text-secondary font-label-sm text-label-sm font-semibold bg-secondary-container/20 px-2.5 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-sm">lock_clock</span>
+<span>Draft v1.4 • Auto-synced 2h ago</span>
+</div>
+</div>
+<!-- Action Group -->
+<div class="flex items-center gap-space-sm flex-shrink-0">
+<button class="flex items-center gap-2 px-space-md py-2 rounded-lg bg-surface-container-high hover:bg-surface-container text-on-surface font-label-md text-label-md transition-all shadow-sm" id="coach-toggle-btn">
+<span class="material-symbols-outlined text-primary text-base">forum</span>
+<span class="hidden sm:inline">Coach Notes</span>
+<span class="w-5 h-5 rounded-full bg-primary text-on-primary font-code-sm text-code-sm flex items-center justify-center font-bold">2</span>
+</button>
+<button class="flex items-center gap-2 px-space-md py-2 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low font-label-md text-label-md transition-all shadow-sm">
+<span class="material-symbols-outlined text-base">ios_share</span>
+<span class="hidden sm:inline">Export (PDF/LaTeX)</span>
+</button>
+<button class="flex items-center gap-2 px-space-md py-2 rounded-lg bg-surface-container-low text-primary hover:bg-surface-container-high font-label-md text-label-md transition-all">
+<span class="material-symbols-outlined text-base">person_add</span>
+<span class="hidden lg:inline">Advisor Review</span>
+</button>
+<button class="flex items-center gap-2 px-space-lg py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-semibold transition-all shadow-md hover:shadow-lg">
+<span class="material-symbols-outlined text-base">auto_awesome</span>
+<span>Refine with Coach</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Primary Workspace: Document Sheet (Left/Center) + Coach Drawer (Right) -->
+<div class="w-full px-margin py-space-xl">
+<div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-gutter items-start">
+<!-- Main Document Canvas (Notion-like longform paper view) -->
+<article class="flex-1 min-w-0 bg-surface-container-lowest rounded-xl p-space-lg sm:p-space-xl md:p-12 shadow-sm space-y-10">
+<!-- Document Header Hero Details -->
+<header class="space-y-4 pb-space-lg border-b-0">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="font-label-sm text-label-sm px-2.5 py-1 rounded-full bg-surface-container-high text-primary font-bold">Proposal Stage II</span>
+<span class="font-label-sm text-label-sm px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant">Committee Distribution</span>
+<span class="font-code-sm text-code-sm text-outline">Target: J. Comput. Biology</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight leading-snug">
+            Research Proposal &amp; Methodology Architecture: Deep Generative Models for Multi-State Protein Folding
+          </h1>
+<div class="flex flex-wrap items-center gap-y-2 gap-x-6 text-on-surface-variant font-body-sm text-body-sm pt-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-primary">person</span>
+<span>Lead Author: <strong class="text-on-surface font-semibold">Elena Vance</strong></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-secondary">supervisor_account</span>
+<span>Advisor: Prof. Marcus Thorne</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-outline">timer</span>
+<span>18 min read (4,230 words)</span>
+</div>
+</div>
+</header>
+<!-- Document Abstract / Motivation Banner -->
+<div class="p-space-md sm:p-space-lg rounded-xl bg-surface-container-low text-on-surface flex flex-col sm:flex-row gap-space-md items-start">
+<div class="p-2 rounded-lg bg-surface-container-lowest text-primary shadow-sm flex-shrink-0">
+<span class="material-symbols-outlined">lightbulb</span>
+</div>
+<div class="space-y-1">
+<p class="font-headline-sm text-headline-sm text-on-surface">Central Research Hypothesis</p>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Equivariant graph diffusion operators coupled with conformation-conditioned latent flow can capture transient, high-energy meta-stable states currently obscured by static cryo-EM consensus models.
+            </p>
+</div>
+</div>
+<!-- Section 1: Research Objectives -->
+<section class="space-y-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="font-code-sm text-code-sm font-semibold px-2 py-0.5 rounded bg-surface-container-high text-primary">§ 01</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Primary Research Objectives</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Objective 1.1 -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-colors shadow-sm flex flex-col justify-between space-y-space-sm">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary font-bold">OBJ 1.1 • MAPPING</span>
+<span class="material-symbols-outlined text-secondary text-sm">check_circle</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">State Transition Space</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                  Map free-energy topography across intermediate conformational pathways without relying on unguided all-atom molecular dynamics (MD).
+                </p>
+</div>
+<div class="pt-2 font-code-sm text-code-sm text-outline">Target confidence: &gt;94% ROC</div>
+</div>
+<!-- Objective 1.2 -->
+<div class="p-space-md rounded-xl bg-surface-container-high text-on-surface shadow-sm flex flex-col justify-between space-y-space-sm relative overflow-hidden">
+<div class="space-y-space-xs relative z-10">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary-fixed-dim font-bold">OBJ 1.2 • GENERALIZATION</span>
+<span class="material-symbols-outlined text-primary text-sm">sync</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Sparse-Signal Inference</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                  Generalize fold predictions on intrinsically disordered regions (IDRs) using hybrid evolutionary score-matching.
+                </p>
+</div>
+<div class="pt-2 font-label-sm text-label-sm text-primary font-semibold flex items-center gap-1 relative z-10">
+<span>Coach alert active</span>
+<span class="material-symbols-outlined text-xs">arrow_forward</span>
+</div>
+</div>
+<!-- Objective 1.3 -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-colors shadow-sm flex flex-col justify-between space-y-space-sm">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary font-bold">OBJ 1.3 • VALIDATION</span>
+<span class="material-symbols-outlined text-outline text-sm">schedule</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Benchtop Validation</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                  Corroborate predicted equilibrium ratios against in vitro small-angle X-ray scattering (SAXS) profiles.
+                </p>
+</div>
+<div class="pt-2 font-code-sm text-code-sm text-outline">Wet-lab collaborator: BioDept B4</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Methodological Framework & Datasets -->
+<section class="space-y-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="font-code-sm text-code-sm font-semibold px-2 py-0.5 rounded bg-surface-container-high text-primary">§ 02</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Methodological Framework &amp; Dataset Strategy</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+            Our pipeline bifurcates into sequence representation distillation followed by non-Euclidean manifold diffusion. To balance high structural fidelity against conformational variance, we cross-reference static crystallographic data against dynamic ensemble sets.
+          </p>
+<!-- Mathematical Formulation Callout (Clear, Notion-style math block) -->
+<div class="p-space-md sm:p-space-lg rounded-xl bg-surface-container-low font-code-sm text-code-sm space-y-2 shadow-inner">
+<div class="flex items-center justify-between text-outline pb-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wide">Equivariant Drift Equation (Formulation 2.1)</span>
+<span>Continuous Score Matching</span>
+</div>
+<div class="py-2 text-center overflow-x-auto text-on-surface font-semibold text-sm sm:text-base">
+              dx_t = [ f(x_t, t) - g(t)² ∇_{x_t} log p_t(x_t | C_seq) ] dt + g(t) dw_t
+            </div>
+<div class="text-xs text-on-surface-variant font-body-sm text-body-sm leading-normal">
+              Where <span class="font-code-sm text-code-sm text-primary">C_seq</span> denotes paired MSA embeddings and <span class="font-code-sm text-code-sm text-primary">w_t</span> represents a standard Brownian motion on SE(3) coordinates.
+            </div>
+</div>
+<!-- Dataset Comparison Matrix (No borders, pure surface shift) -->
+<div class="overflow-x-auto rounded-xl shadow-sm bg-surface-container-low">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead class="bg-surface-container-high text-on-surface uppercase font-label-sm text-label-sm">
+<tr>
+<th class="p-space-md font-semibold">Repository / Source</th>
+<th class="p-space-md font-semibold">Conformational Diversity</th>
+<th class="p-space-md font-semibold">Resolution Threshold</th>
+<th class="p-space-md font-semibold">Integration Role</th>
+</tr>
+</thead>
+<tbody class="divide-y-0">
+<tr class="bg-surface-container-lowest hover:bg-surface-container transition-colors">
+<td class="p-space-md font-medium text-on-surface">
+                    RCSB Protein Data Bank
+                    <span class="block text-outline font-code-sm text-code-sm">214,000+ entries</span>
+</td>
+<td class="p-space-md text-on-surface-variant">High (Multiple crystallized states per ligand interaction)</td>
+<td class="p-space-md text-on-surface font-code-sm text-code-sm">&lt; 2.5 Å (Cryo-EM &amp; X-Ray)</td>
+<td class="p-space-md">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container/40 text-on-secondary-container font-label-sm text-label-sm font-semibold">Ground Truth Pairs</span>
+</td>
+</tr>
+<tr class="bg-surface-container-low/60 hover:bg-surface-container transition-colors">
+<td class="p-space-md font-medium text-on-surface">
+                    AlphaFold Protein Structure DB
+                    <span class="block text-outline font-code-sm text-code-sm">200M+ predictions</span>
+</td>
+<td class="p-space-md text-on-surface-variant">Low (Predominantly single static canonical fold state)</td>
+<td class="p-space-md text-on-surface font-code-sm text-code-sm">pLDDT &gt; 80 confidence filter</td>
+<td class="p-space-md">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold">Pre-training Prior</span>
+</td>
+</tr>
+<tr class="bg-surface-container-lowest hover:bg-surface-container transition-colors">
+<td class="p-space-md font-medium text-on-surface">
+                    CoDNas Conformational DB
+                    <span class="block text-outline font-code-sm text-code-sm">8,400 multi-state pairs</span>
+</td>
+<td class="p-space-md text-on-surface-variant">Maximum (Apo vs Holo state pairs curated)</td>
+<td class="p-space-md text-on-surface font-code-sm text-code-sm">Variable (&lt; 3.2 Å)</td>
+<td class="p-space-md">
+<span class="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm font-semibold">Transition Benchmarks</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Section 3: Identified Gaps & Novel Contribution (Sage-toned Callout Card) -->
+<section class="p-space-lg rounded-xl bg-secondary-container/20 space-y-space-sm shadow-sm">
+<div class="flex items-center gap-space-sm text-secondary">
+<span class="material-symbols-outlined">verified</span>
+<span class="font-code-sm text-code-sm font-bold uppercase tracking-wider">Novel Scientific Contribution</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">
+            Elimination of Rigid-Body Consensus Bias in Allosteric Pathways
+          </h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+            Existing deep architectures overfit to crystal lattice stabilization artifacts. By enforcing an SE(3)-equivariant latent space regularized with harmonic distance matrices, our framework computes continuous transition trajectories without requiring microsecond-scale atomistic simulations.
+          </p>
+<div class="flex items-center gap-space-md pt-2">
+<div class="flex items-center gap-1.5 text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-sm">check</span>
+<span>100x compute reduction vs standard MD</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-sm">check</span>
+<span>Explicit solvent approximation</span>
+</div>
+</div>
+</section>
+<!-- Section 4: Required Compute & Lab Resources -->
+<section class="space-y-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="font-code-sm text-code-sm font-semibold px-2 py-0.5 rounded bg-surface-container-high text-primary">§ 03</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Compute Allocation &amp; Milestones</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Hardware Card -->
+<div class="p-space-md rounded-xl bg-surface-container-low space-y-space-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-base">memory</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Compute Infrastructure</span>
+</div>
+<ul class="space-y-2 text-on-surface-variant font-body-sm text-body-sm">
+<li class="flex items-center justify-between">
+<span>University Cluster (Theta GPU)</span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-lowest text-on-surface">8× NVIDIA A100 (80GB)</span>
+</li>
+<li class="flex items-center justify-between">
+<span>Storage Allocation</span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-lowest text-on-surface">24 TB NVMe Scratch</span>
+</li>
+<li class="flex items-center justify-between">
+<span>Estimated Run Hours</span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-lowest text-on-surface">1,400 Node-Hours</span>
+</li>
+</ul>
+</div>
+<!-- Milestone Timeline -->
+<div class="p-space-md rounded-xl bg-surface-container-low space-y-space-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-base">event_upcoming</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Expected Delivery Horizon</span>
+</div>
+<div class="space-y-2.5">
+<div class="flex items-start gap-2">
+<span class="font-code-sm text-code-sm text-secondary font-bold">M1</span>
+<div class="text-on-surface-variant font-body-sm text-body-sm">
+<strong class="text-on-surface">Oct 2024:</strong> Pre-training latent score denoiser on 50k PDB structures.
+                  </div>
+</div>
+<div class="flex items-start gap-2">
+<span class="font-code-sm text-code-sm text-primary font-bold">M2</span>
+<div class="text-on-surface-variant font-body-sm text-body-sm">
+<strong class="text-on-surface">Dec 2024:</strong> CoDNas evaluation &amp; membrane testbench calibration.
+                  </div>
+</div>
+<div class="flex items-start gap-2">
+<span class="font-code-sm text-code-sm text-tertiary font-bold">M3</span>
+<div class="text-on-surface-variant font-body-sm text-body-sm">
+<strong class="text-on-surface">Feb 2025:</strong> Thesis Committee Draft review &amp; peer preprint submission.
+                  </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Document Footer Feedback Strip -->
+<div class="pt-space-md flex flex-col sm:flex-row items-center justify-between gap-space-sm text-outline font-body-sm text-body-sm">
+<span>Elena Vance • Doctoral Research Notebook</span>
+<div class="flex items-center gap-space-md">
+<button class="hover:text-primary transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-base">comment</span>
+<span>12 Section Notes</span>
+</button>
+<button class="hover:text-primary transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-base">history</span>
+<span>Revision History</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Right Coach Sidebar Drawer (Persistent & Focused) -->
+<aside class="w-full lg:w-80 flex-shrink-0 space-y-space-md" id="coach-drawer">
+<!-- Coach Drawer Header Card -->
+<div class="p-space-md rounded-xl bg-surface-container-high text-on-surface shadow-sm">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-sm">
+<span class="material-symbols-outlined text-sm">smart_toy</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface">AI Coach Active</span>
+</div>
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-normal">
+            Continuous synthesis mode. Analyzing your methodology against defense benchmarks.
+          </p>
+</div>
+<!-- Suggestion Card 1: Methodology Clarification -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm space-y-space-sm transition-all hover:shadow-md">
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">tune</span>
+              Clarification
+            </span>
+<span class="font-code-sm text-code-sm text-outline">Section § 02</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Validate Membrane Proteins</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            Your dataset scope primarily samples soluble globular domains. Committee Member Prof. Zhao frequently questions generalization to transmembrane helices.
+          </p>
+<div class="p-2.5 rounded bg-surface-container-low text-on-surface font-body-sm text-body-sm">
+<span class="font-semibold text-primary block mb-0.5">Recommended Addition:</span>
+            "Include MemProtMD benchmarks for 42 membrane targets."
+          </div>
+<div class="flex items-center gap-2 pt-1">
+<button class="flex-1 py-1.5 px-3 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-1 shadow-sm" onclick="applySuggestion(this)">
+<span class="material-symbols-outlined text-sm">check</span>
+<span>Apply</span>
+</button>
+<button class="py-1.5 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-label-md text-label-md transition-colors" onclick="dismissCard(this)">
+              Dismiss
+            </button>
+</div>
+</div>
+<!-- Suggestion Card 2: Citation Alignment -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm space-y-space-sm transition-all hover:shadow-md">
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">library_books</span>
+              Citations
+            </span>
+<span class="font-code-sm text-code-sm text-outline">Section § 01.2</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">3 Relevant 2024 Preprints</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            Recent work from Baker Lab &amp; DeepMind (Nature Bio 2024) introduces stochastic manifold sampling directly tied to your Objective 1.2.
+          </p>
+<!-- Citation Mini Row -->
+<div class="space-y-1.5">
+<div class="p-2 rounded bg-surface-container-low font-body-sm text-body-sm flex items-center justify-between">
+<div class="truncate pr-2">
+<span class="font-medium text-on-surface block truncate">Watson et al. (2024)</span>
+<span class="text-outline text-xs block truncate">Diffusion generative models of de novo...</span>
+</div>
+<span class="material-symbols-outlined text-primary text-sm">open_in_new</span>
+</div>
+<div class="p-2 rounded bg-surface-container-low font-body-sm text-body-sm flex items-center justify-between">
+<div class="truncate pr-2">
+<span class="font-medium text-on-surface block truncate">Jumper et al. (2024 update)</span>
+<span class="text-outline text-xs block truncate">All-atom ensemble mapping on SE(3)</span>
+</div>
+<span class="material-symbols-outlined text-primary text-sm">open_in_new</span>
+</div>
+</div>
+<button class="w-full py-1.5 px-3 rounded-lg bg-surface-container-high hover:bg-surface-container text-primary font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-sm">format_quote</span>
+<span>View &amp; Link All Citations (3)</span>
+</button>
+</div>
+<!-- Academic Coach Quick Diagnostic Widget -->
+<div class="p-space-md rounded-xl bg-surface-container-low space-y-space-sm shadow-inner">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Methodological Rigor</span>
+<span class="font-code-sm text-code-sm text-secondary font-bold">88 / 100</span>
+</div>
+<!-- Progress bar -->
+<div class="w-full bg-surface-container-high rounded-full h-2 overflow-hidden">
+<div class="bg-secondary h-2 rounded-full" style="width: 88%"></div>
+</div>
+<div class="flex items-center justify-between text-xs text-on-surface-variant font-label-sm text-label-sm pt-1">
+<span>Novelty: Strong</span>
+<span>Feasibility: Verified</span>
+</div>
+</div>
+</aside>
+</div>
+</div>
+<!-- Inline Micro-Interactions Script -->
+<script>
+    function applySuggestion(button) {
+      const card = button.closest('.rounded-xl');
+      if (!card) return;
+      button.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">autorenew</span> Applying...';
+      button.disabled = true;
+      setTimeout(() => {
+        card.classList.add('opacity-50', 'transition-all');
+        card.innerHTML = `
+          <div class="flex items-center gap-2 text-secondary py-3">
+            <span class="material-symbols-outlined text-base">check_circle</span>
+            <span class="font-label-md text-label-md font-semibold">Applied to Section § 02. Draft updated.</span>
+          </div>
+        `;
+        setTimeout(() => {
+          card.remove();
+        }, 2200);
+      }, 500);
+    }
+
+    function dismissCard(button) {
+      const card = button.closest('.rounded-xl');
+      if (card) {
+        card.style.transition = 'all 0.3s ease';
+        card.style.opacity = '0';
+        card.style.transform = 'translateX(20px)';
+        setTimeout(() => card.remove(), 300);
+      }
+    }
+
+    // Toggle sidebar on mobile/tablet viewports
+    const coachBtn = document.getElementById('coach-toggle-btn');
+    const coachDrawer = document.getElementById('coach-drawer');
+    if (coachBtn && coachDrawer) {
+      coachBtn.addEventListener('click', () => {
+        coachDrawer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+  </script>
+</div></main><footer class="w-full bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] py-space-lg"><div class="w-full px-margin flex flex-col sm:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-on-surface-variant"><div class="flex items-center gap-space-sm"><span class="font-headline-sm text-headline-sm text-on-surface">ScholarPulse</span><span class="text-outline-variant">•</span><span>Mindful academic drafting &amp; empirical rigor</span></div><div class="flex items-center gap-space-lg"><span>Auto-saved locally</span><span class="font-code-sm text-code-sm text-outline">Zotero &amp; BibTeX Sync Active</span></div></div></footer></body></html>

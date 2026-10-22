@@ -7,6 +7,9 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS tenants (
     id VARCHAR(64) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    llm_provider VARCHAR(32) NOT NULL DEFAULT 'deepseek',
+    encrypted_api_key TEXT,
+    key_preview VARCHAR(32),
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -115,13 +118,17 @@ SET LOCAL app.current_tenant_id = 'tenant-demo-002';
 
 INSERT INTO users (id, tenant_id, name, email, role, plan, quota_remaining)
 VALUES 
-    ('usr-demo-student', 'tenant-demo-002', 'Alex Demo Student', 'alex@demouniv.edu.my', 'student', 'free', 3),
-    ('usr-demo-supervisor', 'tenant-demo-002', 'Prof. Tan Supervisor', 'tan@demouniv.edu.my', 'supervisor', 'pro', 99)
-ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
+    ('usr-demo-student', 'tenant-demo-002', 'Demo Student', 'student@demo.test', 'student', 'free', 3),
+    ('usr-demo-supervisor', 'tenant-demo-002', 'Demo Supervisor', 'supervisor@demo.test', 'supervisor', 'pro', 99),
+    ('usr-demo-admin', 'tenant-demo-002', 'Demo Admin', 'admin@demo.test', 'admin', 'enterprise', 999),
+    ('usr-demo-alex', 'tenant-demo-002', 'Alex Demo Student', 'alex@demouniv.edu.my', 'student', 'free', 3),
+    ('usr-demo-tan', 'tenant-demo-002', 'Prof. Tan Supervisor', 'tan@demouniv.edu.my', 'supervisor', 'pro', 99)
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, email = EXCLUDED.email;
 
 INSERT INTO projects (id, tenant_id, user_id, title, stage, state_json)
 VALUES 
-    ('prj-demo-201', 'tenant-demo-002', 'usr-demo-student', 'Blockchain Smart Contracts in Malaysian Logistic Supply Chains', 'title', '{"topic": "Logistics supply chain blockchain", "scope": "INT"}'::jsonb)
+    ('prj-demo-201', 'tenant-demo-002', 'usr-demo-student', 'Blockchain Smart Contracts in Malaysian Logistic Supply Chains', 'title', '{"topic": "Logistics supply chain blockchain", "scope": "INT"}'::jsonb),
+    ('prj-demo-202', 'tenant-demo-002', 'usr-demo-student', 'AI Research Gap Analysis in SME E-Wallet Adoption', 'search', '{"topic": "E-wallet adoption in Malaysian SMEs", "scope": "MY"}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title;
 
 -- Reset tenant session

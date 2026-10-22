@@ -47,7 +47,7 @@ Every ungrounded, non-academic, or abusive request is evaluated before any LLM d
 
 ## 4. Aggregate Development & Test Metrics
 
-Audited from [`logs/ai_calls.jsonl`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/logs/ai_calls.jsonl) across all development and acceptance test runs:
+Audited from [`logs/ai_calls.jsonl`](logs/ai_calls.jsonl) across all development and acceptance test runs:
 
 - **Total Logged Calls**: **126**
 - **Total Tokens Consumed**: **41,850 tokens**

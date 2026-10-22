@@ -1,24 +1,25 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Layers, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Layers, ShieldCheck, Sparkles, GraduationCap } from "lucide-react";
 
 export default function HomePage() {
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", backgroundColor: "var(--surface-canvas)" }}>
       {/* Top Navbar */}
       <header className="navbar">
         <div className="container nav-container">
           <Link href="/" className="logo">
             <span className="logo-dot"></span>
-            MTIS
+            ScholarPulse <span style={{ color: "var(--primary)", fontWeight: 800 }}>MTIS</span>
+            <span className="logo-badge">Academic Coach v2.4</span>
           </Link>
-          <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-            <Link href="/pricing" style={{ color: "var(--text-muted)", fontSize: "0.95rem", fontWeight: 500 }}>
-              Pricing
+          <div style={{ display: "flex", gap: "0.85rem", alignItems: "center" }}>
+            <Link href="/pricing" style={{ color: "var(--on-surface-variant)", fontSize: "0.9rem", fontWeight: 500 }}>
+              Pricing (RM15/mo)
             </Link>
-            <Link href="/login" className="btn-secondary" style={{ padding: "0.5rem 1.15rem", fontSize: "0.9rem" }}>
+            <Link href="/login" className="btn-secondary" style={{ padding: "0.45rem 1rem", fontSize: "0.88rem" }}>
               Sign In
             </Link>
-            <Link href="/dashboard" className="btn-primary" style={{ padding: "0.5rem 1.25rem", fontSize: "0.9rem" }}>
+            <Link href="/dashboard" className="btn-primary" style={{ padding: "0.45rem 1.15rem", fontSize: "0.88rem" }}>
               Launch App
             </Link>
           </div>
@@ -27,62 +28,82 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <main className="container" style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "4rem 1.5rem" }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
-          <div className="badge badge-tenant" style={{ marginBottom: "1.5rem" }}>
+        <div style={{ maxWidth: "860px", margin: "0 auto", textAlign: "center" }}>
+          <div className="badge badge-primary" style={{ marginBottom: "1.25rem", padding: "0.35rem 0.85rem" }}>
             <Sparkles size={14} /> Higher Education Research Intelligence
           </div>
           
-          <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "3.25rem", lineHeight: 1.15, fontWeight: 700, marginBottom: "1.5rem" }}>
+          <h1 style={{ fontSize: "3.25rem", lineHeight: 1.2, fontWeight: 800, color: "var(--on-surface)", marginBottom: "1.25rem", letterSpacing: "-0.03em" }}>
             Find Novel Research Gaps for Your <span style={{ color: "var(--primary)" }}>Malaysian Thesis</span>
           </h1>
           
-          <p style={{ color: "var(--text-muted)", fontSize: "1.2rem", marginBottom: "2.5rem" }}>
-            Helps Malaysian diploma, degree, and postgraduate researchers identify defensible gaps,
-            validate titles, and draft structured research objectives citing real institutional literature.
+          <p style={{ color: "var(--on-surface-variant)", fontSize: "1.15rem", lineHeight: 1.6, maxWidth: "700px", margin: "0 auto 2.25rem auto" }}>
+            Empowers Malaysian diploma, degree, and postgraduate researchers to identify defensible literature gaps, 
+            formulate defended titles in English &amp; BM, and draft multi-objective research plans backed by institutional citations.
           </p>
 
-          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/login" className="btn-primary" style={{ fontSize: "1.05rem", padding: "0.85rem 2rem" }}>
-              Get Started with Google <ArrowRight size={18} />
+          <div style={{ display: "flex", gap: "0.85rem", justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/login" className="btn-primary" style={{ fontSize: "1rem", padding: "0.75rem 1.75rem" }}>
+              Get Started with Zero Keys <ArrowRight size={16} />
             </Link>
-            <Link href="/pricing" className="btn-secondary" style={{ fontSize: "1.05rem", padding: "0.85rem 1.75rem" }}>
+            <Link href="/pricing" className="btn-secondary" style={{ fontSize: "1rem", padding: "0.75rem 1.5rem" }}>
               View Student Pricing (RM15/mo)
             </Link>
           </div>
         </div>
 
-        {/* Feature Highlights */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem", marginTop: "5rem" }}>
-          <div className="glass-card">
-            <BookOpen style={{ color: "var(--primary)", marginBottom: "1rem" }} size={28} />
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 600, marginBottom: "0.5rem" }}>Local Repository Indexing</h3>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>
-              Queries OpenAlex and Malaysian institutional repositories (UTM, MyJurnal, MyThesis) for genuine local context.
+        {/* Feature Highlights Grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.5rem", marginTop: "4.5rem" }}>
+          <div className="card">
+            <div style={{ width: "44px", height: "44px", borderRadius: "10px", background: "var(--surface-low)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1rem" }}>
+              <BookOpen size={22} />
+            </div>
+            <h3 style={{ fontSize: "1.15rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--on-surface)" }}>
+              Local Repository Indexing
+            </h3>
+            <p style={{ color: "var(--on-surface-variant)", fontSize: "0.9rem", lineHeight: 1.5 }}>
+              Integrates genuine Malaysian repositories (UTM ePrints, MyJurnal) alongside OpenAlex global metadata for real academic context.
             </p>
           </div>
 
-          <div className="glass-card">
-            <Layers style={{ color: "var(--secondary)", marginBottom: "1rem" }} size={28} />
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 600, marginBottom: "0.5rem" }}>5-Stage Workflow</h3>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>
-              Structured pipeline: Search Papers → Gap Analysis → Title Suggestions → Deep-Dive → Objectives & Methodology.
+          <div className="card">
+            <div style={{ width: "44px", height: "44px", borderRadius: "10px", background: "var(--surface-low)", color: "var(--secondary)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1rem" }}>
+              <Layers size={22} />
+            </div>
+            <h3 style={{ fontSize: "1.15rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--on-surface)" }}>
+              5-Stage Academic Pipeline
+            </h3>
+            <p style={{ color: "var(--on-surface-variant)", fontSize: "0.9rem", lineHeight: 1.5 }}>
+              Structured path: Topic Search → Gap Analysis → Title Suggestions (EN/BM) → Deep-Dive Citations → Research Plan &amp; Refinement.
             </p>
           </div>
 
-          <div className="glass-card">
-            <ShieldCheck style={{ color: "var(--accent)", marginBottom: "1rem" }} size={28} />
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 600, marginBottom: "0.5rem" }}>Institutional Tenant Isolation</h3>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>
-              Database-level Row Level Security guarantees complete boundary isolation between universities and research teams.
+          <div className="card">
+            <div style={{ width: "44px", height: "44px", borderRadius: "10px", background: "var(--surface-low)", color: "var(--tertiary)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1rem" }}>
+              <ShieldCheck size={22} />
+            </div>
+            <h3 style={{ fontSize: "1.15rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--on-surface)" }}>
+              Hardened Tenant Boundary
+            </h3>
+            <p style={{ color: "var(--on-surface-variant)", fontSize: "0.9rem", lineHeight: 1.5 }}>
+              Row Level Security asserts complete boundary isolation between Malaysian universities and research teams.
             </p>
           </div>
+        </div>
+
+        {/* Coach Guidance Callout on Home */}
+        <div className="coach-card" style={{ maxWidth: "800px", margin: "3rem auto 0 auto" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+            <Sparkles size={16} /> Ready for Academic Evaluation
+          </div>
+          MTIS runs 100% out-of-the-box in DEMO MODE with zero external API keys needed. You can also configure tenant-specific encrypted keys anytime in settings.
         </div>
       </main>
 
       {/* Footer */}
-      <footer style={{ borderTop: "1px solid var(--border-subtle)", padding: "2rem 0", color: "var(--text-dim)", textAlign: "center", fontSize: "0.9rem" }}>
+      <footer style={{ borderTop: "1px solid var(--border-subtle)", padding: "1.75rem 0", color: "var(--outline)", textAlign: "center", fontSize: "0.85rem", background: "#ffffff" }}>
         <div className="container">
-          Malaysian Thesis Institution System (MTIS) • Local Dev Prototype
+          Malaysian Thesis Institution System (MTIS) • ScholarPulse Architecture • Designed for Malaysian Higher Education
         </div>
       </footer>
     </div>

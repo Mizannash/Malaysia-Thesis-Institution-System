@@ -11,15 +11,15 @@
 
 ### Audit Findings:
 1. **Full State Context Hand-off**:
-   - In [`backend/app/agents/plan_agent.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/agents/plan_agent.py) and [`backend/app/routers/pipeline.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/routers/pipeline.py), the Plan Generation endpoint extracts the complete upstream state (`papers`, `gaps`, `chosen_title`, `deepdive_papers`).
-   - The serialized state `context_str = json.dumps(project_state, indent=2, default=str)` is directly injected into the prompt template `{{PROJECT_CONTEXT_JSON}}` ([`prompts/plan_prompt.md`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/prompts/plan_prompt.md)).
+   - In [`backend/app/agents/plan_agent.py`](backend/app/agents/plan_agent.py) and [`backend/app/routers/pipeline.py`](backend/app/routers/pipeline.py), the Plan Generation endpoint extracts the complete upstream state (`papers`, `gaps`, `chosen_title`, `deepdive_papers`).
+   - The serialized state `context_str = json.dumps(project_state, indent=2, default=str)` is directly injected into the prompt template `{{PROJECT_CONTEXT_JSON}}` ([`prompts/plan_prompt.md`](prompts/plan_prompt.md)).
 2. **Strict Output Schema Adherence**:
-   - Every generated plan is validated against Pydantic schema [`StructuredPlan`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/schemas.py#L173-L184).
+   - Every generated plan is validated against Pydantic schema [`StructuredPlan`](backend/app/schemas.py#L173-L184).
    - Validates that `objectives` contains $\ge 2$ SMART items, `key_milestones` contains $\ge 3$ milestones with target months, `timeline` contains $\ge 2$ structured phases with task arrays, and `necessary_resources` categorizes requirements.
    - Retries once on malformed/invalid output through `execute_contract_with_retry()`.
 3. **Refinement Router**:
    - Accepts `{plan_id, user_prompt, [project_id]}`.
-   - Dispatches existing plan JSON and user prompt into [`prompts/refine_prompt.md`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/prompts/refine_prompt.md).
+   - Dispatches existing plan JSON and user prompt into [`prompts/refine_prompt.md`](prompts/refine_prompt.md).
    - Re-validates the refined plan, increments `plan_version`, sets `last_refined_at`, and commits to the database with `flag_modified` mutation tracking.
 
 ---

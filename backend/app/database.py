@@ -66,6 +66,15 @@ def init_db():
                     conn.execute(text("ALTER TABLE projects ADD COLUMN plan_version INTEGER DEFAULT 0"))
                 if "last_refined_at" not in cols:
                     conn.execute(text("ALTER TABLE projects ADD COLUMN last_refined_at TIMESTAMP"))
+        if insp.has_table("tenants"):
+            t_cols = [c["name"] for c in insp.get_columns("tenants")]
+            with engine.begin() as conn:
+                if "llm_provider" not in t_cols:
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN llm_provider VARCHAR(32) DEFAULT 'deepseek'"))
+                if "encrypted_api_key" not in t_cols:
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN encrypted_api_key TEXT"))
+                if "key_preview" not in t_cols:
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN key_preview VARCHAR(32)"))
     except Exception as exc:
         logger.warning("Column migration check notice: %s", exc)
 
@@ -117,14 +126,41 @@ def init_db():
             demo_student = User(
                 id="usr-demo-student",
                 tenant_id="tenant-demo-002",
-                name="Alex Demo Student",
-                email="alex@demouniv.edu.my",
+                name="Demo Student",
+                email="student@demo.test",
                 role="student",
                 plan="free",
                 quota_remaining=3,
             )
             demo_supervisor = User(
                 id="usr-demo-supervisor",
+                tenant_id="tenant-demo-002",
+                name="Demo Supervisor",
+                email="supervisor@demo.test",
+                role="supervisor",
+                plan="pro",
+                quota_remaining=99,
+            )
+            demo_admin = User(
+                id="usr-demo-admin",
+                tenant_id="tenant-demo-002",
+                name="Demo Admin",
+                email="admin@demo.test",
+                role="admin",
+                plan="enterprise",
+                quota_remaining=999,
+            )
+            demo_alex = User(
+                id="usr-demo-alex",
+                tenant_id="tenant-demo-002",
+                name="Alex Demo Student",
+                email="alex@demouniv.edu.my",
+                role="student",
+                plan="free",
+                quota_remaining=3,
+            )
+            demo_tan = User(
+                id="usr-demo-tan",
                 tenant_id="tenant-demo-002",
                 name="Prof. Tan Supervisor",
                 email="tan@demouniv.edu.my",
@@ -143,7 +179,7 @@ def init_db():
 
             db.add_all([
                 utm_student, utm_supervisor, utm_project1, utm_project2,
-                demo_student, demo_supervisor, demo_project
+                demo_student, demo_supervisor, demo_admin, demo_alex, demo_tan, demo_project
             ])
             db.commit()
 

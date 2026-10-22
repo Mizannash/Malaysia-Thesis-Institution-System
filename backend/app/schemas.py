@@ -143,7 +143,7 @@ class TitleSuggestionsRequest(BaseModel):
 class DeepDiveRequest(BaseModel):
     project_id: Optional[str] = None
     chosen_title: str
-    gap_id: str
+    gap_id: Optional[str] = "GAP-01"
 
 
 class ResearchObjective(BaseModel):

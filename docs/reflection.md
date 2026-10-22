@@ -39,7 +39,7 @@ During the architecture planning phase of Milestone 2 (Data Acquisition) and Mil
 ### The Superior Alternative Chosen:
 We rejected `pgvector` in favor of a hybrid metadata filtering and reasoning pipeline:
 - Direct, deterministic querying of OpenAlex and local repository scrapers with explicit Malaysian/International scope filtering (`scope: "MY" | "INT"`).
-- Contract-enforced reasoning agents ([`gap_agent.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/agents/gap_agent.py)) that require every candidate gap to explicitly cite $\ge 2$ structured paper IDs (`supporting_paper_ids`).
+- Contract-enforced reasoning agents ([`gap_agent.py`](backend/app/agents/gap_agent.py)) that require every candidate gap to explicitly cite $\ge 2$ structured paper IDs (`supporting_paper_ids`).
 - This guarantees 100% citation traceability, strict RLS compliance, and predictable RM0.20 unit economics.
 
 ---
@@ -65,4 +65,4 @@ We rejected `pgvector` in favor of a hybrid metadata filtering and reasoning pip
 
 - **Zero Unvalidated Output**: Every single AI stage (Gap Analysis, Title Suggestions, Deep-Dive Search, Plan Generation, Plan Refinement) is validated through strict Pydantic schemas before reaching the client or database.
 - **Immediate State Persistence (Rubric D3)**: Every stage completion writes to `projects.state_json` and updates `last_saved_stage` and `last_saved_at`. A browser refresh immediately restores full research context with zero loss.
-- **Full Disaster Recovery (Rubric D5)**: Reusable Python utilities ([`scripts/db_backup.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/scripts/db_backup.py) and [`scripts/db_restore.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/scripts/db_restore.py)) verified against PostgreSQL Docker containers, restoring full relational integrity with exit code 0.
+- **Full Disaster Recovery (Rubric D5)**: Reusable Python utilities ([`scripts/db_backup.py`](scripts/db_backup.py) and [`scripts/db_restore.py`](scripts/db_restore.py)) verified against PostgreSQL Docker containers, restoring full relational integrity with exit code 0.

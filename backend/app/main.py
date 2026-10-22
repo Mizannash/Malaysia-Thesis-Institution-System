@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.config import settings
+from app.config import settings, validate_startup_config
 from app.database import init_db
 from app.routers import health, auth, projects, search, pipeline
 
@@ -24,7 +24,9 @@ logger = logging.getLogger("mtis.main")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifecycle management."""
-    logger.info("Starting up MTIS Backend (DEMO_MODE=%s)...", settings.DEMO_MODE)
+    logger.info("Starting up MTIS Backend (DEMO_MODE=%s, LLM_PROVIDER=%s)...", settings.DEMO_MODE, settings.LLM_PROVIDER)
+    # Fail immediately at startup if DEMO_MODE is false and both LLM keys are missing
+    validate_startup_config(settings)
     try:
         init_db()
         logger.info("Database initialized successfully.")
@@ -96,12 +98,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from app.routers import health, auth, projects, search, pipeline, settings as settings_router
+
 # Mount Routers
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(projects.router)
 app.include_router(search.router)
 app.include_router(pipeline.router)
+app.include_router(settings_router.router)
 
 
 

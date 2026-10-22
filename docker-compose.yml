@@ -29,6 +29,12 @@ services:
     environment:
       - DATABASE_URL=postgresql://user:password@db:5432/malaysian_thesis_institution_system_mtis
       - DEMO_MODE=${DEMO_MODE:-true}
+      - LLM_PROVIDER=${LLM_PROVIDER:-deepseek}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - LLM_MODEL=${LLM_MODEL:-}
+      - OPENALEX_EMAIL=${OPENALEX_EMAIL:-}
+      - SERPAPI_KEY=${SERPAPI_KEY:-}
       - APP_SECRET=${APP_SECRET:-}
       - SUPABASE_URL=${SUPABASE_URL:-}
       - SUPABASE_KEY=${SUPABASE_KEY:-}
@@ -36,6 +42,10 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./tests/fixtures:/app/tests/fixtures:ro
+      - ./tests:/app/tests:ro
+      - ./scripts:/app/scripts:ro
+    entrypoint: ["sh", "/app/scripts/seed.sh"]
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
     depends_on:
       db:
         condition: service_healthy

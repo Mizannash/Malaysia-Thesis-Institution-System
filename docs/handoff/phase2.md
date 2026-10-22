@@ -46,7 +46,7 @@ This document summarizes all components created for Phase 2 of the Malaysian The
 
 ## 2. Core Modules Implemented
 
-### A. OpenAlex Client ([`backend/app/agents/openalex_client.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/agents/openalex_client.py))
+### A. OpenAlex Client ([`backend/app/agents/openalex_client.py`](backend/app/agents/openalex_client.py))
 - **`search(query: str, scope: "MY"|"INT") -> List[Paper]`**
 - **Scope Routing**:
   - `scope="MY"` filters to Malaysia-affiliated works (`filter=institutions.country_code:MY`).
@@ -59,22 +59,22 @@ This document summarizes all components created for Phase 2 of the Malaysian The
   - `OpenAlexEmptyResultError` (0 results)
 - **DEMO_MODE & Offline Resilience**: In `DEMO_MODE=true` (or when offline), instantly serves cached records from `tests/fixtures/search_fixture_my.json` / `search_fixture_int.json`.
 
-### B. UTM Institutional Repository Scraper ([`backend/app/agents/utm_scraper.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/agents/utm_scraper.py))
+### B. UTM Institutional Repository Scraper ([`backend/app/agents/utm_scraper.py`](backend/app/agents/utm_scraper.py))
 - **HTML Extraction**: Parses UTM ePrints search results into the unified `Paper` schema (`source="utm"`).
-- **Saved Fixture**: Extracts 6 papers with title, author, year, eprint URL, and DOI from [`tests/fixtures/utm_search_fixture.html`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/tests/fixtures/utm_search_fixture.html). Default test execution runs strictly against the fixture for 100% reproducible offline verification (Rubric D5).
+- **Saved Fixture**: Extracts 6 papers with title, author, year, eprint URL, and DOI from [`tests/fixtures/utm_search_fixture.html`](tests/fixtures/utm_search_fixture.html). Default test execution runs strictly against the fixture for 100% reproducible offline verification (Rubric D5).
 
-### C. Search Router & Gateway ([`backend/app/routers/search.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/backend/app/routers/search.py))
+### C. Search Router & Gateway ([`backend/app/routers/search.py`](backend/app/routers/search.py))
 - **Endpoint**: `POST /api/search` (and `POST /search`).
 - **Input Validation (Rubric D3)**:
   - Rejects empty strings, strings > 300 characters, and non-academic gibberish (keyboard home-row smash, vowel ratio < 12%, repeated characters) with **HTTP 422**.
   - **Zero Database Mutation**: Guarantees zero project rows or orphan records are written to the database on validation failure.
 - **Deduplication**: Normalizes DOIs (`https://doi.org/10.11113/...` → `10.11113/...`) and titles, guaranteeing that a paper indexed in both OpenAlex and UTM appears only once.
-- **Cost Honesty Logging (Rubric D5)**: Appends every search event to [`logs/search_log.jsonl`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/logs/search_log.jsonl) with `cost_myr: 0` (proving literature search is free to the user, while LLM inference in later phases incurs cost).
+- **Cost Honesty Logging (Rubric D5)**: Appends every search event to [`logs/search_log.jsonl`](logs/search_log.jsonl) with `cost_myr: 0` (proving literature search is free to the user, while LLM inference in later phases incurs cost).
 - **Standardized Error Contract**: All errors return `{"error": code, "message": message, "detail": ...}`.
 
 ---
 
-## 3. Acceptance Tests ([`tests/acceptance/test_uc2_search.py`](file:///c:/Users/user/Desktop/malaysian-thesis-institution-system-mtis-build-pack/tests/acceptance/test_uc2_search.py))
+## 3. Acceptance Tests ([`tests/acceptance/test_uc2_search.py`](tests/acceptance/test_uc2_search.py))
 
 ```bash
 pytest tests/acceptance/test_uc2_search.py -v

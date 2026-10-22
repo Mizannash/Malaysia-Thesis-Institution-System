@@ -82,14 +82,13 @@ def call_llm_provider(
         )
 
     # 2. Check for active API Keys
-    deepseek_key = os.getenv("DEEPSEEK_API_KEY")
-    openai_key = os.getenv("OPENAI_API_KEY")
-    gemini_key = os.getenv("GEMINI_API_KEY")
+    deepseek_key = getattr(settings, "DEEPSEEK_API_KEY", None) or os.getenv("DEEPSEEK_API_KEY")
+    openai_key = getattr(settings, "OPENAI_API_KEY", None) or os.getenv("OPENAI_API_KEY")
 
-    has_live_keys = bool(deepseek_key or openai_key or gemini_key)
+    has_live_keys = bool((deepseek_key and deepseek_key.strip()) or (openai_key and openai_key.strip()))
 
     # 3. DEMO_MODE or NO-KEY Mode Fallback (D4 requirement)
-    if settings.DEMO_MODE or not has_live_keys:
+    if getattr(settings, "DEMO_MODE", True) or not has_live_keys:
         logger.info(f"LLM Provider executing in NO-KEY / DEMO mode for stage '{stage}'")
         if stage == "gap":
             fixture_data = _load_fixture_data("gap_fixture.json")
@@ -176,10 +175,11 @@ def call_llm_provider(
         )
 
     # 4. Live Provider Call (DeepSeek / OpenAI)
-    # Defaulting to DeepSeek V3 / OpenAI compatible endpoint
-    target_model = model or "deepseek-chat"
-    api_key = deepseek_key or openai_key
-    base_url = "https://api.deepseek.com/v1" if deepseek_key else "https://api.openai.com/v1"
+    from app.ai.llm_adapter import resolve_provider_config
+    cfg = resolve_provider_config()
+    target_model = model or cfg.model
+    api_key = cfg.api_key
+    base_url = "https://api.deepseek.com/v1" if cfg.provider == "deepseek" else "https://api.openai.com/v1"
 
     try:
         import httpx

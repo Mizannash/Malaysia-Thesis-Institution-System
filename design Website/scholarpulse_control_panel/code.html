@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-low": "#eff4ff", "secondary": "#006c49", "on-tertiary": "#ffffff", "surface-container-lowest": "#ffffff", "on-error": "#ffffff", "on-primary": "#ffffff", "on-surface-variant": "#3f4850", "on-tertiary-fixed-variant": "#653e00", "secondary-fixed-dim": "#4edea3", "primary-container": "#007bb9", "tertiary-container": "#a36700", "tertiary-fixed-dim": "#ffb95f", "on-primary-fixed-variant": "#004b73", "inverse-on-surface": "#eaf1ff", "on-secondary": "#ffffff", "on-primary-container": "#fdfcff", "on-surface": "#0b1c30", "primary-fixed": "#cce5ff", "inverse-surface": "#213145", "surface-container": "#e5eeff", "error-container": "#ffdad6", "outline-variant": "#bfc7d2", "outline": "#707881", "surface-dim": "#cbdbf5", "on-background": "#0b1c30", "surface-container-high": "#dce9ff", "on-primary-fixed": "#001d31", "tertiary": "#825100", "on-secondary-fixed-variant": "#005236", "surface-container-highest": "#d3e4fe", "error": "#ba1a1a", "on-error-container": "#93000a", "surface-tint": "#006398", "secondary-fixed": "#6ffbbe", "background": "#f8f9ff", "inverse-primary": "#93ccff", "on-secondary-container": "#00714d", "on-tertiary-fixed": "#2a1700", "on-secondary-fixed": "#002113", "tertiary-fixed": "#ffddb8", "secondary-container": "#6cf8bb", "surface": "#f8f9ff", "primary-fixed-dim": "#93ccff", "on-tertiary-container": "#fffbff", "surface-bright": "#f8f9ff", "surface-variant": "#d3e4fe", "primary": "#006194" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin": "2rem", "space-md": "1rem", "margin-sm": "1rem", "space-xl": "2.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "gutter": "1.5rem", "space-lg": "1.5rem", "gutter-sm": "1rem" }, "fontFamily": { "body-lg": ["Plus Jakarta Sans"], "code-sm": ["JetBrains Mono"], "headline-xl": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "label-sm": ["Inter"], "headline-xl-mobile": ["Plus Jakarta Sans"], "display-lg-mobile": ["Plus Jakarta Sans"], "display-lg": ["Plus Jakarta Sans"], "label-md": ["Inter"] }, "fontSize": { "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }], "code-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-sm": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-xl-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "display-lg-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-margin flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg flex-shrink-0"><div class="flex items-center gap-space-sm"><img alt="ScholarPulse Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4PcSa-USNVo2BpPf7VunsFTJy3atak5-VTFAqam8JdMeN_zgAss2eVPdECkeyJABuU8DC4Mt3VTbXJ1GoL9nUK_ff9f5Vy6AggX1ZpyDqMXebgIpYG_ALhWMPYOjZoClwN4lbIYc6XKDxGikMzR_lB2eCItj3iJwDAF22IfTub9dlSs1cqImAcQEEVDaBG5NtDv7t2_OCSwyT5MLF7Ry1KuOtaMl0mhGOIu9vxJGpXccvmkOoMW4k"/><span class="font-headline-sm text-headline-sm text-on-surface">ScholarPulse</span><span class="font-label-sm text-label-sm px-space-sm py-0.5 rounded-full bg-surface-container-high text-primary font-semibold">Academic Coach v2.4</span></div><div class="hidden xl:flex items-center gap-space-xs px-space-sm py-1.5 rounded-lg bg-surface-container-low text-on-surface"><span class="material-symbols-outlined text-outline text-base">school</span><span class="font-body-sm text-body-sm max-w-[260px] truncate font-medium">PhD Thesis: Neural Attention in Protein Folding</span><span class="material-symbols-outlined text-outline text-sm">unfold_more</span></div></div><nav class="hidden lg:flex items-center gap-space-xs" data-active-classes="bg-surface-container-high text-primary font-semibold"><a aria-current="page" class="px-space-md py-space-sm rounded-lg transition-colors bg-surface-container-high text-primary font-semibold" data-path="control-panel" href="#">Control Panel</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-space-md py-space-sm rounded-lg transition-colors" data-path="research-plan" href="#">Research Plan</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-space-md py-space-sm rounded-lg transition-colors" data-path="literature-search" href="#">Literature Search</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low px-space-md py-space-sm rounded-lg transition-colors" data-path="timeline-and-milestones" href="#">Timeline &amp; Milestones</a></nav><div class="flex items-center gap-space-md flex-shrink-0"><div class="hidden sm:flex items-center gap-space-xs px-space-md py-1 rounded-full bg-secondary-container/30 text-on-secondary-container font-label-md text-label-md"><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span><span>Coach Ready • All citations synced</span></div><button aria-label="Help &amp; Guidance" class="p-space-xs rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors" type="button"><span class="material-symbols-outlined">help_outline</span></button><div class="flex items-center gap-space-sm pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwg47uGfyec8jWTwLNc_nDQgbF8OjWLhH8icF7iFQyC0Ng_p3Mu8lG3rUR5vl4nCuc1gL1XUBrut6aD4D-_YfE6T5bdeTgt1HTpuDV_HqQhyYZzYas-lzOcxdQPO8l7LQ4qIeYF9VJvy0GZEIBJJMNynHe6xuIXSaw_NxQ0om0shNtB-UAZ3XleRTmWq7t4ZCjqahlXZa4Nb1XoA0kp38dW9K76bSX5T3WdOVlZg0BqNC8mirgqHX6"/><div class="hidden md:flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface">Elena Vance</span><span class="font-label-sm text-label-sm text-on-surface-variant">Doctoral Fellow</span></div></div></div></div></header><main class="w-full pt-16 bg-surface flex-1"><div class="flex flex-col w-full">
+<div class="w-full px-margin py-space-lg flex flex-col gap-space-lg max-w-[1480px] mx-auto">
+<!-- Top Workflow Tracker: 5-Step Academic Pipeline -->
+<section class="w-full bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<div class="flex flex-col gap-space-sm">
+<div class="flex flex-wrap items-center justify-between gap-space-xs px-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-md text-label-md text-outline uppercase tracking-wider">Doctoral Roadmap</span>
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Stage 2 of 5 Active</span>
+</div>
+<span class="font-label-sm text-label-sm px-space-sm py-0.5 rounded-full bg-surface-container text-on-surface-variant">Estimated completion: 3 weeks ahead of committee review</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-5 gap-space-xs">
+<!-- Step 1: Completed -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-low transition-all">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-semibold text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm font-bold">check_circle</span> 1. Topic Definition
+              </span>
+<span class="font-code-sm text-code-sm text-secondary font-medium">Done</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Neural Attention in Cryo-EM</p>
+<div class="w-full h-1.5 bg-secondary-container rounded-full overflow-hidden mt-1">
+<div class="h-full bg-secondary w-full"></div>
+</div>
+</div>
+<!-- Step 2: In Progress -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-high transition-all shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-semibold text-primary flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span> 2. Gap Analysis
+              </span>
+<span class="font-label-sm text-label-sm text-on-primary-fixed-variant bg-primary-fixed px-1.5 py-0.2 rounded font-medium">Active</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium truncate">What now? Review candidate gaps</p>
+<div class="w-full h-1.5 bg-surface-container-lowest rounded-full overflow-hidden mt-1">
+<div class="h-full bg-primary w-3/5 rounded-full"></div>
+</div>
+</div>
+<!-- Step 3: Upcoming -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-lowest opacity-75 hover:opacity-100 transition-opacity">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-medium text-outline">3. Methodology Design</span>
+<span class="material-symbols-outlined text-sm text-outline-variant">schedule</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline truncate">Empirical protocol framing</p>
+<div class="w-full h-1.5 bg-surface-container rounded-full mt-1"></div>
+</div>
+<!-- Step 4: Upcoming -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-lowest opacity-75 hover:opacity-100 transition-opacity">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-medium text-outline">4. Experiment Draft</span>
+<span class="material-symbols-outlined text-sm text-outline-variant">schedule</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline truncate">Benchmark synthesis runs</p>
+<div class="w-full h-1.5 bg-surface-container rounded-full mt-1"></div>
+</div>
+<!-- Step 5: Upcoming -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-lowest opacity-75 hover:opacity-100 transition-opacity">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-medium text-outline">5. Defense Readiness</span>
+<span class="material-symbols-outlined text-sm text-outline-variant">lock</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline truncate">Viva simulated queries</p>
+<div class="w-full h-1.5 bg-surface-container rounded-full mt-1"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Grid: Primary Action Canvas + Coach Companion -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Primary Left Column: Hero Mission Card & Gaps Breakdown (8 cols) -->
+<div class="lg:col-span-8 flex flex-col gap-space-lg">
+<!-- Large Calm Hero Action Card -->
+<article class="bg-surface-container-lowest rounded-xl p-space-xl shadow-md flex flex-col gap-space-lg relative overflow-hidden">
+<div class="absolute -right-16 -top-16 w-64 h-64 bg-primary-fixed/30 rounded-full blur-3xl pointer-events-none"></div>
+<div class="flex flex-col gap-space-xs relative z-10">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm px-space-sm py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-semibold uppercase tracking-wider">
+                Step 2 of 5: Literature Gap Analysis
+              </span>
+<span class="font-label-sm text-label-sm px-space-sm py-1 rounded-full bg-secondary-container/40 text-on-secondary-container font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">verified</span> Ready for your feedback
+              </span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface mt-space-xs leading-tight">
+              Review and confirm identified gaps in recent Cryo-EM Transformer literature
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-1">
+              ScholarPulse reviewed <strong class="text-on-surface font-semibold">48 papers</strong> published between 2022–2024. <span class="text-primary font-semibold">3 primary methodology gaps</span> were identified for your dissertation focus.
+            </p>
+</div>
+<!-- Identified Gaps Highlight Strip -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm relative z-10">
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col justify-between hover:bg-surface-container-high transition-colors">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-label-sm text-label-sm font-semibold text-primary">Gap 01</span>
+<span class="material-symbols-outlined text-primary text-base">bubble_chart</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface text-sm font-semibold mb-1">Rotational Invariance</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Lack of SO(3) gauge equivariant attention layers in deep noisy reconstructions.</p>
+<div class="mt-space-sm flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm">
+<span>19 citations</span>
+<span class="text-secondary font-medium">High Impact</span>
+</div>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col justify-between hover:bg-surface-container-high transition-colors">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-label-sm text-label-sm font-semibold text-primary">Gap 02</span>
+<span class="material-symbols-outlined text-primary text-base">insights</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface text-sm font-semibold mb-1">Non-Rigid Heterogeneity</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Under-sampling in continuous conformational landscapes beyond AlphaFold manifolds.</p>
+<div class="mt-space-sm flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm">
+<span>14 citations</span>
+<span class="text-primary font-medium">Direct Fit</span>
+</div>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col justify-between hover:bg-surface-container-high transition-colors">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-label-sm text-label-sm font-semibold text-primary">Gap 03</span>
+<span class="material-symbols-outlined text-primary text-base">speed</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface text-sm font-semibold mb-1">Inference Latency</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Quadratic memory scaling limits batch sizes for high-throughput single-particle sorting.</p>
+<div class="mt-space-sm flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm">
+<span>15 citations</span>
+<span class="text-outline font-medium">Exploratory</span>
+</div>
+</div>
+</div>
+<!-- CTAs -->
+<div class="flex flex-wrap items-center gap-space-md pt-space-xs relative z-10">
+<button class="px-space-lg py-2.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-sm font-medium flex items-center gap-space-xs shadow-sm transition-all group" type="button">
+<span>Review &amp; Confirm Gaps</span>
+<span class="material-symbols-outlined text-base transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+<button class="px-space-md py-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-headline-sm text-sm font-medium flex items-center gap-space-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-base text-primary">manage_search</span>
+<span>Ask Coach to Expand Search</span>
+</button>
+<span class="font-label-sm text-label-sm text-outline ml-auto">Last synthesized 42 minutes ago</span>
+</div>
+</article>
+<!-- Literature Progress Data Module -->
+<section class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-base">auto_stories</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface text-base font-semibold">Active Systematic Review Corpus</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">48 synthesis records cross-referenced against your Chapter 2 Outline</p>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-space-sm py-1 rounded-md">Searching 12 repositories...</span>
+<button class="p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" title="Filter literature" type="button">
+<span class="material-symbols-outlined text-base">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Condensed Research Paper Table -->
+<div class="overflow-x-auto">
+<div class="w-full flex flex-col gap-space-xs min-w-[620px]">
+<!-- Row 1 -->
+<div class="p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container flex items-center justify-between gap-space-md transition-all">
+<div class="flex items-center gap-space-sm flex-1 min-w-0">
+<span class="material-symbols-outlined text-secondary text-base flex-shrink-0">task_alt</span>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-sm font-semibold text-on-surface truncate">Multi-Scale Harmonic Networks for Protein Cryo-Electron Microscopy</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">J. Zhang, A. Vaswani, et al. • J. Mol. Biol (2024)</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md flex-shrink-0">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-highest text-on-surface">Ch. 2.3</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded-full bg-secondary-container/40 text-on-secondary-container font-medium">Gap 01 Linked</span>
+<span class="material-symbols-outlined text-outline text-sm">open_in_new</span>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container flex items-center justify-between gap-space-md transition-all">
+<div class="flex items-center gap-space-sm flex-1 min-w-0">
+<span class="material-symbols-outlined text-secondary text-base flex-shrink-0">task_alt</span>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-sm font-semibold text-on-surface truncate">Unsupervised Continuous Heterogeneity via Spherical Latent Disentanglement</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">M. Chen &amp; R. Hegde • Nat Methods (2023)</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md flex-shrink-0">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-highest text-on-surface">Ch. 2.4</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded-full bg-secondary-container/40 text-on-secondary-container font-medium">Gap 02 Linked</span>
+<span class="material-symbols-outlined text-outline text-sm">open_in_new</span>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container flex items-center justify-between gap-space-md transition-all">
+<div class="flex items-center gap-space-sm flex-1 min-w-0">
+<span class="material-symbols-outlined text-tertiary text-base flex-shrink-0">hourglass_top</span>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-sm font-semibold text-on-surface truncate">Diffusion Probabilistic Models for Direct Density Refinement</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">S. K. Rallapalli • BioRxiv Preprint (March 2024)</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md flex-shrink-0">
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-highest text-on-surface">Unassigned</span>
+<span class="font-label-sm text-label-sm px-2 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-medium">Evaluating</span>
+<span class="material-symbols-outlined text-outline text-sm">open_in_new</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs font-body-sm text-body-sm text-outline">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-secondary">check</span> Citations verified with CrossRef API
+            </span>
+<a class="text-primary hover:underline font-medium flex items-center gap-1" href="#">
+              View all 48 papers <span class="material-symbols-outlined text-sm">chevron_right</span>
+</a>
+</div>
+</section>
+</div>
+<!-- Secondary Right Column: Coach & Context Drawer (4 cols) -->
+<div class="lg:col-span-4 flex flex-col gap-space-lg">
+<!-- "What Happened? What Happens Next?" Collaborative Coach Card -->
+<article class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="relative">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Warm modern portrait avatar of an empathetic AI academic thesis mentor smiling softly, stylized natural lighting, clean slate background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmzhl8qW35BkakpgthA8tfYnqqbSGAT2HDIA9O9D1sJ1jEr2U6CF7l7q6kAzeZP44cEZImqXU6q08pRrlERhm_HbmgmkFsGF-MCYNDn-g-QDpIlRRRopNGBab_WfF4k7xXX29xcFkU6GSRdv04Xxu0Hzb5I0B0RWwV8W2onISX_pI_HtOMqt-lqQ_4b0l1gWpYlOGQuAkRZU2Cjmh_uce-b8_4-3g5rktImMbHzdpirsLhVpehF15g"/>
+<span class="w-2.5 h-2.5 rounded-full bg-secondary absolute bottom-0 right-0 border-2 border-surface-container-lowest"></span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface text-sm font-semibold">ScholarPulse Coach</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">Analyzing your research vector</span>
+</div>
+</div>
+<span class="font-code-sm text-code-sm text-outline">08:15 AM</span>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-space-sm">
+<span class="font-label-sm text-label-sm text-primary font-semibold uppercase tracking-wider">Coach Summary</span>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+              “Good morning Elena! Yesterday I scanned <strong class="font-semibold text-on-surface">14 newly indexed BioRxiv preprints</strong> matching your target sequence. The most promising finding is a new benchmark on multi-scale conformers.”
+            </p>
+</div>
+<!-- Coach Guidance Callout Module -->
+<div class="p-space-md rounded-lg bg-amber-50/70 text-on-surface flex flex-col gap-space-xs relative">
+<div class="flex items-center gap-space-xs text-amber-900 font-headline-sm text-sm font-semibold">
+<span class="material-symbols-outlined text-amber-700 text-base">lightbulb</span>
+<span>Next Strategic Recommendation</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-normal">
+              Confirming <strong class="font-medium text-on-surface">Gap 02 (Non-Rigid Heterogeneity)</strong> directly answers Dr. Henderson’s critique from your last thesis committee session.
+            </p>
+<div class="mt-space-xs pt-space-xs flex items-center justify-between">
+<button class="font-label-md text-label-md text-amber-900 font-semibold hover:underline flex items-center gap-1" type="button">
+                Pin to Methodology <span class="material-symbols-outlined text-xs">north_east</span>
+</button>
+<button class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface" type="button">Dismiss</button>
+</div>
+</div>
+<!-- Coach Notes list with instant chips -->
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Recent Coach Notes</span>
+<div class="flex flex-col gap-space-sm">
+<!-- Note 1 -->
+<div class="p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors flex flex-col gap-space-xs">
+<div class="flex items-start justify-between gap-space-xs">
+<p class="font-body-sm text-body-sm text-on-surface flex-1">
+                    BibTeX entry for <code class="font-code-sm text-code-sm px-1 rounded bg-surface-container-highest">Vaswani2024</code> lacks peer-reviewed volume metadata.
+                  </p>
+</div>
+<div class="flex items-center justify-between mt-1">
+<span class="font-label-sm text-label-sm text-outline">Metadata sync</span>
+<div class="flex items-center gap-space-xs">
+<button class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-lowest text-primary hover:bg-primary hover:text-on-primary transition-all font-medium" type="button">Resolve</button>
+<button class="font-label-sm text-label-sm px-2 py-0.5 rounded text-outline hover:text-on-surface transition-colors" type="button">Discuss</button>
+</div>
+</div>
+</div>
+<!-- Note 2 -->
+<div class="p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors flex flex-col gap-space-xs">
+<div class="flex items-start justify-between gap-space-xs">
+<p class="font-body-sm text-body-sm text-on-surface flex-1">
+                    3 potential duplicate claims identified between Section 1.2 and Chapter 2 Draft.
+                  </p>
+</div>
+<div class="flex items-center justify-between mt-1">
+<span class="font-label-sm text-label-sm text-outline">Content overlap</span>
+<div class="flex items-center gap-space-xs">
+<button class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-lowest text-primary hover:bg-primary hover:text-on-primary transition-all font-medium" type="button">Resolve</button>
+<button class="font-label-sm text-label-sm px-2 py-0.5 rounded text-outline hover:text-on-surface transition-colors" type="button">Discuss</button>
+</div>
+</div>
+</div>
+<!-- Note 3 -->
+<div class="p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors flex flex-col gap-space-xs">
+<div class="flex items-start justify-between gap-space-xs">
+<p class="font-body-sm text-body-sm text-on-surface flex-1">
+                    Committee guideline update: Harvard citation format revised to 12th Edition.
+                  </p>
+</div>
+<div class="flex items-center justify-between mt-1">
+<span class="font-label-sm text-label-sm text-outline">Style guide</span>
+<div class="flex items-center gap-space-xs">
+<button class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-lowest text-secondary hover:bg-secondary hover:text-on-secondary transition-all font-medium" type="button">Auto-apply</button>
+<button class="font-label-sm text-label-sm px-2 py-0.5 rounded text-outline hover:text-on-surface transition-colors" type="button">Review</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- Key Milestones Countdown Card -->
+<article class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-sm text-headline-sm text-on-surface text-base font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base">event_upcoming</span> Key Milestones Due
+            </h2>
+<a class="font-label-sm text-label-sm text-primary hover:underline" href="#">Full Timeline</a>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- Milestone 1 -->
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-sm font-semibold text-on-surface">Chapter 2 Literature Draft</span>
+<span class="font-label-sm text-label-sm px-space-sm py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-semibold">12 days left</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Due to Advisor Prof. M. Sterling • 8,500 target words</p>
+<div class="flex items-center gap-space-sm mt-space-xs">
+<div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 68%;"></div>
+</div>
+<span class="font-code-sm text-code-sm text-outline">5,800/8,500</span>
+</div>
+</div>
+<!-- Milestone 2 -->
+<div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-sm font-semibold text-on-surface">Doctoral Colloquium Abstract</span>
+<span class="font-label-sm text-label-sm px-space-sm py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-semibold">26 days left</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">EMBL Computational Biology Symposium 2024</p>
+<div class="flex items-center gap-space-sm mt-space-xs">
+<div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full" style="width: 30%;"></div>
+</div>
+<span class="font-code-sm text-code-sm text-outline">Outline Ready</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Visual Context Miniature: Focus Ratio & Writing Stamina -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-secondary-container/50 text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">spa</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Cognitive Flow Score</span>
+<span class="font-body-sm text-body-sm text-outline">High focus • Low burnout risk</span>
+</div>
+</div>
+<!-- Inline Sparkline SVG Chart -->
+<div class="flex flex-col items-end">
+<svg class="w-24 h-8 text-secondary" fill="none" stroke="currentColor" viewbox="0 0 100 32">
+<path d="M0 24 L20 18 L38 22 L55 10 L75 14 L100 4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+<span class="font-code-sm text-code-sm text-secondary font-semibold">+18% this week</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Active Research Visual Evidence Gallery -->
+<section class="w-full bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md mt-space-xs">
+<div class="flex flex-wrap items-center justify-between gap-space-sm">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface text-base font-semibold">Underlying Data Signals &amp; Cryo-EM Benchmarks</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Visual evidence matched across recent target preprints</p>
+</div>
+<span class="font-label-sm text-label-sm px-space-sm py-1 rounded-full bg-surface-container text-on-surface-variant">Synced with EMDataBank</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Visual Item 1 -->
+<div class="flex flex-col rounded-lg overflow-hidden bg-surface-container-low group">
+<div class="h-40 w-full overflow-hidden relative">
+<img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-alt="High resolution scientific 3D molecular protein reconstruction density map with glowing cyan and soft blue electron microscopy particles, scientific laboratory aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAG2JEHKt5aY5qNT8SRG3gxEdR_4dn4Cvbi9lAkmeUE_B7FhuF14ctMS0EuAIKUh4-qlYb3rIuc5529_GyR2YH6LH2iXB5DY8cDIxl_UmRCttX6aLoy5GoD3oVFmSRM5_kJH44m_UHyzh_90IdqPZ51ROjBUZWLxKpJyjZS_k0vOfgxDk-P-9Syx4hfIHES_8TG_AE8RodarBTHKUK5z8Ld453kM-w4Ax7aE0-dpfX-fT5NyaSDmW5T"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-surface-container-lowest/90 backdrop-blur-sm font-label-sm text-label-sm font-medium text-on-surface">Density Map #EMD-2938</span>
+</div>
+<div class="p-space-sm flex flex-col gap-1">
+<span class="font-headline-sm text-sm font-semibold text-on-surface">Ribosome 70S Conformational Range</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Confirmed 2.1Å spatial variance across modern attention-refined frames.</p>
+</div>
+</div>
+<!-- Visual Item 2 -->
+<div class="flex flex-col rounded-lg overflow-hidden bg-surface-container-low group">
+<div class="h-40 w-full overflow-hidden relative">
+<img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-alt="Bioinformatics 3D ribbon diagram model of a viral spike glycoprotein with harmonic attention vector overlays in clean sky blue and amber tints." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-ehrNF5IJ51heYnsJuk_oRll92vBFjIkIUCO85QpsU-CH3OhKGBjBNLJDBI1jtcXBNBcjQZYXzl0hr5Ph2nEkyPsg8IsvbyO-84kHE8kMf-ZEKRJ8UNAVs64LrRTeb_fP4sOUipyNLkPIQMxodrOU5eurEEdu4EAfVK5u451yWTkmjBrftQN8iZ2n7Solz0E0lXu1_8yEu6Qb8gmFV93S0BXkdQOOeH7ge1I3q0uCrBNf_NTKcl6t"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-surface-container-lowest/90 backdrop-blur-sm font-label-sm text-label-sm font-medium text-on-surface">PDB Refinement #7K8Z</span>
+</div>
+<div class="p-space-sm flex flex-col gap-1">
+<span class="font-headline-sm text-sm font-semibold text-on-surface">Equivariant Gauge Attention</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Demonstrated 4.2x reduction in angle ambiguity artifacts.</p>
+</div>
+</div>
+<!-- Visual Item 3 -->
+<div class="flex flex-col rounded-lg overflow-hidden bg-surface-container-low group">
+<div class="h-40 w-full overflow-hidden relative">
+<img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" data-alt="Scientific computational cluster dashboard visualizing transformer latent space clusters, PCA projections in crisp calm blue and slate tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKlGNl82iYhWK5OQVg5IAdmdZfEf6KStRqAEviqb7J-JadrnlQ6R3hGTQyRh3xevmJLQ7G9I7-oO9G5Cv3OS7fy0Rodtf7u8vBUh-28NffQip3yg9B9hzmx8mlaMFev2eUpKpytY4z_9bM1kKelWNXezG59k2Bk3rq0ACGe4n-9p1EF7gr3QeeVDQ7ReaFmQT6SM91gQ1t0IGVjKY-0f9nyuma-JCp57mHJk7U474P2T5pZDrjDGCD"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-surface-container-lowest/90 backdrop-blur-sm font-label-sm text-label-sm font-medium text-on-surface">Latent Distribution</span>
+</div>
+<div class="p-space-sm flex flex-col gap-1">
+<span class="font-headline-sm text-sm font-semibold text-on-surface">Continuous Energy Landscapes</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Disentangled latent state transitions verified in benchmark synthesis.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<script>
+  // Simple micro-interaction for gap selection and coach dismissals
+  document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const text = btn.innerText.trim();
+      if (text.includes('Resolve') || text.includes('Auto-apply')) {
+        const parentCard = btn.closest('.p-space-sm');
+        if (parentCard) {
+          parentCard.style.transition = 'opacity 0.25s ease';
+          parentCard.style.opacity = '0.35';
+          btn.textContent = 'Resolved ✓';
+          btn.disabled = true;
+        }
+      }
+    });
+  });
+</script></main><footer class="w-full bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] py-space-lg"><div class="w-full px-margin flex flex-col sm:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-on-surface-variant"><div class="flex items-center gap-space-sm"><span class="font-headline-sm text-headline-sm text-on-surface">ScholarPulse</span><span class="text-outline-variant">•</span><span>Mindful academic drafting &amp; empirical rigor</span></div><div class="flex items-center gap-space-lg"><span>Auto-saved locally</span><span class="font-code-sm text-code-sm text-outline">Zotero &amp; BibTeX Sync Active</span></div></div></footer></body></html>

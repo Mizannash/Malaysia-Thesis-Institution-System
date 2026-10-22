@@ -1,10 +1,37 @@
+# Environment & Secrets (Never commit secrets)
 .env
 .env.*
 !.env.example
-data/
-*.db
-.claude/settings.local.json
-.venv/
+
+# Node / Frontend
+node_modules/
+.next/
+out/
+build/
+dist/
+.npm/
+
+# Python / Backend
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
 .pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+*.db
+*.sqlite3
+data/
+
+# Logs (Empty directory tracked via .gitkeep; marker generates fresh logs on run)
+logs/*.jsonl
+backend/logs/*.jsonl
+!logs/.gitkeep
+!backend/logs/.gitkeep
+
+# Local tooling & Backups
+.claude/settings.local.json
 database/backups/*.sql
