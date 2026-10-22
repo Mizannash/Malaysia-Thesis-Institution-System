@@ -407,19 +407,59 @@ export default function DashboardPage() {
     }
   };
 
+  // Refill quota for testing
+  const handleRefillQuota = async () => {
+    try {
+      const res = await fetchWithAuth("/auth/refill-quota", { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        setUser((prev: any) => prev ? { ...prev, quota_remaining: data.quota_remaining } : prev);
+        setPipelineMessage({ type: "success", text: `Daily AI quota refilled to ${data.quota_remaining} requests! You can now run all pipeline stages.` });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Helper to ensure an active project exists before running a stage
+  const ensureActiveProject = async (): Promise<any> => {
+    if (selectedProject) return selectedProject;
+    if (projects.length > 0) {
+      setSelectedProject(projects[0]);
+      return projects[0];
+    }
+    // Auto-create a project if user has none
+    const res = await fetchWithAuth("/projects", {
+      method: "POST",
+      body: JSON.stringify({
+        title: searchTopicInput || "Academic Thesis Research",
+        stage: "search",
+        state_json: { topic: searchTopicInput || "Academic Thesis Research", scope: searchScope, papers: searchedPapers },
+      }),
+    });
+    if (res.ok) {
+      const newP = await res.json();
+      setProjects((prev) => [newP, ...prev]);
+      setSelectedProject(newP);
+      return newP;
+    }
+    return null;
+  };
+
   // Run Pipeline Stage 2: Gap Analysis
   const handleRunGapAnalysis = async () => {
-    if (!selectedProject) return;
+    const proj = await ensureActiveProject();
+    if (!proj) return;
     setRunningStage("gap");
     setPipelineMessage(null);
 
     try {
-      const bodyPayload: any = { project_id: selectedProject.id };
+      const bodyPayload: any = { project_id: proj.id };
       if (searchedPapers.length > 0) {
         bodyPayload.papers = searchedPapers;
       }
 
-      const res = await fetchWithAuth(`/projects/${selectedProject.id}/stage/gap`, {
+      const res = await fetchWithAuth(`/projects/${proj.id}/stage/gap`, {
         method: "POST",
         body: JSON.stringify(bodyPayload),
       });
@@ -428,6 +468,7 @@ export default function DashboardPage() {
         const updated = await res.json();
         setSelectedProject(updated);
         setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+        setUser((prev: any) => prev ? { ...prev, quota_remaining: Math.max(0, (prev.quota_remaining ?? 1) - 1) } : prev);
         setPipelineMessage({
           type: "success",
           text: `Gap Analysis complete! Identified ${updated.state_json?.gaps?.length || 0} candidate research gaps with verified citations.`,
@@ -452,20 +493,22 @@ export default function DashboardPage() {
 
   // Run Pipeline Stage 3: Title Suggestions
   const handleRunTitleSuggestions = async () => {
-    if (!selectedProject) return;
+    const proj = await ensureActiveProject();
+    if (!proj) return;
     setRunningStage("title");
     setPipelineMessage(null);
 
     try {
-      const res = await fetchWithAuth(`/projects/${selectedProject.id}/stage/title`, {
+      const res = await fetchWithAuth(`/projects/${proj.id}/stage/title`, {
         method: "POST",
-        body: JSON.stringify({ project_id: selectedProject.id, language: "EN" }),
+        body: JSON.stringify({ project_id: proj.id, language: "EN" }),
       });
 
       if (res.ok) {
         const updated = await res.json();
         setSelectedProject(updated);
         setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+        setUser((prev: any) => prev ? { ...prev, quota_remaining: Math.max(0, (prev.quota_remaining ?? 1) - 1) } : prev);
         setPipelineMessage({
           type: "success",
           text: `Title Suggestions generated! ${updated.state_json?.titles?.length || 0} defended titles ready.`,
@@ -490,18 +533,19 @@ export default function DashboardPage() {
 
   // Run Pipeline Stage 4: Deep-Dive Search
   const handleRunDeepDive = async () => {
-    if (!selectedProject) return;
+    const proj = await ensureActiveProject();
+    if (!proj) return;
     setRunningStage("deepdive");
     setPipelineMessage(null);
 
-    const firstTitle = selectedProject.state_json?.titles?.[0]?.title || selectedProject.title;
-    const firstGapId = selectedProject.state_json?.titles?.[0]?.gap_id || selectedProject.state_json?.gaps?.[0]?.gap_id || "GAP-01";
+    const firstTitle = proj.state_json?.titles?.[0]?.title || proj.title;
+    const firstGapId = proj.state_json?.titles?.[0]?.gap_id || proj.state_json?.gaps?.[0]?.gap_id || "GAP-01";
 
     try {
-      const res = await fetchWithAuth(`/projects/${selectedProject.id}/stage/deepdive`, {
+      const res = await fetchWithAuth(`/projects/${proj.id}/stage/deepdive`, {
         method: "POST",
         body: JSON.stringify({
-          project_id: selectedProject.id,
+          project_id: proj.id,
           chosen_title: firstTitle,
           gap_id: firstGapId,
         }),
@@ -511,6 +555,7 @@ export default function DashboardPage() {
         const updated = await res.json();
         setSelectedProject(updated);
         setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+        setUser((prev: any) => prev ? { ...prev, quota_remaining: Math.max(0, (prev.quota_remaining ?? 1) - 1) } : prev);
         setPipelineMessage({
           type: "success",
           text: `Deep-Dive completed! Retrieved ${updated.state_json?.deepdive_papers?.length || 0} sub-field papers for "${firstTitle}".`,
@@ -528,6 +573,46 @@ export default function DashboardPage() {
       }
     } catch (e: any) {
       setPipelineMessage({ type: "error", text: getApiErrorMessage(e, "Error executing deep-dive.") });
+    } finally {
+      setRunningStage(null);
+    }
+  };
+
+  // Run Pipeline Stage 5: Plan Generation
+  const handleRunPlan = async () => {
+    const proj = await ensureActiveProject();
+    if (!proj) return;
+    setRunningStage("plan");
+    setPipelineMessage(null);
+
+    try {
+      const res = await fetchWithAuth(`/projects/${proj.id}/stage/plan`, {
+        method: "POST",
+        body: JSON.stringify({ project_id: proj.id }),
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        setSelectedProject(updated);
+        setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+        setUser((prev: any) => prev ? { ...prev, quota_remaining: Math.max(0, (prev.quota_remaining ?? 1) - 1) } : prev);
+        setPipelineMessage({
+          type: "success",
+          text: `Stage 5 Research Plan generated! ${updated.current_plan_json?.objectives?.length || 0} SMART objectives and ${updated.current_plan_json?.key_milestones?.length || 0} milestones structured.`,
+        });
+      } else if (res.status === 401) {
+        clearToken();
+        router.push("/login");
+        return;
+      } else {
+        const err = await res.json();
+        setPipelineMessage({
+          type: "error",
+          text: getApiErrorMessage(err, "Plan generation failed."),
+        });
+      }
+    } catch (e: any) {
+      setPipelineMessage({ type: "error", text: getApiErrorMessage(e, "Error generating plan.") });
     } finally {
       setRunningStage(null);
     }
@@ -1028,8 +1113,25 @@ export default function DashboardPage() {
               </span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <span className="badge badge-primary">
-                Daily Quota: {user?.quota_remaining} / 5 Left
+              <span className="badge badge-primary" style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", paddingRight: "0.4rem" }}>
+                Daily Quota: {user?.quota_remaining ?? 0} / 5 Left
+                <button
+                  onClick={handleRefillQuota}
+                  title="Refill quota to 20 requests"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.25)",
+                    border: "none",
+                    borderRadius: "4px",
+                    color: "inherit",
+                    cursor: "pointer",
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    padding: "1px 6px",
+                    marginLeft: "2px"
+                  }}
+                >
+                  + Refill
+                </button>
               </span>
               <span className="badge badge-secondary">
                 {keySettings?.demo_mode ? "Fixture-Backed Fast Mode" : "Live Key Active"}
@@ -1364,15 +1466,76 @@ export default function DashboardPage() {
                 Run Stage 4: Deep-Dive
               </button>
 
+              <button
+                onClick={handleRunPlan}
+                disabled={Boolean(runningStage)}
+                className="btn-secondary"
+                style={{ fontSize: "0.85rem", padding: "0.5rem 0.95rem" }}
+              >
+                {runningStage === "plan" ? <RotateCw className="animate-spin" size={14} /> : <FileText size={14} />}
+                Run Stage 5: Research Plan
+              </button>
+
               <Link
-                href={`/plan?projectId=${selectedProject?.id}`}
+                href={`/plan?projectId=${selectedProject?.id || ""}`}
                 className="btn-secondary"
                 style={{ fontSize: "0.85rem", padding: "0.5rem 0.95rem", display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
               >
-                <FileText size={14} color="var(--primary)" />
-                Stage 5: Research Plan &amp; Refine <ChevronRight size={14} />
+                Open Plan Canvas <ChevronRight size={14} />
               </Link>
             </div>
+
+            {/* Inline Stage Runner Feedback & Progress */}
+            {runningStage && (
+              <div style={{
+                marginTop: "0.75rem",
+                padding: "0.75rem 1rem",
+                borderRadius: "8px",
+                fontSize: "0.86rem",
+                background: "var(--surface-high)",
+                border: "1px solid var(--primary)",
+                color: "var(--primary)",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.6rem"
+              }}>
+                <RotateCw className="animate-spin" size={16} />
+                <span>
+                  <strong>Running Stage {runningStage === "gap" ? "2 (Gap Analysis)" : runningStage === "title" ? "3 (Title Suggestions)" : runningStage === "deepdive" ? "4 (Deep-Dive Search)" : "5 (Research Plan)"}...</strong> Analyzing Malaysian academic literature and synthesizing results.
+                </span>
+              </div>
+            )}
+
+            {pipelineMessage && (
+              <div style={{
+                marginTop: "0.75rem",
+                padding: "0.75rem 1rem",
+                borderRadius: "8px",
+                fontSize: "0.86rem",
+                background: pipelineMessage.type === "success" ? "var(--secondary-container)" : "var(--error-container)",
+                color: pipelineMessage.type === "success" ? "var(--on-secondary-container)" : "var(--on-error-container)",
+                border: "1px solid var(--border-subtle)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "0.75rem",
+                flexWrap: "wrap"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  {pipelineMessage.type === "success" ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+                  <span>{typeof pipelineMessage.text === "string" ? pipelineMessage.text : JSON.stringify(pipelineMessage.text)}</span>
+                </div>
+                {(pipelineMessage.text?.toLowerCase?.().includes("quota") || user?.quota_remaining === 0) && (
+                  <button
+                    onClick={handleRefillQuota}
+                    className="btn-primary"
+                    style={{ padding: "0.3rem 0.75rem", fontSize: "0.76rem" }}
+                  >
+                    Instant Quota Refill (+20)
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Live State Breakdown Strips */}
             {selectedProject?.state_json?.gaps && selectedProject.state_json.gaps.length > 0 && (

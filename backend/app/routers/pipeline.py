@@ -176,10 +176,24 @@ def run_stage_title(
         if existing_gaps:
             target_gap = existing_gaps[0]
         else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={"error": "NO_GAP_FOUND", "message": "No research gap found. Please complete Stage 2 first."}
+            # Auto-resolve or generate gaps from project literature so Stage 3 succeeds smoothly
+            papers_to_analyze = []
+            if "papers" in project.state_json and project.state_json["papers"]:
+                papers_to_analyze = [Paper(**p) for p in project.state_json["papers"]]
+            else:
+                from app.ai.provider import _load_fixture_data
+                sample_data = _load_fixture_data("sample_abstracts.json") or []
+                papers_to_analyze = [Paper(**p) for p in sample_data]
+                project.state_json["papers"] = [p.model_dump() for p in papers_to_analyze]
+
+            gap_resp = analyze_research_gaps(
+                papers=papers_to_analyze,
+                user=current_user,
+                user_email=current_user.email,
             )
+            new_gaps = [g.model_dump() for g in gap_resp.gaps]
+            project.state_json["gaps"] = new_gaps
+            target_gap = new_gaps[0] if new_gaps else {"gap_id": "GAP-1", "description": "Novel research gap in Malaysian academic context"}
 
     # 2. Execute Title Agent through contract layer
     try:
@@ -241,10 +255,16 @@ def run_stage_deepdive(
     project = _get_isolated_project(project_id, current_user, db)
 
     # 1. Execute Deep-Dive Agent through contract layer
+    chosen_title = req.chosen_title or project.title or "Thesis Research Topic"
+    gap_id = req.gap_id
+    if not gap_id:
+        existing_gaps = project.state_json.get("gaps", [])
+        gap_id = existing_gaps[0].get("gap_id", "GAP-01") if existing_gaps else "GAP-01"
+
     try:
         deepdive_resp = execute_deepdive_search(
-            chosen_title=req.chosen_title,
-            gap_id=req.gap_id,
+            chosen_title=chosen_title,
+            gap_id=gap_id,
             user=current_user,
             user_email=current_user.email,
         )

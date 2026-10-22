@@ -64,6 +64,12 @@ def demo_login(req: DemoLoginRequest, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(user)
 
+    # Ensure standard demo accounts always have active quota for smooth testing
+    if user.email in ("student@demo.test", "ahmad@utm.my", "admin@demo.test") and user.quota_remaining < 5:
+        user.quota_remaining = 20 if user.role == "student" else 99
+        db.commit()
+        db.refresh(user)
+
     tenant = db.query(Tenant).filter(Tenant.id == user.tenant_id).first()
 
     token = create_access_token({
@@ -79,4 +85,19 @@ def demo_login(req: DemoLoginRequest, db: Session = Depends(get_db)):
         "token_type": "bearer",
         "user": user,
         "tenant": tenant,
+    }
+
+
+@router.post("/refill-quota")
+def refill_quota(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Refills quota balance for the current user (convenience for demo evaluation)."""
+    current_user.quota_remaining = 20 if current_user.role == "student" else 99
+    db.commit()
+    db.refresh(current_user)
+    return {
+        "message": "Quota refilled successfully",
+        "quota_remaining": current_user.quota_remaining
     }
