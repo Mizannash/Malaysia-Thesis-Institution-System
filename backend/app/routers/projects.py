@@ -1,8 +1,9 @@
-"""Projects router enforcing multi-tenant isolation and role views."""
 import uuid
-from typing import List
+from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 
 from app.database import get_db, set_tenant_context
 from app.models import Project, User
@@ -10,6 +11,13 @@ from app.schemas import ProjectResponse, ProjectCreate
 from app.auth import get_current_user
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
+
+
+class ProjectUpdate(BaseModel):
+    title: Optional[str] = None
+    stage: Optional[str] = None
+    state_json: Optional[Dict[str, Any]] = None
+    current_plan_json: Optional[Dict[str, Any]] = None
 
 
 @router.get("", response_model=List[ProjectResponse])
@@ -90,4 +98,53 @@ def get_project(
             detail="Access forbidden: You may only view your own projects.",
         )
 
+    return target_project
+
+
+@router.patch("/{project_id}", response_model=ProjectResponse)
+@router.put("/{project_id}", response_model=ProjectResponse)
+def update_project(
+    project_id: str,
+    req: ProjectUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Update project attributes (title, stage, state_json, current_plan_json).
+    Enforces strict multi-tenant isolation and ownership checks.
+    """
+    set_tenant_context(db, current_user.tenant_id)
+
+    target_project = db.query(Project).filter(Project.id == project_id).first()
+    if not target_project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    if target_project.tenant_id != current_user.tenant_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access forbidden: Cross-tenant data access is strictly prohibited.",
+        )
+
+    if current_user.role == "student" and target_project.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access forbidden: You may only update your own projects.",
+        )
+
+    if req.title is not None:
+        target_project.title = req.title
+    if req.stage is not None:
+        target_project.stage = req.stage
+    if req.state_json is not None:
+        target_project.state_json = req.state_json
+        flag_modified(target_project, "state_json")
+    if req.current_plan_json is not None:
+        target_project.current_plan_json = req.current_plan_json
+        flag_modified(target_project, "current_plan_json")
+
+    db.commit()
+    db.refresh(target_project)
     return target_project

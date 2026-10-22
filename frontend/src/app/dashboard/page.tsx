@@ -367,23 +367,55 @@ export default function DashboardPage() {
           });
         }
 
-        // Update active project literature state
+        // Update active project literature state and title
         if (selectedProject && papers.length > 0) {
-          const updated = {
-            ...selectedProject,
-            title: queryToUse.trim(),
-            stage: "search",
-            state_json: {
-              ...(selectedProject.state_json || {}),
-              papers: papers,
-              search_query: queryToUse.trim(),
-              search_scope: searchScope,
-              last_saved_stage: "Stage 1 (Topic Literature Search)",
-              last_saved_at: new Date().toISOString(),
-            },
-          };
-          setSelectedProject(updated);
-          setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+          const rawQ = queryToUse.trim();
+          const cleanTitle = rawQ.toLowerCase() === "tvet"
+            ? "TVET Curriculum & Skill Modernization in Malaysian Technical Institutions"
+            : `${rawQ.slice(0, 1).toUpperCase() + rawQ.slice(1)}: Malaysian Academic Research`;
+
+          try {
+            const patchRes = await fetchWithAuth(`/projects/${selectedProject.id}`, {
+              method: "PATCH",
+              body: JSON.stringify({
+                title: cleanTitle,
+                stage: "search",
+                state_json: {
+                  ...(selectedProject.state_json || {}),
+                  topic: cleanTitle,
+                  search_query: rawQ,
+                  search_scope: searchScope,
+                  papers: papers,
+                  last_saved_stage: "Stage 1 (Topic Literature Search)",
+                  last_saved_at: new Date().toISOString(),
+                },
+              }),
+            });
+            if (patchRes.ok) {
+              const patched = await patchRes.json();
+              setSelectedProject(patched);
+              setProjects((prev) => prev.map((p) => (p.id === patched.id ? patched : p)));
+            } else {
+              const updated = {
+                ...selectedProject,
+                title: cleanTitle,
+                stage: "search",
+                state_json: {
+                  ...(selectedProject.state_json || {}),
+                  topic: cleanTitle,
+                  papers: papers,
+                  search_query: rawQ,
+                  search_scope: searchScope,
+                  last_saved_stage: "Stage 1 (Topic Literature Search)",
+                  last_saved_at: new Date().toISOString(),
+                },
+              };
+              setSelectedProject(updated);
+              setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+            }
+          } catch (e) {
+            console.error("Failed to patch project on search:", e);
+          }
         }
       } else if (res.status === 401) {
         // Session expired — force re-login
@@ -492,16 +524,18 @@ export default function DashboardPage() {
   };
 
   // Run Pipeline Stage 3: Title Suggestions
-  const handleRunTitleSuggestions = async () => {
+  const handleRunTitleSuggestions = async (targetGapId?: string | any) => {
     const proj = await ensureActiveProject();
     if (!proj) return;
     setRunningStage("title");
     setPipelineMessage(null);
 
+    const chosenGapId = (typeof targetGapId === "string" && targetGapId.startsWith("GAP")) ? targetGapId : (proj.state_json?.gaps?.[0]?.gap_id || "GAP-1");
+
     try {
       const res = await fetchWithAuth(`/projects/${proj.id}/stage/title`, {
         method: "POST",
-        body: JSON.stringify({ project_id: proj.id, language: "EN" }),
+        body: JSON.stringify({ project_id: proj.id, gap_id: chosenGapId, language: "EN" }),
       });
 
       if (res.ok) {
@@ -528,6 +562,35 @@ export default function DashboardPage() {
       setPipelineMessage({ type: "error", text: getApiErrorMessage(e, "Error generating titles.") });
     } finally {
       setRunningStage(null);
+    }
+  };
+
+  // User selects a specific title from the suggested titles
+  const handleSelectTitle = async (chosenTitle: string) => {
+    if (!selectedProject) return;
+    try {
+      const res = await fetchWithAuth(`/projects/${selectedProject.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          title: chosenTitle,
+          state_json: {
+            ...(selectedProject.state_json || {}),
+            chosen_title: chosenTitle,
+            last_saved_at: new Date().toISOString(),
+          },
+        }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setSelectedProject(updated);
+        setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+        setPipelineMessage({
+          type: "success",
+          text: `Selected "${chosenTitle}" as primary thesis title!`,
+        });
+      }
+    } catch (e) {
+      console.error("Failed to select title:", e);
     }
   };
 
@@ -1447,7 +1510,7 @@ export default function DashboardPage() {
               </button>
 
               <button
-                onClick={handleRunTitleSuggestions}
+                onClick={() => handleRunTitleSuggestions()}
                 disabled={Boolean(runningStage)}
                 className="btn-secondary"
                 style={{ fontSize: "0.85rem", padding: "0.5rem 0.95rem" }}
@@ -1553,11 +1616,21 @@ export default function DashboardPage() {
                       <p style={{ fontSize: "0.85rem", color: "var(--on-surface)", lineHeight: 1.4 }}>
                         {g.description}
                       </p>
-                      {g.supporting_paper_ids && (
-                        <div style={{ fontSize: "0.72rem", color: "var(--outline)", marginTop: "0.4rem", fontFamily: "var(--font-code)" }}>
-                          Papers: {g.supporting_paper_ids.join(", ")}
-                        </div>
-                      )}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.6rem", paddingTop: "0.4rem", borderTop: "1px solid var(--border-subtle)", flexWrap: "wrap", gap: "0.35rem" }}>
+                        <span style={{ fontSize: "0.72rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>
+                          {g.supporting_paper_ids ? `Papers: ${g.supporting_paper_ids.join(", ")}` : "Verified Citations"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRunTitleSuggestions(g.gap_id)}
+                          disabled={Boolean(runningStage)}
+                          className="btn-secondary"
+                          style={{ fontSize: "0.72rem", padding: "0.25rem 0.55rem", cursor: "pointer" }}
+                          title="Generate defended thesis titles specifically for this gap"
+                        >
+                          Titles for this Gap →
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1571,15 +1644,28 @@ export default function DashboardPage() {
                   Suggested Defended Titles ({selectedProject.state_json.titles.length})
                 </h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                  {selectedProject.state_json.titles.map((t: any, i: number) => (
-                    <div key={i} style={{ background: "#ffffff", border: "1px solid var(--border-subtle)", borderRadius: "8px", padding: "0.75rem 1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div>
-                        <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--on-surface)" }}>{t.title}</div>
-                        {t.title_bm && <div style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", fontStyle: "italic" }}>BM: {t.title_bm}</div>}
+                  {selectedProject.state_json.titles.map((t: any, i: number) => {
+                    const isSelected = selectedProject.title === t.title || selectedProject.state_json?.chosen_title === t.title;
+                    return (
+                      <div key={i} style={{ background: "#ffffff", border: isSelected ? "1.5px solid var(--primary)" : "1px solid var(--border-subtle)", borderRadius: "8px", padding: "0.75rem 1rem", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+                        <div style={{ flex: 1, minWidth: "220px" }}>
+                          <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--on-surface)" }}>{t.title}</div>
+                          {t.title_bm && <div style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", fontStyle: "italic", marginTop: "2px" }}>BM: {t.title_bm}</div>}
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                          <span className="badge badge-secondary">{t.language || "EN"}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleSelectTitle(t.title)}
+                            className={isSelected ? "btn-primary" : "btn-secondary"}
+                            style={{ fontSize: "0.75rem", padding: "0.3rem 0.65rem", cursor: "pointer" }}
+                          >
+                            {isSelected ? "✓ Active Title" : "Select as Title"}
+                          </button>
+                        </div>
                       </div>
-                      <span className="badge badge-secondary">{t.language || "EN"}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

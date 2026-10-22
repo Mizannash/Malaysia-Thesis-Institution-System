@@ -92,74 +92,316 @@ def call_llm_provider(
         logger.info(f"LLM Provider executing in NO-KEY / DEMO mode for stage '{stage}'")
         messages_text = " ".join(m.get("content", "") for m in messages if isinstance(m, dict))
         if stage == "gap":
-            fixture_data = _load_fixture_data("gap_fixture.json")
-            if fixture_data:
-                import re, copy
-                fixture_data = copy.deepcopy(fixture_data)
-                found_paper_ids = re.findall(r'"paper_id":\s*"([^"]+)"', messages_text)
-                if not found_paper_ids:
-                    found_paper_ids = list(dict.fromkeys(re.findall(r'\b(P\d+)\b', messages_text))) or ["P1", "P2", "P3", "P4"]
+            import re, copy
+            found_paper_ids = re.findall(r'"paper_id":\s*"([^"]+)"', messages_text)
+            if not found_paper_ids:
+                found_paper_ids = list(dict.fromkeys(re.findall(r'\b(P\d+)\b', messages_text))) or ["P1", "P2", "P3", "P4"]
 
-                for idx, gap in enumerate(fixture_data.get("gaps", [])):
-                    cites = [found_paper_ids[idx % len(found_paper_ids)]]
-                    if len(found_paper_ids) > 1:
-                        next_id = found_paper_ids[(idx + 1) % len(found_paper_ids)]
-                        if next_id not in cites:
-                            cites.append(next_id)
-                    gap["supporting_paper_ids"] = cites
+            paper_titles = re.findall(r'"title":\s*"([^"]+)"', messages_text)
 
-                return ProviderResponse(
-                    content=json.dumps(fixture_data),
-                    tokens=450,
-                    cost_myr=0.00,
-                    model="demo-fixtures",
-                    status="no_key_mode"
-                )
+            is_fintech = any("wallet" in t.lower() or "fintech" in t.lower() or "qr" in t.lower() for t in paper_titles)
+            is_tvet = any("tvet" in t.lower() or "vocational" in t.lower() or "skill" in t.lower() for t in paper_titles) or "tvet" in messages_text.lower()
+
+            if is_tvet:
+                p1 = found_paper_ids[0] if len(found_paper_ids) > 0 else "P1"
+                p2 = found_paper_ids[1] if len(found_paper_ids) > 1 else p1
+                p3 = found_paper_ids[2] if len(found_paper_ids) > 2 else p1
+                p4 = found_paper_ids[3] if len(found_paper_ids) > 3 else p2
+
+                t1 = paper_titles[0] if len(paper_titles) > 0 else "TVET in Malaysia"
+                t2 = paper_titles[1] if len(paper_titles) > 1 else "ICT Integrations in TVET"
+                t3 = paper_titles[2] if len(paper_titles) > 2 else "TVET Instructor Competency Framework"
+
+                fixture_data = {
+                    "gaps": [
+                        {
+                            "gap_id": "GAP-1",
+                            "description": f"While foundational research examines {t1} ({p1}), existing pedagogical frameworks fail to model technical simulation integration and Industry 4.0 competency alignment within Malaysian public vocational training polytechnics ({p2}).",
+                            "supporting_paper_ids": [p1, p2],
+                        },
+                        {
+                            "gap_id": "GAP-2",
+                            "description": f"Although empirical studies investigate {t2} ({p2}), a critical research gap persists regarding vocational instructor technical reskilling barriers and workplace apprenticeship retention rates across suburban Malaysian industrial corridors ({p1}, {p3}).",
+                            "supporting_paper_ids": [p2, p3],
+                        },
+                        {
+                            "gap_id": "GAP-3",
+                            "description": f"Current scholarship evaluates {t3} ({p3}), yet there is a significant deficiency in empirical structural equation models evaluating graduate employability persistence and workplace automation readiness among Malaysian vocational diploma cohorts ({p3}, {p4}).",
+                            "supporting_paper_ids": [p3, p4],
+                        },
+                    ]
+                }
+            elif not is_fintech and paper_titles and len(paper_titles) >= 1:
+                p1 = found_paper_ids[0] if len(found_paper_ids) > 0 else "P1"
+                p2 = found_paper_ids[1] if len(found_paper_ids) > 1 else p1
+                p3 = found_paper_ids[2] if len(found_paper_ids) > 2 else p1
+                p4 = found_paper_ids[3] if len(found_paper_ids) > 3 else p2
+
+                t1 = paper_titles[0]
+                t2 = paper_titles[1] if len(paper_titles) > 1 else t1
+                t3 = paper_titles[2] if len(paper_titles) > 2 else t1
+
+                fixture_data = {
+                    "gaps": [
+                        {
+                            "gap_id": "GAP-1",
+                            "description": f"While prior literature addresses {t1} ({p1}), current empirical frameworks fail to account for implementation constraints and institutional adaptation within the Malaysian academic and socio-economic context ({p2}).",
+                            "supporting_paper_ids": [p1, p2],
+                        },
+                        {
+                            "gap_id": "GAP-2",
+                            "description": f"Although studies investigate {t2} ({p2}), a critical empirical research gap persists regarding multi-stakeholder operational barriers and regional infrastructure readiness across Malaysian states ({p1}, {p3}).",
+                            "supporting_paper_ids": [p2, p3],
+                        },
+                        {
+                            "gap_id": "GAP-3",
+                            "description": f"Current scholarship reviews {t3} ({p3}), yet there is an unaddressed gap in longitudinal validation and predictive structural equation modeling for Malaysian institutional deployments ({p3}, {p4}).",
+                            "supporting_paper_ids": [p3, p4],
+                        },
+                    ]
+                }
+            else:
+                fixture_data = _load_fixture_data("gap_fixture.json")
+                if fixture_data:
+                    fixture_data = copy.deepcopy(fixture_data)
+                    for idx, gap in enumerate(fixture_data.get("gaps", [])):
+                        cites = [found_paper_ids[idx % len(found_paper_ids)]]
+                        if len(found_paper_ids) > 1:
+                            next_id = found_paper_ids[(idx + 1) % len(found_paper_ids)]
+                            if next_id not in cites:
+                                cites.append(next_id)
+                        gap["supporting_paper_ids"] = cites
+
+            return ProviderResponse(
+                content=json.dumps(fixture_data),
+                tokens=450,
+                cost_myr=0.00,
+                model="demo-fixtures",
+                status="no_key_mode"
+            )
         elif stage == "title":
-            fixture_data = _load_fixture_data("title_fixture.json")
-            if fixture_data:
-                import re
-                gap_match = re.search(r'"gap_id":\s*"([^"]+)"', messages_text)
-                target_gap = gap_match.group(1) if gap_match else "GAP-1"
-                for item in fixture_data.get("titles", []):
-                    item["gap_id"] = target_gap
-                return ProviderResponse(
-                    content=json.dumps(fixture_data),
-                    tokens=280,
-                    cost_myr=0.00,
-                    model="demo-fixtures",
-                    status="no_key_mode"
-                )
+            import re
+            gap_match = re.search(r'"gap_id":\s*"([^"]+)"', messages_text)
+            target_gap = gap_match.group(1) if gap_match else "GAP-1"
+
+            is_tvet = "tvet" in messages_text.lower() or "vocational" in messages_text.lower() or "polytechnic" in messages_text.lower()
+            is_fintech = "wallet" in messages_text.lower() or "fintech" in messages_text.lower() or "merchant" in messages_text.lower()
+
+            if is_tvet:
+                fixture_data = {
+                    "titles": [
+                        {
+                            "title": "Empirical Evaluation of Digital Simulation Integration and Technical Competency Acquisition in Malaysian TVET Polytechnics",
+                            "title_bm": "Penilaian Empirikal Integrasi Simulasi Digital dan Pemerolehan Kompetensi Teknikal di Politeknik TVET Malaysia",
+                            "gap_id": target_gap,
+                            "language": "EN",
+                            "novelty_score": 9.2,
+                            "feasibility": "HIGH",
+                            "methodology_type": "Quantitative / Structural Equation Modeling (PLS-SEM)",
+                        },
+                        {
+                            "title": "Industry 4.0 Technical Curriculum Alignment and Apprenticeship Retention in Malaysian Vocational Institutes: A Multi-Stakeholder Analysis",
+                            "title_bm": "Penyelarasan Kurikulum Teknikal Industri 4.0 dan Pengekalan Perantisan di Institut Vokasional Malaysia",
+                            "gap_id": target_gap,
+                            "language": "EN",
+                            "novelty_score": 8.9,
+                            "feasibility": "HIGH",
+                            "methodology_type": "Mixed Methods (Cross-Sectional Survey & Expert Interviews)",
+                        },
+                        {
+                            "title": "Assessing Vocational Instructor Digital Readiness and Work-Based Learning Outcomes across Malaysian Technical Colleges",
+                            "title_bm": "Menilai Kesediaan Digital Pengajar Vokasional dan Hasil Pembelajaran Berasaskan Kerja di Kolej Vokasional Malaysia",
+                            "gap_id": target_gap,
+                            "language": "EN",
+                            "novelty_score": 8.6,
+                            "feasibility": "MEDIUM",
+                            "methodology_type": "Empirical Survey & Factor Analysis",
+                        },
+                    ]
+                }
+            elif not is_fintech and ("iot" in messages_text.lower() or "agriculture" in messages_text.lower()):
+                fixture_data = {
+                    "titles": [
+                        {
+                            "title": "An Empirical Framework for IoT Sensor Network Adoption in Malaysian Smart Agricultural Smallholdings",
+                            "title_bm": "Kerangka Empirikal Penggunaan Rangkaian Penderia IoT dalam Pertanian Pintar Pekebun Kecil Malaysia",
+                            "gap_id": target_gap,
+                            "language": "EN",
+                            "novelty_score": 9.0,
+                            "feasibility": "HIGH",
+                            "methodology_type": "Quantitative / PLS-SEM",
+                        },
+                        {
+                            "title": "Evaluating Resource-Constrained IoT Telemetry Deployment for Sustainable Crop Monitoring in Johor Agriculture",
+                            "title_bm": "Menilai Penggunaan Telemetri IoT Berkekangan Sumber untuk Pemantauan Tanaman Mampan di Johor",
+                            "gap_id": target_gap,
+                            "language": "EN",
+                            "novelty_score": 8.7,
+                            "feasibility": "HIGH",
+                            "methodology_type": "Field Experiment & Survey",
+                        },
+                    ]
+                }
+            else:
+                fixture_data = _load_fixture_data("title_fixture.json")
+                if fixture_data:
+                    for item in fixture_data.get("titles", []):
+                        item["gap_id"] = target_gap
+
+            return ProviderResponse(
+                content=json.dumps(fixture_data),
+                tokens=280,
+                cost_myr=0.00,
+                model="demo-fixtures",
+                status="no_key_mode"
+            )
         elif stage == "deepdive":
-            fixture_data = _load_fixture_data("deepdive_fixture.json")
-            if fixture_data:
-                import re
-                gap_match = re.search(r'"gap_id":\s*"([^"]+)"', messages_text)
-                title_match = re.search(r'"chosen_title":\s*"([^"]+)"', messages_text)
-                if gap_match:
-                    fixture_data["gap_id"] = gap_match.group(1)
-                if title_match:
-                    fixture_data["chosen_title"] = title_match.group(1)
-                return ProviderResponse(
-                    content=json.dumps(fixture_data),
-                    tokens=520,
-                    cost_myr=0.00,
-                    model="demo-fixtures",
-                    status="no_key_mode"
-                )
+            import re
+            gap_match = re.search(r'"gap_id":\s*"([^"]+)"', messages_text)
+            title_match = re.search(r'"chosen_title":\s*"([^"]+)"', messages_text)
+            target_gap = gap_match.group(1) if gap_match else "GAP-1"
+            chosen_title = title_match.group(1) if title_match else "Thesis Research"
+
+            is_tvet = "tvet" in messages_text.lower() or "vocational" in messages_text.lower() or "polytechnic" in messages_text.lower()
+            is_fintech = "wallet" in messages_text.lower() or "fintech" in messages_text.lower() or "payment" in messages_text.lower()
+
+            if is_tvet:
+                fixture_data = {
+                    "gap_id": target_gap,
+                    "chosen_title": chosen_title,
+                    "papers": [
+                        {
+                            "paper_id": "DD-01",
+                            "title": "Work-Based Learning and Digital Pedagogy in Malaysian TVET: Current Challenges and Future Outlook",
+                            "authors": ["Mohd Yusof, H.", "Ahmad, N. A.", "Razali, M."],
+                            "year": 2023,
+                            "abstract": "This empirical study investigates the operational integration of interactive simulations and technical workshop facilities across Malaysian public vocational institutions, highlighting critical gaps in curriculum responsiveness.",
+                            "citation_count": 34,
+                            "source": "utm",
+                            "url": "http://eprints.utm.my/id/eprint/tvet01"
+                        },
+                        {
+                            "paper_id": "DD-02",
+                            "title": "Industry 4.0 Readiness and Apprenticeship Retention in Malaysian Technical Training Institutes",
+                            "authors": ["Ibrahim, Z.", "Kassim, R."],
+                            "year": 2024,
+                            "abstract": "An evaluation of institutional-industrial collaboration models in Johor and Selangor, identifying key factors influencing vocational apprentice workplace readiness and skills retention.",
+                            "citation_count": 28,
+                            "source": "openalex",
+                            "url": "https://doi.org/10.1016/j.tvet.2024.102341"
+                        },
+                        {
+                            "paper_id": "DD-03",
+                            "title": "Assessing Vocational Teacher Competency and Digital Tool Adoption in Malaysian Vocational Colleges",
+                            "authors": ["Sulaiman, S.", "Alias, M."],
+                            "year": 2022,
+                            "abstract": "A quantitative assessment of technical instructors in MARA and MOE vocational colleges, measuring self-efficacy in virtual training environment execution.",
+                            "citation_count": 41,
+                            "source": "utm",
+                            "url": "http://eprints.utm.my/id/eprint/tvet03"
+                        },
+                        {
+                            "paper_id": "DD-04",
+                            "title": "National Qualification Frameworks and Employer Perception of Malaysian TVET Graduates",
+                            "authors": ["Tan, K. L.", "Othman, B."],
+                            "year": 2023,
+                            "abstract": "Examines the alignment between Malaysian Skills Certification (SKM) standards and industry employer requirements in high-growth manufacturing sectors.",
+                            "citation_count": 19,
+                            "source": "openalex",
+                            "url": "https://doi.org/10.1108/ET-08-2023-0199"
+                        }
+                    ]
+                }
+            else:
+                fixture_data = _load_fixture_data("deepdive_fixture.json")
+                if fixture_data:
+                    if gap_match:
+                        fixture_data["gap_id"] = gap_match.group(1)
+                    if title_match:
+                        fixture_data["chosen_title"] = title_match.group(1)
+
+            return ProviderResponse(
+                content=json.dumps(fixture_data),
+                tokens=520,
+                cost_myr=0.00,
+                model="demo-fixtures",
+                status="no_key_mode"
+            )
         elif stage in ("plan", "refine"):
-            fixture_data = _load_fixture_data("plan_fixture.json") or {}
             import re
             title_match = re.search(r'"title":\s*"([^"]+)"', messages_text)
             gap_match = re.search(r'"gap_id":\s*"([^"]+)"', messages_text)
-            if title_match and fixture_data:
-                fixture_data["title"] = title_match.group(1)
-            if gap_match and fixture_data:
-                fixture_data["gap_id"] = gap_match.group(1)
+            target_gap = gap_match.group(1) if gap_match else "GAP-1"
+            chosen_title = title_match.group(1) if title_match else "Thesis Research"
+
+            is_tvet = "tvet" in messages_text.lower() or "vocational" in messages_text.lower() or "polytechnic" in messages_text.lower()
+            is_fintech = "wallet" in messages_text.lower() or "fintech" in messages_text.lower()
+
+            if is_tvet:
+                fixture_data = {
+                    "plan_id": "plan-tvet-01",
+                    "title": chosen_title or "Empirical Evaluation of Digital Simulation Integration in Malaysian TVET Polytechnics",
+                    "gap_id": target_gap,
+                    "version": 1,
+                    "objectives": [
+                        "To evaluate the baseline digital simulation integration and technical laboratory facilities across Malaysian public TVET polytechnics.",
+                        "To determine the impact of Industry 4.0 technical curriculum alignment on apprentice practical competency acquisition and retention.",
+                        "To develop and empirically validate a structural equation model of vocational instructor efficacy, industrial partnership support, and graduate workplace employability."
+                    ],
+                    "methodology_summary": "A mixed-methods empirical study combining a cross-sectional questionnaire survey administered across 350 TVET students and instructors in Malaysian polytechnics with qualitative semi-structured expert interviews from participating industrial manufacturing partners, analyzed via PLS-SEM (SmartPLS 4).",
+                    "key_milestones": [
+                        {
+                            "milestone_id": "M1",
+                            "phase": "Literature Synthesis & Instrument Design",
+                            "month": 2,
+                            "description": "Finalize conceptual framework from OpenAlex & UTM literature and conduct pilot testing of the TVET digital readiness questionnaire."
+                        },
+                        {
+                            "milestone_id": "M2",
+                            "phase": "Data Collection across Malaysian TVET Institutions",
+                            "month": 5,
+                            "description": "Administer cross-sectional survey to cohorts across selected polytechnics in Johor, Selangor, and Penang."
+                        },
+                        {
+                            "milestone_id": "M3",
+                            "phase": "Structural Model Estimation & Thesis Defense",
+                            "month": 8,
+                            "description": "Execute PLS-SEM convergent validity and hypothesis testing; complete final thesis manuscript for supervisor review."
+                        }
+                    ],
+                    "timeline": [
+                        {
+                            "phase": "Phase 1: Conceptualization & Ethics",
+                            "duration_months": 3,
+                            "deliverable": "Approved research proposal and ethical clearance from institutional review board."
+                        },
+                        {
+                            "phase": "Phase 2: Empirical Fieldwork & SEM Analysis",
+                            "duration_months": 4,
+                            "deliverable": "Dataset collation, measurement model assessment, and structural path coefficient estimation."
+                        },
+                        {
+                            "phase": "Phase 3: Thesis Writing & Viva Voce Preparation",
+                            "duration_months": 3,
+                            "deliverable": "Complete 5-chapter thesis submission and mock viva defense."
+                        }
+                    ],
+                    "necessary_resources": [
+                        "Statistical analysis software (SmartPLS 4, IBM SPSS 29)",
+                        "Institutional survey permissions from Ministry of Higher Education (MOHE) TVET division",
+                        "Travel budget for vocational institute site visits across Peninsular Malaysia"
+                    ]
+                }
+            else:
+                fixture_data = _load_fixture_data("plan_fixture.json") or {}
+                if title_match and fixture_data:
+                    fixture_data["title"] = title_match.group(1)
+                if gap_match and fixture_data:
+                    fixture_data["gap_id"] = gap_match.group(1)
 
             if stage == "refine":
                 feedback_match = re.search(r'(?:Feedback|revision instructions|user_prompt)[:\s]*([^\n"]+)', messages_text, re.IGNORECASE)
-                feedback = feedback_match.group(1) if feedback_match else "Focused refinement on Malaysian SMEs"
+                feedback = feedback_match.group(1) if feedback_match else "Focused refinement on Malaysian institutions"
                 fixture_data["version"] = fixture_data.get("version", 1) + 1
                 fixture_data["methodology_summary"] = (
                     f"{fixture_data.get('methodology_summary', '')} Refined based on feedback: {feedback}."

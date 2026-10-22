@@ -130,6 +130,16 @@ def run_stage_gap(
     new_state["gaps"] = [g.model_dump() for g in gap_resp.gaps]
     new_state["last_saved_stage"] = "Stage 2 (Gap Analysis)"
     new_state["last_saved_at"] = now_iso
+
+    # If project title is a legacy placeholder, update it dynamically to reflect analyzed topic
+    search_q = new_state.get("search_query") or new_state.get("topic")
+    if search_q and any(legacy in project.title for legacy in ("Cryo-EM", "Academic Thesis Research", "New Project")):
+        clean_q = search_q.strip()
+        if clean_q.lower() == "tvet":
+            project.title = "TVET Curriculum Modernization & Technical Skill Readiness in Malaysian Institutions"
+        else:
+            project.title = f"Empirical Investigation of {clean_q.title()} in Malaysian Higher Education Context"
+
     project.state_json = new_state
     project.stage = "gap"
     flag_modified(project, "state_json")
@@ -224,6 +234,12 @@ def run_stage_title(
     new_state = dict(project.state_json or {})
     new_state["titles"] = [t.model_dump() for t in title_resp.titles]
     new_state["chosen_gap_id"] = target_gap.get("gap_id")
+    if title_resp.titles:
+        first_title = title_resp.titles[0].title
+        new_state["chosen_title"] = first_title
+        # Adopt top suggested thesis title if project title was generic or unchosen
+        if any(legacy in project.title for legacy in ("Cryo-EM", "Academic Thesis Research", "New Project", "tvet", "TVET")):
+            project.title = first_title
     new_state["last_saved_stage"] = "Stage 3 (Title Suggestions)"
     new_state["last_saved_at"] = now_iso
     project.state_json = new_state
@@ -288,7 +304,9 @@ def run_stage_deepdive(
     now_iso = datetime.now(timezone.utc).isoformat()
     new_state = dict(project.state_json or {})
     new_state["deepdive_papers"] = [p.model_dump() for p in deepdive_resp.papers]
-    new_state["chosen_title"] = req.chosen_title
+    new_state["chosen_title"] = req.chosen_title or project.title
+    if req.chosen_title:
+        project.title = req.chosen_title
     new_state["last_saved_stage"] = "Stage 4 (Deep-Dive Search)"
     new_state["last_saved_at"] = now_iso
     project.state_json = new_state
@@ -366,6 +384,8 @@ def run_stage_plan(
     project.current_plan_json = plan_dict
     project.plan_version = plan.version or 1
     project.stage = "plan"
+    if plan.title and plan.title != "Structured Research Plan":
+        project.title = plan.title
 
     new_state = dict(project.state_json or {})
     new_state["plan"] = plan_dict
