@@ -1,0 +1,1311 @@
+{
+  "schema": "gigalab-blueprint/1",
+  "status": "draft",
+  "made": "2026-10-22",
+  "made_with": "GigaLab Module 8 (SaaS Builder Lab)",
+  "product": {
+    "name": "Malaysian Thesis Institution System (MTIS)",
+    "one_liner": "MTIS is an AI research guide that helps Malaysian diploma, degree, and postgraduate students identify novel research gaps and structure their thesis titles, objectives, and methodologies.",
+    "customer": "Malaysian students and academic researchers (B2C) in Malaysia, via subscription.",
+    "problem": "\"I don't know what to research, or how to make my topic unique enough for a thesis.\" \"My supervisor is always telling me to find a 'gap,' but I don't know where to look.\"",
+    "today": "Manual literature reviews using Google Scholar, UTM Library, and OpenAlex; reliance on supervisory advice, which is often generalized.",
+    "tasks_per_customer_month": 5,
+    "customers_year_one": 300,
+    "problem_cost_rm_month": 50,
+    "languages": "both",
+    "channel": "web"
+  },
+  "requirements": {
+    "version_1": "must",
+    "roles": [
+      {
+        "name": "Owner",
+        "what": "Runs the business, pays for hosting/API costs, monitors usage and subscriptions"
+      },
+      {
+        "name": "Student / Researcher",
+        "what": "Signs in, runs research gap searches, saves and exports results"
+      },
+      {
+        "name": "Admin (add via \"+ Add a role\")",
+        "what": "Manages users, quotas, and abuse monitoring"
+      }
+    ],
+    "features": [
+      {
+        "id": "F1",
+        "name": "Auth",
+        "what": "Sign up / sign in with Google or email-password",
+        "priority": "must",
+        "used_by": "Student / Researcher",
+        "uses_ai": false,
+        "in_version_1": true,
+        "use_case": {
+          "id": "UC1",
+          "goal": "UC1 — Sign in",
+          "steps": [],
+          "errors": [],
+          "acceptance": [
+            {
+              "id": "AC1.1",
+              "text": "Given a new user, when they sign up with Google, then an account is created and they land on the dashboard within 5 seconds"
+            }
+          ],
+          "test_file": "tests/acceptance/test_f1_auth.py"
+        }
+      },
+      {
+        "id": "F2",
+        "name": "Auth",
+        "what": "Sign up / sign in with Google or email-password",
+        "priority": "must",
+        "used_by": "Owner",
+        "uses_ai": false,
+        "in_version_1": true,
+        "use_case": {
+          "id": "UC2",
+          "goal": "",
+          "steps": [],
+          "errors": [],
+          "acceptance": [],
+          "test_file": "tests/acceptance/test_f2_auth.py"
+        }
+      },
+      {
+        "id": "F3",
+        "name": "Topic Search",
+        "what": "Student enters a topic + MY/INT toggle; system fetches real papers from OpenAlex and UTM repository",
+        "priority": "must",
+        "used_by": "Student / Researcher",
+        "uses_ai": false,
+        "in_version_1": true,
+        "use_case": {
+          "id": "UC3",
+          "goal": "Search papers",
+          "steps": [],
+          "errors": [],
+          "acceptance": [
+            {
+              "id": "AC3.1",
+              "text": "Given topic \"e-wallet adoption SME Malaysia\" with MY toggle on, when they search, then ≥10 real papers with titles, years, DOIs/URLs display within 30 seconds"
+            }
+          ],
+          "test_file": "tests/acceptance/test_f3_topic_search.py"
+        }
+      },
+      {
+        "id": "F4",
+        "name": "Gap Analysis",
+        "what": "AI analyzes fetched paper abstracts and lists research gaps with citations",
+        "priority": "must",
+        "used_by": "Student / Researcher",
+        "uses_ai": true,
+        "in_version_1": true,
+        "use_case": {
+          "id": "UC4",
+          "goal": "Find gaps",
+          "steps": [],
+          "errors": [],
+          "acceptance": [
+            {
+              "id": "AC4.1",
+              "text": "Given fetched papers, when gap analysis runs, then ≥3 gaps are shown and every gap cites ≥2 papers from the fetched set (no uncited claims)"
+            }
+          ],
+          "test_file": "tests/acceptance/test_f4_gap_analysis.py"
+        }
+      },
+      {
+        "id": "F5",
+        "name": "Title Suggestions",
+        "what": "AI generates 2–5 thesis titles (tajuk kajian) from identified gaps, EN/BM toggle",
+        "priority": "must",
+        "used_by": "Student / Researcher",
+        "uses_ai": true,
+        "in_version_1": true,
+        "use_case": {
+          "id": "UC5",
+          "goal": "Get titles",
+          "steps": [],
+          "errors": [],
+          "acceptance": [
+            {
+              "id": "AC5.1",
+              "text": "Given gaps, when generating, then 2–5 titles appear, each traceable to a cited gap, in the selected language"
+            }
+          ],
+          "test_file": "tests/acceptance/test_f5_title_suggestions.py"
+        }
+      },
+      {
+        "id": "F6",
+        "name": "Deep-Dive Search",
+        "what": "On chosen title, fetches more specific papers and re-runs gap analysis",
+        "priority": "must",
+        "used_by": "Student / Researcher",
+        "uses_ai": true,
+        "in_version_1": true,
+        "use_case": {
+          "id": "UC6",
+          "goal": "Deep dive",
+          "steps": [],
+          "errors": [],
+          "acceptance": [
+            {
+              "id": "AC6.1",
+              "text": "Given a chosen title, when the student confirms, then a new refined paper set for that title is fetched and gap-analyzed"
+            }
+          ],
+          "test_file": "tests/acceptance/test_f6_deep_dive_search.py"
+        }
+      },
+      {
+        "id": "F7",
+        "name": "Objectives & Methodology",
+        "what": "Generates objectives, research questions, and methodology draft for the chosen title",
+        "priority": "must",
+        "used_by": "Student / Researcher",
+        "uses_ai": true,
+        "in_version_1": true,
+        "use_case": {
+          "id": "UC7",
+          "goal": "Get objectives & methodology",
+          "steps": [],
+          "errors": [],
+          "acceptance": [
+            {
+              "id": "AC7.1",
+              "text": "Given a chosen title, when generation completes, then objectives, research questions, and a methodology outline display, each referencing the refined papers"
+            }
+          ],
+          "test_file": "tests/acceptance/test_f7_objectives_methodology.py"
+        }
+      },
+      {
+        "id": "F8",
+        "name": "Usage Quota",
+        "what": "Limits free trial users to 3 generations/day; resets daily",
+        "priority": "must",
+        "used_by": "Owner",
+        "uses_ai": false,
+        "in_version_1": true,
+        "use_case": {
+          "id": "UC8",
+          "goal": "",
+          "steps": [],
+          "errors": [],
+          "acceptance": [],
+          "test_file": "tests/acceptance/test_f8_usage_quota.py"
+        }
+      },
+      {
+        "id": "F9",
+        "name": "Usage Quota",
+        "what": "Limits free trial users to 3 generations/day; resets daily",
+        "priority": "must",
+        "used_by": "Student / Researcher",
+        "uses_ai": false,
+        "in_version_1": true,
+        "use_case": {
+          "id": "UC9",
+          "goal": "Quota enforcement",
+          "steps": [],
+          "errors": [],
+          "acceptance": [
+            {
+              "id": "AC9.1",
+              "text": "Given a free-trial user who has used 3 generations today, when they attempt a 4th, then they are blocked with an upgrade/wait message and quota resets after midnight"
+            }
+          ],
+          "test_file": "tests/acceptance/test_f9_usage_quota.py"
+        }
+      },
+      {
+        "id": "F10",
+        "name": "Project History",
+        "what": "Saves each research session; user can reopen past projects",
+        "priority": "must",
+        "used_by": "Student / Researcher",
+        "uses_ai": false,
+        "in_version_1": true,
+        "use_case": {
+          "id": "UC10",
+          "goal": "Reopen project",
+          "steps": [],
+          "errors": [],
+          "acceptance": [
+            {
+              "id": "AC10.1",
+              "text": "Given a saved session, when the user opens History, then all previous searches, gaps, and titles reload exactly"
+            }
+          ],
+          "test_file": "tests/acceptance/test_f10_project_history.py"
+        }
+      },
+      {
+        "id": "F11",
+        "name": "Export to Word/PDF",
+        "what": "Download full research pack (gaps, titles, objectives, methodology)",
+        "priority": "should",
+        "used_by": "Student / Researcher",
+        "uses_ai": false,
+        "in_version_1": false
+      },
+      {
+        "id": "F12",
+        "name": "Subscription & Payment",
+        "what": "Upgrade to paid plan after trial (online payment)",
+        "priority": "should",
+        "used_by": "Owner",
+        "uses_ai": false,
+        "in_version_1": false
+      },
+      {
+        "id": "F13",
+        "name": "Subscription & Payment",
+        "what": "Upgrade to paid plan after trial (online payment)",
+        "priority": "should",
+        "used_by": "Student / Researcher",
+        "uses_ai": false,
+        "in_version_1": false
+      },
+      {
+        "id": "F14",
+        "name": "Citation Checker",
+        "what": "Verifies every AI claim links to a real DOI/URL before display",
+        "priority": "should",
+        "used_by": "Student / Researcher",
+        "uses_ai": false,
+        "in_version_1": false
+      },
+      {
+        "id": "F15",
+        "name": "Admin Dashboard",
+        "what": "View users, usage stats, active subscriptions",
+        "priority": "could",
+        "used_by": "Owner",
+        "uses_ai": false,
+        "in_version_1": false
+      },
+      {
+        "id": "F16",
+        "name": "Plagiarism-style similarity scan",
+        "what": "Compare suggested title against existing theses",
+        "priority": "wont",
+        "used_by": null,
+        "uses_ai": false,
+        "in_version_1": false
+      },
+      {
+        "id": "F17",
+        "name": "Full-text PDF reading",
+        "what": "AI reads entire papers, not just abstracts",
+        "priority": "wont",
+        "used_by": null,
+        "uses_ai": false,
+        "in_version_1": false
+      },
+      {
+        "id": "F18",
+        "name": "Reference manager (Mendeley/Zotero) export",
+        "what": "Push citations to reference tools",
+        "priority": "wont",
+        "used_by": null,
+        "uses_ai": false,
+        "in_version_1": false
+      }
+    ],
+    "data": [
+      {
+        "name": "User",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "type": "string"
+          },
+          {
+            "name": "auth_provider",
+            "type": "string"
+          },
+          {
+            "name": "plan",
+            "type": "string"
+          },
+          {
+            "name": "trial_start",
+            "type": "string"
+          },
+          {
+            "name": "quota_remaining",
+            "type": "string"
+          },
+          {
+            "name": "quota_reset_at",
+            "type": "string"
+          }
+        ],
+        "relations": [
+          {
+            "kind": "has many",
+            "to": "Projects"
+          }
+        ]
+      },
+      {
+        "name": "Project",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "topic",
+            "type": "string"
+          },
+          {
+            "name": "scope_MY_INT",
+            "type": "string"
+          },
+          {
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "type": "string"
+          },
+          {
+            "name": "created_at",
+            "type": "string"
+          }
+        ],
+        "relations": [
+          {
+            "kind": "belongs to",
+            "to": "User"
+          },
+          {
+            "kind": "has many",
+            "to": "Papers"
+          },
+          {
+            "kind": "has many",
+            "to": "Gaps"
+          },
+          {
+            "kind": "has many",
+            "to": "Suggestions"
+          }
+        ]
+      },
+      {
+        "name": "Paper",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "authors",
+            "type": "string"
+          },
+          {
+            "name": "year",
+            "type": "string"
+          },
+          {
+            "name": "doi",
+            "type": "string"
+          },
+          {
+            "name": "url",
+            "type": "string"
+          },
+          {
+            "name": "source_openalex_utm",
+            "type": "string"
+          },
+          {
+            "name": "abstract",
+            "type": "string"
+          },
+          {
+            "name": "citation_count",
+            "type": "string"
+          }
+        ],
+        "relations": [
+          {
+            "kind": "belongs to",
+            "to": "Project"
+          }
+        ]
+      },
+      {
+        "name": "Gap",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "supporting_paper_ids",
+            "type": "string"
+          },
+          {
+            "name": "created_at",
+            "type": "string"
+          }
+        ],
+        "relations": [
+          {
+            "kind": "belongs to",
+            "to": "Project"
+          }
+        ]
+      },
+      {
+        "name": "TitleSuggestion",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "text",
+            "type": "string"
+          },
+          {
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "name": "gap_id",
+            "type": "string"
+          },
+          {
+            "name": "chosen_bool",
+            "type": "string"
+          }
+        ],
+        "relations": [
+          {
+            "kind": "belongs to",
+            "to": "Gap"
+          }
+        ]
+      },
+      {
+        "name": "ResearchPlan",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "objectives",
+            "type": "string"
+          },
+          {
+            "name": "research_questions",
+            "type": "string"
+          },
+          {
+            "name": "methodology",
+            "type": "string"
+          },
+          {
+            "name": "title_id",
+            "type": "string"
+          }
+        ],
+        "relations": [
+          {
+            "kind": "belongs to",
+            "to": "TitleSuggestion"
+          }
+        ]
+      },
+      {
+        "name": "UsageLog",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "user_id",
+            "type": "string"
+          },
+          {
+            "name": "action",
+            "type": "string"
+          },
+          {
+            "name": "tokens_used",
+            "type": "string"
+          },
+          {
+            "name": "created_at",
+            "type": "string"
+          }
+        ],
+        "relations": [
+          {
+            "kind": "belongs to",
+            "to": "User"
+          }
+        ]
+      }
+    ],
+    "integrations": [
+      "files",
+      "email",
+      "payment",
+      "OpenAlex API (paper search), Semantic Scholar API (backup search), UTM institutional repository scraper (Playwright), OpenAI API, DeepSeek API, Supabase Auth (Google sign-in)"
+    ],
+    "platforms": [
+      "web",
+      "admin"
+    ],
+    "out_of_scope": [
+      "Mobile apps (iOS/Android)",
+      "WhatsApp/chat interface",
+      "Full-text PDF analysis of papers",
+      "Plagiarism/similarity checker",
+      "Reference manager export (Zotero/Mendeley)",
+      "Multi-university library integrations beyond UTM",
+      "Team/ supervisor collaboration features"
+    ]
+  },
+  "stack": {
+    "confirmed": false,
+    "frontend": {
+      "value": "react",
+      "label": "React (with Vite)"
+    },
+    "backend": {
+      "value": "fastapi",
+      "label": "Python: FastAPI"
+    },
+    "database": {
+      "value": "postgres",
+      "label": "PostgreSQL"
+    },
+    "extras": [
+      "queue",
+      "redis"
+    ],
+    "hosting": null,
+    "commands": {
+      "install": "pip install -r requirements.txt",
+      "test": "pytest -q",
+      "run": "uvicorn app.main:app --reload"
+    },
+    "acceptance_tests": "tests/acceptance"
+  },
+  "quality": {
+    "top_three": [
+      {
+        "id": "security",
+        "title": "Security",
+        "targets": [
+          "Every input is validated on the server",
+          "Secrets live only in environment variables, never in code, logs or the browser",
+          "HTTPS only, secure cookies and CSRF protection",
+          "Rate limits on sign-in and on every public route",
+          "A dependency audit runs on every build (pip-audit or npm audit)",
+          "Reviewed against the OWASP Top 10 before launch",
+          "Prompt-injection tests: text from customers never changes the rules"
+        ]
+      },
+      {
+        "id": "reliability",
+        "title": "Reliability",
+        "targets": [
+          "Every error gives a clear message, and nothing is left half-saved",
+          "Calls to outside services time out and retry with back-off",
+          "Daily backups, restored once to prove they work",
+          "Payments and actions are idempotent: a retry never runs them twice",
+          "The AI release gate passes before every release"
+        ]
+      },
+      {
+        "id": "performance",
+        "title": "Performance",
+        "targets": [
+          "p95 page load under 2 seconds on a phone over 4G",
+          "p95 API response under 500 ms, not counting AI calls",
+          "A database index for every list and search",
+          "An AI reply starts within 5 seconds, streamed or with progress shown"
+        ]
+      }
+    ],
+    "baseline": [
+      {
+        "id": "availability",
+        "title": "Availability",
+        "baseline": "An uptime check with an alert"
+      },
+      {
+        "id": "scalability",
+        "title": "Scalability",
+        "baseline": "No state kept in the app server's memory"
+      },
+      {
+        "id": "privacy",
+        "title": "Privacy and PDPA",
+        "baseline": "A privacy notice, and no personal data in logs"
+      },
+      {
+        "id": "usability",
+        "title": "Usability and accessibility",
+        "baseline": "Works on a phone; error messages say what to do"
+      },
+      {
+        "id": "maintainability",
+        "title": "Maintainability",
+        "baseline": "Every feature has acceptance tests"
+      },
+      {
+        "id": "observability",
+        "title": "Observability",
+        "baseline": "One safe log line per request"
+      },
+      {
+        "id": "cost",
+        "title": "Cost efficiency",
+        "baseline": "Know the monthly bill before it arrives"
+      }
+    ]
+  },
+  "core": {
+    "authentication": {
+      "methods": [
+        "magic",
+        "google"
+      ],
+      "options": [
+        "verify",
+        "reset",
+        "lockout"
+      ]
+    },
+    "authorization": {
+      "deny_by_default": true,
+      "tenant_isolation": "always",
+      "tenancy": "shared",
+      "permissions": [
+        {
+          "id": "f:Auth",
+          "label": "Auth"
+        },
+        {
+          "id": "f:Auth",
+          "label": "Auth"
+        },
+        {
+          "id": "f:Topic Search",
+          "label": "Topic Search"
+        },
+        {
+          "id": "f:Gap Analysis",
+          "label": "Gap Analysis"
+        },
+        {
+          "id": "f:Title Suggestions",
+          "label": "Title Suggestions"
+        },
+        {
+          "id": "f:Deep-Dive Search",
+          "label": "Deep-Dive Search"
+        },
+        {
+          "id": "f:Objectives & Methodology",
+          "label": "Objectives & Methodology"
+        },
+        {
+          "id": "f:Usage Quota",
+          "label": "Usage Quota"
+        },
+        {
+          "id": "f:Usage Quota",
+          "label": "Usage Quota"
+        },
+        {
+          "id": "f:Project History",
+          "label": "Project History"
+        },
+        {
+          "id": "f:Export to Word/PDF",
+          "label": "Export to Word/PDF"
+        },
+        {
+          "id": "f:Subscription & Payment",
+          "label": "Subscription & Payment"
+        },
+        {
+          "id": "f:Subscription & Payment",
+          "label": "Subscription & Payment"
+        },
+        {
+          "id": "f:Citation Checker",
+          "label": "Citation Checker"
+        },
+        {
+          "id": "f:Admin Dashboard",
+          "label": "Admin Dashboard"
+        },
+        {
+          "id": "team",
+          "label": "Manage team and roles"
+        },
+        {
+          "id": "billing",
+          "label": "Billing and plan"
+        },
+        {
+          "id": "settings",
+          "label": "Business settings"
+        },
+        {
+          "id": "ai",
+          "label": "AI settings"
+        },
+        {
+          "id": "usage",
+          "label": "Usage and logs"
+        },
+        {
+          "id": "export",
+          "label": "Export data"
+        }
+      ],
+      "matrix": {
+        "Owner": [
+          "f:Auth",
+          "f:Auth",
+          "f:Topic Search",
+          "f:Gap Analysis",
+          "f:Title Suggestions",
+          "f:Deep-Dive Search",
+          "f:Objectives & Methodology",
+          "f:Usage Quota",
+          "f:Usage Quota",
+          "f:Project History",
+          "f:Export to Word/PDF",
+          "f:Subscription & Payment",
+          "f:Subscription & Payment",
+          "f:Citation Checker",
+          "f:Admin Dashboard",
+          "team",
+          "billing",
+          "settings",
+          "ai",
+          "usage",
+          "export"
+        ],
+        "Student / Researcher": [
+          "f:Auth",
+          "f:Topic Search",
+          "f:Gap Analysis",
+          "f:Title Suggestions",
+          "f:Deep-Dive Search",
+          "f:Objectives & Methodology",
+          "f:Usage Quota",
+          "f:Project History",
+          "f:Export to Word/PDF",
+          "f:Subscription & Payment",
+          "f:Citation Checker"
+        ],
+        "Admin (add via \"+ Add a role\")": []
+      },
+      "options": [
+        "invites",
+        "apikeys"
+      ]
+    },
+    "ai_settings": {
+      "keys": "platform",
+      "call_from": "server",
+      "controls": [
+        "budget",
+        "usage",
+        "switch",
+        "review"
+      ],
+      "budget_rm_month": null
+    }
+  },
+  "ai": {
+    "features": [
+      {
+        "id": "F4",
+        "name": "Gap Analysis",
+        "does": null,
+        "runs": null,
+        "input": "",
+        "output": "",
+        "fields": [],
+        "reply_is_list": false,
+        "rules": [],
+        "example": null,
+        "result_goes": null,
+        "tools": [],
+        "model": null,
+        "uses_per_customer_month": 5,
+        "tokens_per_use": {
+          "in": 680,
+          "out": 300
+        },
+        "usd_per_use": 0
+      },
+      {
+        "id": "F5",
+        "name": "Title Suggestions",
+        "does": null,
+        "runs": null,
+        "input": "",
+        "output": "",
+        "fields": [],
+        "reply_is_list": false,
+        "rules": [],
+        "example": null,
+        "result_goes": null,
+        "tools": [],
+        "model": null,
+        "uses_per_customer_month": 5,
+        "tokens_per_use": {
+          "in": 680,
+          "out": 300
+        },
+        "usd_per_use": 0
+      },
+      {
+        "id": "F6",
+        "name": "Deep-Dive Search",
+        "does": null,
+        "runs": null,
+        "input": "",
+        "output": "",
+        "fields": [],
+        "reply_is_list": false,
+        "rules": [],
+        "example": null,
+        "result_goes": null,
+        "tools": [],
+        "model": null,
+        "uses_per_customer_month": 5,
+        "tokens_per_use": {
+          "in": 680,
+          "out": 300
+        },
+        "usd_per_use": 0
+      },
+      {
+        "id": "F7",
+        "name": "Objectives & Methodology",
+        "does": null,
+        "runs": null,
+        "input": "",
+        "output": "",
+        "fields": [],
+        "reply_is_list": false,
+        "rules": [],
+        "example": null,
+        "result_goes": null,
+        "tools": [],
+        "model": null,
+        "uses_per_customer_month": 5,
+        "tokens_per_use": {
+          "in": 680,
+          "out": 300
+        },
+        "usd_per_use": 0
+      }
+    ],
+    "routing": "one",
+    "tools": [],
+    "limits": {
+      "max_steps": 8,
+      "max_calls_per_tool": 5,
+      "max_tokens": 20000,
+      "max_seconds": 60
+    },
+    "skills": [],
+    "harness": {
+      "enforced_in": "code, not the prompt",
+      "checks": [
+        "the tool exists",
+        "the arguments match its schema",
+        "under its call limit",
+        "its permission",
+        "the signed-in tenant"
+      ],
+      "on_denied": "stop",
+      "on_tool_error": "review",
+      "actions_run_once": true,
+      "denied_tools_offered": false,
+      "final_answer_checked": true,
+      "trace": "every step, without personal data"
+    },
+    "state": {
+      "calls_per_person_minute": 10,
+      "calls_per_customer_day": 5,
+      "keep_from_each_call": "both"
+    },
+    "context": {
+      "sources": [],
+      "chat_turns": 1,
+      "chunk_words": null,
+      "top_k": null,
+      "never_in_prompt": []
+    },
+    "reliability": {
+      "never": [],
+      "cases": [],
+      "checks_in": [
+        "length",
+        "injection"
+      ],
+      "checks_out": [
+        "rules",
+        "banned"
+      ],
+      "person_looks_when": [
+        "confidence",
+        "amount"
+      ],
+      "alerts": [
+        "failures",
+        "cost"
+      ]
+    }
+  },
+  "business": {
+    "personal_data": false,
+    "payments": null,
+    "billing": "stripe",
+    "retention": "365",
+    "launch": [
+      "terms",
+      "onboarding",
+      "support",
+      "backups",
+      "monitoring"
+    ]
+  },
+  "coding_agent": {
+    "agent": "gemini",
+    "level": "ask",
+    "permission_mode": "default",
+    "extras": [
+      "hook",
+      "skill"
+    ],
+    "permissions_from": "Module 5 starter"
+  },
+  "decisions": {
+    "scope": {
+      "stage": "requirements",
+      "chosen": "must",
+      "suggested": "must"
+    },
+    "frontend": {
+      "stage": "stack",
+      "chosen": "react",
+      "suggested": "htmx",
+      "why": "Industry standard, vast community support, excellent for building complex, dynamic interfaces (which your multi-stage research process requires). Next.js provides server-side rendering, which helps performance."
+    },
+    "backend": {
+      "stage": "stack",
+      "chosen": "fastapi",
+      "suggested": "fastapi"
+    },
+    "deploy": {
+      "stage": "stack",
+      "chosen": null,
+      "suggested": "paas"
+    },
+    "database": {
+      "stage": "stack",
+      "chosen": "postgres",
+      "suggested": "sqlite",
+      "why": ""
+    },
+    "tenancy": {
+      "stage": "core",
+      "chosen": "shared",
+      "suggested": "shared"
+    },
+    "keys": {
+      "stage": "core",
+      "chosen": "platform",
+      "suggested": "platform"
+    },
+    "callfrom": {
+      "stage": "core",
+      "chosen": "server",
+      "suggested": "server"
+    },
+    "format": {
+      "stage": "task",
+      "chosen": "json",
+      "suggested": "json"
+    },
+    "failure": {
+      "stage": "task",
+      "chosen": "review",
+      "suggested": "review"
+    },
+    "examples": {
+      "stage": "task",
+      "chosen": "2",
+      "suggested": "2"
+    },
+    "shape": {
+      "stage": "agent",
+      "chosen": "agent",
+      "suggested": "single",
+      "why": ""
+    },
+    "skills": {
+      "stage": "agent",
+      "chosen": "skills",
+      "suggested": "prompt",
+      "why": ""
+    },
+    "cache": {
+      "stage": "state",
+      "chosen": "none",
+      "suggested": "none"
+    },
+    "ratelimit": {
+      "stage": "state",
+      "chosen": "tenant_user",
+      "suggested": "tenant_user"
+    },
+    "knowledge": {
+      "stage": "context",
+      "chosen": "none",
+      "suggested": "none"
+    },
+    "memory": {
+      "stage": "context",
+      "chosen": "full",
+      "suggested": "full"
+    },
+    "caching": {
+      "stage": "context",
+      "chosen": "none",
+      "suggested": "none"
+    },
+    "evals": {
+      "stage": "reliability",
+      "chosen": "small",
+      "suggested": "small"
+    },
+    "gate": {
+      "stage": "reliability",
+      "chosen": "100",
+      "suggested": "100"
+    },
+    "fallback": {
+      "stage": "reliability",
+      "chosen": "second",
+      "suggested": "second"
+    },
+    "logging": {
+      "stage": "reliability",
+      "chosen": "safe",
+      "suggested": "safe"
+    },
+    "model": {
+      "stage": "cost",
+      "chosen": null,
+      "suggested": "ollama:gigalab-local"
+    },
+    "routing": {
+      "stage": "cost",
+      "chosen": "one",
+      "suggested": "one"
+    },
+    "billing": {
+      "stage": "saas",
+      "chosen": "stripe",
+      "suggested": "stripe"
+    },
+    "retention": {
+      "stage": "saas",
+      "chosen": "365",
+      "suggested": "365"
+    },
+    "agent": {
+      "stage": "pack",
+      "chosen": "gemini",
+      "suggested": "claude",
+      "why": ""
+    }
+  },
+  "milestones": [
+    {
+      "id": "M0",
+      "title": "Skeleton",
+      "goal": "An empty app in the confirmed stack that starts, reads its settings from .env, and has one passing test.",
+      "tests": [
+        "The health route returns ok",
+        "The test command passes",
+        ".env is in .gitignore",
+        "blueprint.json is unchanged"
+      ]
+    },
+    {
+      "id": "M1",
+      "title": "Authentication",
+      "goal": "People sign in with the methods in docs/AUTH.md, from a proven library or service.",
+      "tests": [
+        "A signed-out request to a private page is refused",
+        "Sign-in and sign-out work in the provider's test mode",
+        "No password is stored in plain text, and no session token appears in a log",
+        "Sign-in works with: Email magic link",
+        "Sign-in works with: Google sign-in",
+        "An unverified email address cannot use the app",
+        "A password reset link works once, and expires",
+        "Repeated failed sign-ins are slowed down, then locked for a while"
+      ]
+    },
+    {
+      "id": "M2",
+      "title": "Authorization and tenants",
+      "goal": "Every business is a tenant and every user has a role; every route checks the role against the permission matrix in docs/AUTH.md, and denies by default.",
+      "tests": [
+        "Customer A cannot read or change customer B's records, on every table",
+        "A route with no permission rule is refused",
+        "Only a role allowed to manage the team can change a role",
+        "A Student / Researcher is refused: Admin Dashboard, Manage team and roles, Billing and plan, Business settings, AI settings, Usage and logs, Export data",
+        "A Admin (add via \"+ Add a role\") is refused: Auth, Auth, Topic Search, Gap Analysis, Title Suggestions, Deep-Dive Search, Objectives & Methodology, Usage Quota, Usage Quota, Project History, Export to Word/PDF, Subscription & Payment, Subscription & Payment, Citation Checker, Admin Dashboard, Manage team and roles, Billing and plan, Business settings, AI settings, Usage and logs, Export data",
+        "An invite works once, for the email it was sent to, and gives the role chosen",
+        "An API key works only for its own tenant, and can be revoked"
+      ]
+    },
+    {
+      "id": "M3",
+      "title": "Data model and version 1 features",
+      "goal": "The tables in docs/DATA_MODEL.md and the version 1 features in docs/REQUIREMENTS.md, until their tests in the acceptance folder pass.",
+      "tests": [
+        "Every table has a tenant id, and every query filters by it",
+        "Every acceptance test of “Auth” passes (tests/acceptance/test_f1_auth.py)",
+        "Every acceptance test of “Auth” passes (tests/acceptance/test_f2_auth.py)",
+        "Every acceptance test of “Topic Search” passes (tests/acceptance/test_f3_topic_search.py)",
+        "Every acceptance test of “Gap Analysis” passes (tests/acceptance/test_f4_gap_analysis.py)",
+        "Every acceptance test of “Title Suggestions” passes (tests/acceptance/test_f5_title_suggestions.py)",
+        "Every acceptance test of “Deep-Dive Search” passes (tests/acceptance/test_f6_deep_dive_search.py)",
+        "Every acceptance test of “Objectives & Methodology” passes (tests/acceptance/test_f7_objectives_methodology.py)",
+        "Every acceptance test of “Usage Quota” passes (tests/acceptance/test_f8_usage_quota.py)",
+        "Every acceptance test of “Usage Quota” passes (tests/acceptance/test_f9_usage_quota.py)",
+        "Every acceptance test of “Project History” passes (tests/acceptance/test_f10_project_history.py)"
+      ]
+    },
+    {
+      "id": "M4",
+      "title": "AI settings and one model call",
+      "goal": "The server calls the model with the key from .env, inside the AI settings in docs/AI_SETTINGS.md, and logs the tokens, cost and time of every call.",
+      "tests": [
+        "A call with a fake provider returns the reply and the token counts",
+        "A missing key gives a clear error, not a crash",
+        "The key never appears in a log or a response",
+        "A customer over their monthly AI budget is paused with a clear message; an alert goes out at 80%",
+        "Each customer’s AI usage and cost this month show on their dashboard",
+        "Changing the model in settings changes the next call, with no code change",
+        "An AI reply waits for a person before it goes out"
+      ]
+    },
+    {
+      "id": "M5",
+      "title": "AI features",
+      "goal": "The AI features as docs/PROMPT_CONTRACT.md, TOOLS.md, STATE.md and CONTEXT.md say: the contract and its checks, tools and approvals, state and context.",
+      "tests": [
+        "A valid reply passes all three layers; broken JSON, a missing field and a rule break each fail with their own error",
+        "The failure policy runs when a check fails",
+        "Gap Analysis: a typical request gives a reply that passes the checks",
+        "Title Suggestions: a typical request gives a reply that passes the checks",
+        "Deep-Dive Search: a typical request gives a reply that passes the checks",
+        "Objectives & Methodology: a typical request gives a reply that passes the checks",
+        "A message over the length limit is refused before any model call",
+        "A message that says “ignore your rules” does not change the reply",
+        "A reply that breaks a business rule is caught",
+        "A reply with a banned word or promise is caught",
+        "Customer A never sees customer B’s cached answers or memory",
+        "Call 11 from one person within a minute is refused; call 6 from one customer in a day is refused"
+      ]
+    },
+    {
+      "id": "M6",
+      "title": "Quality targets",
+      "goal": "Each target in docs/QUALITY.md has a test or a scripted check that passes.",
+      "tests": [
+        "Security: Every input is validated on the server",
+        "Security: Secrets live only in environment variables, never in code, logs or the browser",
+        "Security: HTTPS only, secure cookies and CSRF protection",
+        "Security: Rate limits on sign-in and on every public route",
+        "Security: A dependency audit runs on every build (pip-audit or npm audit)",
+        "Security: Reviewed against the OWASP Top 10 before launch",
+        "Security: Prompt-injection tests: text from customers never changes the rules",
+        "Reliability: Every error gives a clear message, and nothing is left half-saved",
+        "Reliability: Calls to outside services time out and retry with back-off",
+        "Reliability: Daily backups, restored once to prove they work",
+        "Reliability: Payments and actions are idempotent: a retry never runs them twice",
+        "Reliability: The AI release gate passes before every release",
+        "Performance: p95 page load under 2 seconds on a phone over 4G",
+        "Performance: p95 API response under 500 ms, not counting AI calls",
+        "Performance: A database index for every list and search",
+        "Performance: An AI reply starts within 5 seconds, streamed or with progress shown",
+        "The eval runner reports each case in evals/cases.json and the gate’s decision",
+        "The gate: every case passes",
+        "Every never-rule and attack case passes",
+        "A reply the model was unsure of, or that needed a repair, waits for a person",
+        "An amount above the limit waits for a person"
+      ]
+    },
+    {
+      "id": "M7",
+      "title": "SaaS business",
+      "goal": "Plans with limits, billing in the provider's test mode, data retention, and the launch checklist in docs/ARCHITECTURE.md.",
+      "tests": [
+        "A payment webhook is verified before a plan changes",
+        "Usage over the plan's limit is refused with an upgrade message",
+        "Sign-up asks the customer to accept the terms",
+        "A new customer can sign up and finish a first task without help",
+        "The support channel is shown on every page"
+      ]
+    },
+    {
+      "id": "M8",
+      "title": "Deploy and launch",
+      "goal": "Running on the internet over HTTPS, with backups, monitoring and a pricing page.",
+      "tests": [
+        "The live site answers over HTTPS",
+        "A backup is restored once, to prove it works",
+        "An uptime alert reaches your phone",
+        "An alert goes out when more than 5% of replies fail in an hour",
+        "An alert goes out when a day’s AI cost is twice the usual"
+      ]
+    }
+  ]
+}
