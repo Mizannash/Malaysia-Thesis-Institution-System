@@ -88,6 +88,15 @@ def get_current_user(
         db.commit()
         db.refresh(user)
 
+    # Auto-reset daily quota if quota_reset_at has passed
+    now = datetime.now(timezone.utc)
+    if user.quota_reset_at and now >= user.quota_reset_at:
+        plan_defaults = {"free": 3, "pro": 99, "enterprise": 999}
+        user.quota_remaining = plan_defaults.get(user.plan, 3)
+        user.quota_reset_at = now + timedelta(days=1)
+        db.commit()
+        db.refresh(user)
+
     # CRITICAL MULTI-TENANCY ENFORCEMENT:
     # Set the session tenant context so PostgreSQL Row Level Security (RLS) is applied
     set_tenant_context(db, user.tenant_id)
@@ -101,6 +110,16 @@ def require_supervisor(current_user: User = Depends(get_current_user)) -> User:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Forbidden: supervisor or administrator privilege required",
+        )
+    return current_user
+
+
+def require_admin(current_user: User = Depends(get_current_user)) -> User:
+    """Enforces administrator role for system owner management routes."""
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: administrator privilege required",
         )
     return current_user
 

@@ -37,3 +37,21 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
 
   return response;
 }
+
+export function getApiErrorMessage(err: any, fallback: string = "An error occurred"): string {
+  if (!err) return fallback;
+  if (typeof err === "string") return err;
+  if (typeof err.message === "string" && err.message) return err.message;
+  if (typeof err.detail === "string" && err.detail) return err.detail;
+  if (err.detail && typeof err.detail === "object") {
+    if (typeof err.detail.message === "string" && err.detail.message) return err.detail.message;
+    if (typeof err.detail.first_error === "string" && err.detail.first_error) return err.detail.first_error;
+    try {
+      return JSON.stringify(err.detail);
+    } catch {
+      return fallback;
+    }
+  }
+  if (typeof err.error === "string" && err.error) return err.error;
+  return fallback;
+}

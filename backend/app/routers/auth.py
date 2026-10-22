@@ -45,7 +45,12 @@ def demo_login(req: DemoLoginRequest, db: Session = Depends(get_db)):
         if not tenant:
             raise HTTPException(status_code=404, detail=f"Tenant {req.tenant_id} not found")
 
-        user_id = f"usr-{req.email.split('@')[0]}"
+        base_id = f"usr-{req.email.split('@')[0]}"
+        user_id = base_id
+        suffix = 1
+        while db.query(User).filter(User.id == user_id).first():
+            user_id = f"{base_id}-{suffix}"
+            suffix += 1
         user = User(
             id=user_id,
             tenant_id=req.tenant_id,

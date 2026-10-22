@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { clearToken, fetchWithAuth, getToken } from "@/lib/api";
+import { clearToken, fetchWithAuth, getToken, getApiErrorMessage } from "@/lib/api";
 import {
   FileText,
   Sparkles,
@@ -121,11 +121,11 @@ function PlanViewContent() {
         const err = await res.json();
         setNotification({
           type: "error",
-          message: err.message || err.detail || "Failed to generate plan.",
+          message: getApiErrorMessage(err, "Failed to generate plan."),
         });
       }
     } catch (err: any) {
-      setNotification({ type: "error", message: err.message || "Network error" });
+      setNotification({ type: "error", message: getApiErrorMessage(err, "Network error") });
     } finally {
       setGenerating(false);
     }
@@ -165,11 +165,11 @@ function PlanViewContent() {
         const err = await res.json();
         setNotification({
           type: "error",
-          message: err.message || err.detail || "Failed to refine plan.",
+          message: getApiErrorMessage(err, "Failed to refine plan."),
         });
       }
     } catch (err: any) {
-      setNotification({ type: "error", message: err.message || "Network error" });
+      setNotification({ type: "error", message: getApiErrorMessage(err, "Network error") });
     } finally {
       setRefining(false);
     }
@@ -271,7 +271,7 @@ function PlanViewContent() {
             }}
           >
             {notification.type === "success" ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
-            {notification.message}
+            {typeof notification.message === "string" ? notification.message : JSON.stringify(notification.message)}
           </div>
         )}
 

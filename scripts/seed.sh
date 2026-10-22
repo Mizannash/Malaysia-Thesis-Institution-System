@@ -22,7 +22,7 @@ if url.startswith('postgresql'):
 
 echo "==> [MTIS Seeder] Running migrations and idempotent seeding..."
 if [ -f "/app/scripts/seed.py" ]; then
-    python /app/scripts/seed.py
+    cd /app && PYTHONPATH=/app python scripts/seed.py
 elif [ -f "scripts/seed.py" ]; then
     python scripts/seed.py
 else

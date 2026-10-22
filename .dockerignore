@@ -1,0 +1,9 @@
+**/node_modules
+**/.next
+**/.git
+node_modules
+.next
+.git
+frontend/node_modules
+frontend/.next
+backend/__pycache__

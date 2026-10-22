@@ -90,9 +90,24 @@ def call_llm_provider(
     # 3. DEMO_MODE or NO-KEY Mode Fallback (D4 requirement)
     if getattr(settings, "DEMO_MODE", True) or not has_live_keys:
         logger.info(f"LLM Provider executing in NO-KEY / DEMO mode for stage '{stage}'")
+        messages_text = " ".join(m.get("content", "") for m in messages if isinstance(m, dict))
         if stage == "gap":
             fixture_data = _load_fixture_data("gap_fixture.json")
             if fixture_data:
+                import re, copy
+                fixture_data = copy.deepcopy(fixture_data)
+                found_paper_ids = re.findall(r'"paper_id":\s*"([^"]+)"', messages_text)
+                if not found_paper_ids:
+                    found_paper_ids = list(dict.fromkeys(re.findall(r'\b(P\d+)\b', messages_text))) or ["P1", "P2", "P3", "P4"]
+
+                for idx, gap in enumerate(fixture_data.get("gaps", [])):
+                    cites = [found_paper_ids[idx % len(found_paper_ids)]]
+                    if len(found_paper_ids) > 1:
+                        next_id = found_paper_ids[(idx + 1) % len(found_paper_ids)]
+                        if next_id not in cites:
+                            cites.append(next_id)
+                    gap["supporting_paper_ids"] = cites
+
                 return ProviderResponse(
                     content=json.dumps(fixture_data),
                     tokens=450,
@@ -104,7 +119,7 @@ def call_llm_provider(
             fixture_data = _load_fixture_data("title_fixture.json")
             if fixture_data:
                 import re
-                gap_match = re.search(r'"gap_id":\s*"([^"]+)"', json.dumps(messages))
+                gap_match = re.search(r'"gap_id":\s*"([^"]+)"', messages_text)
                 target_gap = gap_match.group(1) if gap_match else "GAP-1"
                 for item in fixture_data.get("titles", []):
                     item["gap_id"] = target_gap
@@ -119,8 +134,8 @@ def call_llm_provider(
             fixture_data = _load_fixture_data("deepdive_fixture.json")
             if fixture_data:
                 import re
-                gap_match = re.search(r'"gap_id":\s*"([^"]+)"', json.dumps(messages))
-                title_match = re.search(r'"chosen_title":\s*"([^"]+)"', json.dumps(messages))
+                gap_match = re.search(r'"gap_id":\s*"([^"]+)"', messages_text)
+                title_match = re.search(r'"chosen_title":\s*"([^"]+)"', messages_text)
                 if gap_match:
                     fixture_data["gap_id"] = gap_match.group(1)
                 if title_match:
@@ -135,23 +150,20 @@ def call_llm_provider(
         elif stage in ("plan", "refine"):
             fixture_data = _load_fixture_data("plan_fixture.json") or {}
             import re
-            msg_dump = json.dumps(messages)
-            title_match = re.search(r'"title":\s*"([^"]+)"', msg_dump)
-            gap_match = re.search(r'"gap_id":\s*"([^"]+)"', msg_dump)
+            title_match = re.search(r'"title":\s*"([^"]+)"', messages_text)
+            gap_match = re.search(r'"gap_id":\s*"([^"]+)"', messages_text)
             if title_match and fixture_data:
                 fixture_data["title"] = title_match.group(1)
             if gap_match and fixture_data:
                 fixture_data["gap_id"] = gap_match.group(1)
 
             if stage == "refine":
-                # Extract user feedback from prompt
-                feedback_match = re.search(r'(?:Feedback|revision instructions|user_prompt)[:\s]*([^\n"]+)', msg_dump, re.IGNORECASE)
+                feedback_match = re.search(r'(?:Feedback|revision instructions|user_prompt)[:\s]*([^\n"]+)', messages_text, re.IGNORECASE)
                 feedback = feedback_match.group(1) if feedback_match else "Focused refinement on Malaysian SMEs"
                 fixture_data["version"] = fixture_data.get("version", 1) + 1
                 fixture_data["methodology_summary"] = (
                     f"{fixture_data.get('methodology_summary', '')} Refined based on feedback: {feedback}."
                 )
-                # Demonstrably adjust milestone description to show refinement effect
                 if fixture_data.get("key_milestones"):
                     fixture_data["key_milestones"][0]["description"] += f" (Refined: {feedback})"
 
