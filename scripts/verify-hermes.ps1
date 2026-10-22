@@ -3,8 +3,9 @@ param(
     [string]$Milestone = "current"
 )
 
-$hermesPython = "C:\Users\user\AppData\Local\Python\pythoncore-3.14-64\python.exe"
-$hermesAgent = "C:\Users\user\AppData\Local\hermes\hermes-agent"
+$localAppData = if ($env:LOCALAPPDATA) { $env:LOCALAPPDATA } else { Join-Path $env:USERPROFILE "AppData\Local" }
+$hermesPython = Join-Path $localAppData "Python\pythoncore-3.14-64\python.exe"
+$hermesAgent = Join-Path $localAppData "hermes\hermes-agent"
 
 if (-not (Test-Path $hermesPython)) {
     Write-Error "Hermes Python interpreter not found."

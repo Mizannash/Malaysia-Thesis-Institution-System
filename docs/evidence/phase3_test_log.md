@@ -29,7 +29,7 @@
 ```text
 ============================= test session starts =============================
 platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.7.0
-rootdir: C:\Users\user\Desktop\malaysian-thesis-institution-system-mtis-build-pack
+rootdir: /workspace/mtis
 collected 6 items
 
 tests/acceptance/test_ai_stress.py::test_malformed_llm_response_returns_defined_message_and_preserves_state PASSED [ 16%]

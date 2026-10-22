@@ -22,9 +22,9 @@
 
 ```text
 ============================= test session starts =============================
-platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.7.0 -- C:\Users\user\Desktop\malaysian-thesis-institution-system-mtis-build-pack\.venv\Scripts\python.exe
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.7.0 -- /workspace/mtis\.venv\Scripts\python.exe
 cachedir: .pytest_cache
-rootdir: C:\Users\user\Desktop\malaysian-thesis-institution-system-mtis-build-pack
+rootdir: /workspace/mtis
 plugins: anyio-4.15.1, asyncio-1.4.0
 asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
 collecting ... collected 5 items
@@ -45,7 +45,7 @@ tests/acceptance/test_tenant_isolation.py::test_database_level_rls PASSED [100%]
 ```text
 ============================= test session starts =============================
 platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.7.0
-rootdir: C:\Users\user\Desktop\malaysian-thesis-institution-system-mtis-build-pack
+rootdir: /workspace/mtis
 plugins: anyio-4.15.1, asyncio-1.4.0
 collected 31 items
 

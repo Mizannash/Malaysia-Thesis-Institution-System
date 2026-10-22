@@ -25,10 +25,10 @@ python scripts/db_backup.py -o database/backups/verifier_audit_backup.sql
 ```text
 === MTIS Database Backup ===
 Target DB: localhost:5432/malaysian_thesis_institution_system_mtis
-Output:    C:\Users\user\Desktop\malaysian-thesis-institution-system-mtis-build-pack\database\backups\verifier_audit_backup.sql
+Output:    /workspace/mtis\database\backups\verifier_audit_backup.sql
 [Backup] Attempting docker exec backup via mtis-postgres-db...
-[Backup] Docker pg_dump succeeded: C:\Users\user\Desktop\malaysian-thesis-institution-system-mtis-build-pack\database\backups\verifier_audit_backup.sql (363631 bytes)
-[Backup Success] Backup saved to C:\Users\user\Desktop\malaysian-thesis-institution-system-mtis-build-pack\database\backups\verifier_audit_backup.sql
+[Backup] Docker pg_dump succeeded: /workspace/mtis\database\backups\verifier_audit_backup.sql (363631 bytes)
+[Backup Success] Backup saved to /workspace/mtis\database\backups\verifier_audit_backup.sql
 ```
 
 ### Step 2: Database Restoration
@@ -38,7 +38,7 @@ python scripts/db_restore.py -i database/backups/verifier_audit_backup.sql
 **Output**:
 ```text
 === MTIS Database Restore ===
-Source file: C:\Users\user\Desktop\malaysian-thesis-institution-system-mtis-build-pack\database\backups\verifier_audit_backup.sql
+Source file: /workspace/mtis\database\backups\verifier_audit_backup.sql
 Target DB:   localhost:5432/malaysian_thesis_institution_system_mtis
 [Restore] Attempting docker exec restore via mtis-postgres-db...
 [Restore] Docker psql restore completed successfully.

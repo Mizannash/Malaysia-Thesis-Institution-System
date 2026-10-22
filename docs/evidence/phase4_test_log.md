@@ -30,7 +30,7 @@
 ```text
 ============================= test session starts =============================
 platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.7.0
-rootdir: C:\Users\user\Desktop\malaysian-thesis-institution-system-mtis-build-pack
+rootdir: /workspace/mtis
 collected 3 items
 
 tests/acceptance/test_uc4_plan.py::test_plan_generation_within_30_seconds PASSED [ 33%]
