@@ -31,8 +31,8 @@ def run_evals():
         case_id = case["id"]
         case_type = case.get("type", "unknown")
         
-        # Only evaluate phase1 cases during Phase 1
-        if case_type != "phase1":
+        # Evaluate active phase cases (phase1 and phase2)
+        if case_type not in ("phase1", "phase2"):
             continue
 
         start_time = time.time()
@@ -54,7 +54,6 @@ def run_evals():
                     notes = f"HTTP {resp.status_code}"
 
             elif case_id == "P1_AUTH_REDIRECT":
-                # Protected dashboard endpoint refusal/redirect check
                 resp = client.get("/projects", headers={})
                 duration = time.time() - start_time
                 if resp.status_code == 401 and duration < 5.0:
@@ -64,20 +63,17 @@ def run_evals():
                     notes = f"Status {resp.status_code}, duration {duration:.3f}s"
 
             elif case_id == "P1_CROSS_TENANT_REFUSAL":
-                # Demo login as tenant-utm-001 student
                 login_resp = client.post("/auth/demo-login", json={"email": "ahmad@utm.my"})
                 assert login_resp.status_code == 200
                 token = login_resp.json()["access_token"]
                 headers = {"Authorization": f"Bearer {token}"}
 
-                # Attempt to access project belonging to tenant-demo-002 (seeded as prj-demo-201)
                 resp = client.get("/projects/prj-demo-201", headers=headers)
                 duration = time.time() - start_time
 
                 if resp.status_code == 403:
                     body = resp.json()
                     detail = body.get("detail", "")
-                    # Ensure no project data leaked
                     if "proj-demo-002" not in str(body) and "Blockchain" not in str(body):
                         passed = True
                         notes = f"Cross-tenant access refused with HTTP 403 in {duration:.3f}s. Detail: '{detail}'. Zero leaked data."
@@ -85,6 +81,46 @@ def run_evals():
                         notes = "HTTP 403 returned but sensitive project fields leaked in response."
                 else:
                     notes = f"Expected HTTP 403, got HTTP {resp.status_code}: {resp.text}"
+
+            elif case_id == "P2_SEARCH_MY_SCOPE":
+                resp = client.post("/api/search", json={"query": "e-wallet adoption SME Malaysia", "scope": "MY"})
+                duration = time.time() - start_time
+                if resp.status_code == 200 and duration < 30.0:
+                    body = resp.json()
+                    if body.get("total", 0) >= 10 and len(body.get("papers", [])) >= 10:
+                        passed = True
+                        notes = f"HTTP 200 returned in {duration:.3f}s with {body['total']} papers and source tags: {body.get('sources')}"
+                    else:
+                        notes = f"Expected >= 10 papers, got {body.get('total')}"
+                else:
+                    notes = f"Status {resp.status_code}, duration {duration:.3f}s"
+
+            elif case_id == "P2_SEARCH_VALIDATION_ERROR":
+                resp = client.post("/api/search", json={"query": "asdfghjkl12345", "scope": "MY"})
+                duration = time.time() - start_time
+                if resp.status_code == 422:
+                    body = resp.json()
+                    if "error" in body and "message" in body:
+                        passed = True
+                        notes = f"HTTP 422 error contract returned in {duration:.3f}s: error='{body.get('error')}'"
+                    else:
+                        notes = f"HTTP 422 returned but missing standardized error contract: {body}"
+                else:
+                    notes = f"Expected HTTP 422, got {resp.status_code}"
+
+            elif case_id == "P2_SEARCH_DEDUPLICATION":
+                resp = client.post("/api/search", json={"query": "Determinants of E-Wallet Adoption", "scope": "MY"})
+                duration = time.time() - start_time
+                if resp.status_code == 200:
+                    body = resp.json()
+                    dois = [p["doi"].lower().strip() for p in body.get("papers", []) if p.get("doi")]
+                    if len(dois) == len(set(dois)):
+                        passed = True
+                        notes = f"Deduplication confirmed in {duration:.3f}s across {len(dois)} papers with DOIs"
+                    else:
+                        notes = f"Duplicate DOIs found: {dois}"
+                else:
+                    notes = f"Status {resp.status_code}"
 
         except Exception as e:
             duration = time.time() - start_time

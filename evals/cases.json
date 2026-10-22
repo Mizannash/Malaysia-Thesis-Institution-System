@@ -24,6 +24,27 @@
       "expect": "HTTP 403 Forbidden with cross-tenant refusal message and zero data leaked"
     },
     {
+      "id": "P2_SEARCH_MY_SCOPE",
+      "type": "phase2",
+      "severity": "critical",
+      "input": "POST /api/search with query 'e-wallet adoption SME Malaysia' and scope 'MY'",
+      "expect": "HTTP 200 with >=10 structured papers, latency under 30s, and source tags"
+    },
+    {
+      "id": "P2_SEARCH_VALIDATION_ERROR",
+      "type": "phase2",
+      "severity": "critical",
+      "input": "POST /api/search with query 'asdfghjkl12345'",
+      "expect": "HTTP 422 with inline field error and zero database mutation"
+    },
+    {
+      "id": "P2_SEARCH_DEDUPLICATION",
+      "type": "phase2",
+      "severity": "critical",
+      "input": "POST /api/search with duplicate papers across OpenAlex and UTM",
+      "expect": "Deduplicated results with zero duplicate DOIs"
+    },
+    {
       "id": "N1",
       "type": "normal",
       "severity": "major",

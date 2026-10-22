@@ -62,3 +62,35 @@ class AuthTokenResponse(BaseModel):
     token_type: str = "bearer"
     user: UserResponse
     tenant: TenantResponse
+
+
+class Paper(BaseModel):
+    title: str
+    authors: list[str] = Field(default_factory=list)
+    year: Optional[int] = None
+    doi: Optional[str] = None
+    url: Optional[str] = None
+    abstract: Optional[str] = None
+    source: str = "openalex"  # "openalex" | "utm"
+    citation_count: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SearchRequest(BaseModel):
+    query: str
+    scope: str = "MY"  # "MY" | "INT"
+
+
+class SearchResponse(BaseModel):
+    query: str
+    scope: str
+    total: int
+    papers: list[Paper]
+    sources: list[str] = Field(default_factory=list)
+
+
+class ErrorResponse(BaseModel):
+    error: str
+    message: str
+    detail: Optional[Any] = None

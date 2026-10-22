@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     SUPABASE_KEY: Optional[str] = None
     SUPABASE_JWT_SECRET: Optional[str] = None
 
+    # OpenAlex Settings (Polite Pool)
+    OPENALEX_EMAIL: Optional[str] = None
+
     # Redis Settings
     REDIS_URL: str = "redis://localhost:6379/0"
 

@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Global Trends in Digital Payment Systems: A Comparative Review of Mobile Wallets Across Emerging Markets",
+    "authors": ["David Miller", "Elena Rostova", "Kwame Mensah"],
+    "year": 2023,
+    "doi": "10.1016/j.jbusres.2023.113940",
+    "url": "https://doi.org/10.1016/j.jbusres.2023.113940",
+    "abstract": "This global systematic review synthesizes 180 empirical studies on mobile money and digital wallet ecosystems across Southeast Asia, Latin America, and Sub-Saharan Africa, comparing consumer trust and merchant adoption barriers.",
+    "source": "openalex",
+    "citation_count": 89
+  },
+  {
+    "title": "Adoption of Mobile Payment Systems by Micro-Enterprises: A Systematic Literature Review and Research Agenda",
+    "authors": ["Carlos Gomez", "Sophia Zhang"],
+    "year": 2022,
+    "doi": "10.1016/j.ijinfomgt.2022.102511",
+    "url": "https://doi.org/10.1016/j.ijinfomgt.2022.102511",
+    "abstract": "Synthesizing theoretical models across TAM, UTAUT, and Diffusion of Innovations applied to cashless point-of-sale adoption among small retailers globally.",
+    "source": "openalex",
+    "citation_count": 142
+  },
+  {
+    "title": "Fintech and Financial Inclusion: A Cross-Country Econometric Analysis of Developing Economies",
+    "authors": ["Arjun Patel", "Rebecca Smith"],
+    "year": 2024,
+    "doi": "10.1016/j.worlddev.2023.106421",
+    "url": "https://doi.org/10.1016/j.worlddev.2023.106421",
+    "abstract": "Empirical evidence from 65 developing economies evaluating how non-bank digital wallet networks influence financial inclusion and rural GDP growth.",
+    "source": "openalex",
+    "citation_count": 31
+  }
+]

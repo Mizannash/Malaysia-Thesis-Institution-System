@@ -1,0 +1,112 @@
+[
+  {
+    "title": "Determinants of E-Wallet Adoption among Malaysian Small and Medium Enterprises: A UTAUT2 Perspective",
+    "authors": ["Ahmad Razak", "Siti Nurhaliza"],
+    "year": 2023,
+    "doi": "10.11113/mjitcs.v15n2.98124",
+    "url": "https://doi.org/10.11113/mjitcs.v15n2.98124",
+    "abstract": "This study examines the behavioral intentions of Malaysian SMEs toward continuous adoption of digital e-wallets. Using an extended Unified Theory of Acceptance and Use of Technology (UTAUT2) model incorporating perceived transaction security and government subsidies under the Malaysia Digital Economy Blueprint, structural equation modeling was conducted on survey data collected from 240 retail entrepreneurs in Johor and Selangor.",
+    "source": "openalex",
+    "citation_count": 34
+  },
+  {
+    "title": "Cybersecurity Vulnerabilities and Consumer Trust in Malaysian Cashless Payment Ecosystems",
+    "authors": ["Wei Lun Tan", "Mohd Hashim Ibrahim"],
+    "year": 2022,
+    "doi": "10.11113/jt.v84.92305",
+    "url": "https://doi.org/10.11113/jt.v84.92305",
+    "abstract": "Digital payment solutions have surged across urban Malaysian commercial centers. However, fraud vectors, unauthorized micro-transactions, and QR code tampering remain key obstacles for small micro-merchants.",
+    "source": "openalex",
+    "citation_count": 21
+  },
+  {
+    "title": "Digital Transformation Challenges of Malaysian MSMEs: An Empirical Study of Touch 'n Go and GrabPay Integration",
+    "authors": ["Faridah Othman", "Kamarul Zaman", "Cheng Hock Lee"],
+    "year": 2023,
+    "doi": "10.1016/j.chb.2023.107890",
+    "url": "https://doi.org/10.1016/j.chb.2023.107890",
+    "abstract": "The post-pandemic digitization push accelerated cashless adoption among Malaysian micro, small, and medium enterprises. This paper analyzes technological and financial barriers faced by 450 merchants in Kuala Lumpur and Penang.",
+    "source": "openalex",
+    "citation_count": 48
+  },
+  {
+    "title": "DuitNow QR Adoption Factors in Rural Malaysian Traditional Retailers: A TOE Framework Analysis",
+    "authors": ["Muhammad Arif Ismail", "Noraini Mat"],
+    "year": 2024,
+    "doi": "10.1108/JFM-08-2023-0091",
+    "url": "https://doi.org/10.1108/JFM-08-2023-0091",
+    "abstract": "Drawing on the Technology-Organization-Environment (TOE) framework, this research evaluates national interoperable QR code integration among rural grocery merchants across Pahang and Kelantan.",
+    "source": "openalex",
+    "citation_count": 12
+  },
+  {
+    "title": "Financial Literacy, Perceived Cost, and Merchant Reluctance: A Mixed-Methods Study of Rural Malaysian SMEs",
+    "authors": ["Kenneth Chong", "Rahayu Abdullah", "Siew Hoon Lim"],
+    "year": 2023,
+    "doi": "10.11113/mar.v11.99812",
+    "url": "https://doi.org/10.11113/mar.v11.99812",
+    "abstract": "Despite nationwide fintech incentives, merchant discount rates (MDR) and internet connectivity latency cause reluctance among rural micro-enterprises in Sabah and Sarawak.",
+    "source": "openalex",
+    "citation_count": 18
+  },
+  {
+    "title": "Fintech Adoption In Retail Food and Beverage Micro-Enterprises Across Johor Southern Corridor",
+    "authors": ["Harpreet Kaur", "Zalina Yusof"],
+    "year": 2023,
+    "doi": "10.11113/utmpj.v19n1.101452",
+    "url": "https://doi.org/10.11113/utmpj.v19n1.101452",
+    "abstract": "Investigating the operational transitions from physical cash handling to DuitNow QR and Touch 'n Go eWallet platforms during post-pandemic recovery among hawkers and small food operators in Iskandar Malaysia.",
+    "source": "openalex",
+    "citation_count": 15
+  },
+  {
+    "title": "Islamic Fintech and Shariah Compliance in Malaysian Digital Wallets: Consumer Perception and Trust",
+    "authors": ["Nuraishah Mansor", "Zulkepli Abdul Ghani"],
+    "year": 2022,
+    "doi": "10.1080/13602381.2022.2045612",
+    "url": "https://doi.org/10.1080/13602381.2022.2045612",
+    "abstract": "This paper evaluates consumer perception regarding Shariah compliance in stored-value electronic money mechanisms and cashback loyalty programs in Malaysia.",
+    "source": "openalex",
+    "citation_count": 29
+  },
+  {
+    "title": "Evaluating Multi-Tenant Cloud Architectures for Institutional Academic Repositories in Malaysian Universities",
+    "authors": ["Azlan Mohd Zain"],
+    "year": 2024,
+    "doi": "10.11113/jksm.v22.105671",
+    "url": "https://doi.org/10.11113/jksm.v22.105671",
+    "abstract": "Scalable institutional knowledge infrastructure requires rigorous data isolation policies across public research entities. This paper outlines Row-Level Security benchmarking across PostgreSQL schemas in Malaysian higher education networks.",
+    "source": "openalex",
+    "citation_count": 8
+  },
+  {
+    "title": "Mobile Payment System Architecture and Compliance with Bank Negara Malaysia Regulatory Framework",
+    "authors": ["Norhayati Sulaiman"],
+    "year": 2021,
+    "doi": "10.11113/englet.v30.89100",
+    "url": "https://doi.org/10.11113/englet.v30.89100",
+    "abstract": "Architectural analysis of payment gateway latency, compliance requirements under the Financial Services Act 2013, and customer authentication protocols.",
+    "source": "openalex",
+    "citation_count": 16
+  },
+  {
+    "title": "The Impact of E-Wallet Cashback Promotions on Impulse Buying Behavior among Malaysian Gen Z",
+    "authors": ["Hafizul Rahman", "Noor Azimah Idris"],
+    "year": 2023,
+    "doi": "10.1016/j.elerap.2023.101290",
+    "url": "https://doi.org/10.1016/j.elerap.2023.101290",
+    "abstract": "Investigating how gamified promotional vouchers in ShopeePay and Boost trigger impulse retail purchases among Malaysian university students.",
+    "source": "openalex",
+    "citation_count": 22
+  },
+  {
+    "title": "Assessing AI-Based Credit Scoring for Unbanked Micro-Merchants in Southeast Asia",
+    "authors": ["Syed Mokhtar", "Lim Boon Kiat"],
+    "year": 2024,
+    "doi": "10.1016/j.eswa.2024.123456",
+    "url": "https://doi.org/10.1016/j.eswa.2024.123456",
+    "abstract": "A machine learning framework using e-wallet transaction velocity to predict credit default among micro-entrepreneurs lacking conventional audited accounting records.",
+    "source": "openalex",
+    "citation_count": 14
+  }
+]

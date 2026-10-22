@@ -103,3 +103,16 @@ def require_supervisor(current_user: User = Depends(get_current_user)) -> User:
             detail="Forbidden: supervisor or administrator privilege required",
         )
     return current_user
+
+
+def get_current_user_optional(
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    """Optional user authentication: returns active User if valid token provided, else None."""
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    try:
+        return get_current_user(authorization=authorization, db=db)
+    except Exception:
+        return None

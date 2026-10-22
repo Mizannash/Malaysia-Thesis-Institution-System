@@ -33,9 +33,25 @@ services:
       - SUPABASE_URL=${SUPABASE_URL:-}
       - SUPABASE_KEY=${SUPABASE_KEY:-}
       - REDIS_URL=${REDIS_URL:-redis://localhost:6379/0}
+    volumes:
+      - ./logs:/app/logs
+      - ./tests/fixtures:/app/tests/fixtures:ro
     depends_on:
       db:
         condition: service_healthy
+
+  scraper:
+    image: mcr.microsoft.com/playwright:v1.49.0-jammy
+    container_name: mtis-scraper-svc
+    restart: unless-stopped
+    environment:
+      - DEMO_MODE=${DEMO_MODE:-true}
+    volumes:
+      - ./backend:/app
+      - ./tests/fixtures:/tests/fixtures:ro
+    working_dir: /app
+    command: ["python", "-c", "import time; print('UTM Scraper Service ready'); time.sleep(86400)"]
+    profiles: ["scraper"]
 
   frontend:
     build:
