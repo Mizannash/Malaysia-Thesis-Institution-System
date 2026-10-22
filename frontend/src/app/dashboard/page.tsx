@@ -225,9 +225,13 @@ export default function DashboardPage() {
                 </div>
 
                 <div style={{ marginTop: "1.25rem", paddingTop: "0.75rem", borderTop: "1px solid var(--border-subtle)" }}>
-                  <button className="btn-secondary" style={{ width: "100%", padding: "0.4rem 0.6rem", fontSize: "0.8rem", justifyContent: "center" }}>
-                    Start Stage
-                  </button>
+                  <Link 
+                    href={step.id === "plan" ? "/plan" : "/dashboard"} 
+                    className="btn-secondary" 
+                    style={{ width: "100%", padding: "0.4rem 0.6rem", fontSize: "0.8rem", justifyContent: "center", display: "inline-flex" }}
+                  >
+                    {step.id === "plan" ? "Open Plan View" : "Start Stage"}
+                  </Link>
                 </div>
               </div>
             ))}
@@ -253,35 +257,57 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                {projects.map((p) => (
-                  <div 
-                    key={p.id}
-                    style={{
-                      background: "rgba(255, 255, 255, 0.03)",
-                      border: "1px solid var(--border-subtle)",
-                      borderRadius: "10px",
-                      padding: "1rem",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center"
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: "0.95rem", marginBottom: "0.25rem" }}>{p.title}</div>
-                      <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                        Stage: <span style={{ color: "var(--primary)", textTransform: "capitalize" }}>{p.stage}</span> • ID: <code>{p.id}</code>
-                      </div>
-                      {p.state_json?.last_saved_stage && (
-                        <div style={{ fontSize: "0.75rem", color: "#38bdf8", marginTop: "0.25rem" }}>
-                          Last saved: {p.state_json.last_saved_stage}, {new Date(p.state_json.last_saved_at || p.updated_at).toLocaleString()}
+                {projects.map((p) => {
+                  const hasPlan = Boolean(p.current_plan_json || p.plan_id || p.state_json?.plan);
+                  return (
+                    <div 
+                      key={p.id}
+                      style={{
+                        background: "rgba(255, 255, 255, 0.03)",
+                        border: "1px solid var(--border-subtle)",
+                        borderRadius: "10px",
+                        padding: "1rem",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        gap: "0.75rem"
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+                          <span style={{ fontWeight: 600, fontSize: "0.95rem" }}>{p.title}</span>
+                          {hasPlan && (
+                            <span className="badge" style={{ background: "rgba(16, 185, 129, 0.15)", color: "#10b981", fontSize: "0.65rem" }}>
+                              Plan v{p.plan_version || 1}
+                            </span>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    <span className="badge badge-student">Owner: {p.user_id}</span>
-                  </div>
-                ))}
-              </div>
+                        <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                          Stage: <span style={{ color: "var(--primary)", textTransform: "capitalize" }}>{p.stage}</span> • ID: <code>{p.id}</code>
+                        </div>
+                        {p.state_json?.last_saved_stage && (
+                          <div style={{ fontSize: "0.75rem", color: "#38bdf8", marginTop: "0.25rem" }}>
+                            Last saved: {p.state_json.last_saved_stage}, {new Date(p.state_json.last_saved_at || p.updated_at).toLocaleString()}
+                          </div>
+                        )}
+                      </div>
 
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        <Link
+                          href={`/plan?projectId=${p.id}`}
+                          className={hasPlan ? "btn-secondary" : "btn-primary"}
+                          style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem", display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
+                        >
+                          <FileText size={13} />
+                          {hasPlan ? `View Plan (v${p.plan_version || 1})` : "Generate Plan"}
+                        </Link>
+                        <span className="badge badge-student">Owner: {p.user_id}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
 

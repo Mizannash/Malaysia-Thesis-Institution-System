@@ -44,10 +44,15 @@ class ProjectResponse(BaseModel):
     title: str
     stage: str
     state_json: Dict[str, Any]
+    plan_id: Optional[str] = None
+    current_plan_json: Optional[Dict[str, Any]] = None
+    plan_version: int = 0
+    last_refined_at: Optional[datetime] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
+
 
 
 class DemoLoginRequest(BaseModel):
@@ -139,4 +144,60 @@ class DeepDiveRequest(BaseModel):
     project_id: Optional[str] = None
     chosen_title: str
     gap_id: str
+
+
+class ResearchObjective(BaseModel):
+    objective_id: str
+    text: str
+
+
+class PlanMilestone(BaseModel):
+    milestone_id: str
+    title: str
+    description: str
+    target_month: str
+
+
+class PlanResource(BaseModel):
+    category: str
+    item: str
+    justification: Optional[str] = None
+
+
+class TimelinePhase(BaseModel):
+    phase_name: str
+    months: str
+    tasks: list[str] = Field(default_factory=list)
+
+
+class StructuredPlan(BaseModel):
+    plan_id: str
+    title: str
+    gap_id: Optional[str] = None
+    objectives: list[ResearchObjective] = Field(default_factory=list)
+    key_milestones: list[PlanMilestone] = Field(default_factory=list)
+    necessary_resources: list[PlanResource] = Field(default_factory=list)
+    timeline: list[TimelinePhase] = Field(default_factory=list)
+    methodology_summary: Optional[str] = None
+    version: int = 1
+
+
+class PlanGenerateRequest(BaseModel):
+    project_id: Optional[str] = None
+    custom_instructions: Optional[str] = None
+
+
+class PlanRefineRequest(BaseModel):
+    plan_id: Optional[str] = None
+    project_id: Optional[str] = None
+    user_prompt: str
+
+
+class PlanRefineResponse(BaseModel):
+    project_id: str
+    plan_id: str
+    plan_version: int
+    plan: StructuredPlan
+    diff_summary: Optional[str] = None
+
 

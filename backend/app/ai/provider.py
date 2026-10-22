@@ -133,6 +133,37 @@ def call_llm_provider(
                     model="demo-fixtures",
                     status="no_key_mode"
                 )
+        elif stage in ("plan", "refine"):
+            fixture_data = _load_fixture_data("plan_fixture.json") or {}
+            import re
+            msg_dump = json.dumps(messages)
+            title_match = re.search(r'"title":\s*"([^"]+)"', msg_dump)
+            gap_match = re.search(r'"gap_id":\s*"([^"]+)"', msg_dump)
+            if title_match and fixture_data:
+                fixture_data["title"] = title_match.group(1)
+            if gap_match and fixture_data:
+                fixture_data["gap_id"] = gap_match.group(1)
+
+            if stage == "refine":
+                # Extract user feedback from prompt
+                feedback_match = re.search(r'(?:Feedback|revision instructions|user_prompt)[:\s]*([^\n"]+)', msg_dump, re.IGNORECASE)
+                feedback = feedback_match.group(1) if feedback_match else "Focused refinement on Malaysian SMEs"
+                fixture_data["version"] = fixture_data.get("version", 1) + 1
+                fixture_data["methodology_summary"] = (
+                    f"{fixture_data.get('methodology_summary', '')} Refined based on feedback: {feedback}."
+                )
+                # Demonstrably adjust milestone description to show refinement effect
+                if fixture_data.get("key_milestones"):
+                    fixture_data["key_milestones"][0]["description"] += f" (Refined: {feedback})"
+
+            return ProviderResponse(
+                content=json.dumps(fixture_data),
+                tokens=650,
+                cost_myr=0.00,
+                model="demo-fixtures",
+                status="no_key_mode"
+            )
+
 
 
         # Fallback minimal JSON if fixture not found

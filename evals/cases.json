@@ -79,6 +79,27 @@
       "input": "Simulated browser refresh mid-pipeline after Stage 2 and Stage 3",
       "expect": "Exact state restored from projects.state_json with last_saved metadata and zero duplication"
     },
+    {
+      "id": "P4_PLAN_GENERATION",
+      "type": "phase4",
+      "severity": "critical",
+      "input": "Full project state runs Stage 5 Plan Generation",
+      "expect": "HTTP 200 within 30s with structured plan schema (objectives, milestones, timeline, resources), plan_version=1, and DB persistence"
+    },
+    {
+      "id": "P4_PLAN_REFINEMENT",
+      "type": "phase4",
+      "severity": "critical",
+      "input": "Refinement prompt submitted via POST /api/plan/refine",
+      "expect": "HTTP 200 with plan_version=2, demonstrably updated plan JSON in DB, and last_refined_at recorded"
+    },
+    {
+      "id": "P4_DB_BACKUP_RESTORE",
+      "type": "phase4",
+      "severity": "critical",
+      "input": "Operational validation: db_backup.py and db_restore.py execution",
+      "expect": "SQL backup generated >10KB and restore completes with exit code 0"
+    },
 
     {
       "id": "N1",

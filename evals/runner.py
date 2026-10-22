@@ -31,8 +31,8 @@ def run_evals():
         case_id = case["id"]
         case_type = case.get("type", "unknown")
         
-        # Evaluate active phase cases (phase1, phase2, phase3)
-        if case_type not in ("phase1", "phase2", "phase3"):
+        # Evaluate active phase cases (phase1, phase2, phase3, phase4)
+        if case_type not in ("phase1", "phase2", "phase3", "phase4"):
             continue
 
         start_time = time.time()
@@ -249,6 +249,110 @@ def run_evals():
                 else:
                     notes = f"Refresh failed with HTTP {ref2.status_code}"
 
+            elif case_id == "P4_PLAN_GENERATION":
+                user_email = f"eval_plan_{int(time.time()*1000)}@utm.my"
+                login_resp = client.post("/auth/demo-login", json={"email": user_email})
+                token = login_resp.json()["access_token"]
+                headers = {"Authorization": f"Bearer {token}"}
+
+                cp = client.post("/projects", headers=headers, json={
+                    "title": "Autonomous LLM Research in Malaysia",
+                    "stage": "deep-dive",
+                    "state_json": {
+                        "chosen_title": "Autonomous LLM Research in Malaysia",
+                        "chosen_gap_id": "GAP-MY-01",
+                        "gaps": [{"gap_id": "GAP-MY-01", "description": "Lack of evaluation"}],
+                        "papers": [{"title": "Eval Paper", "authors": ["Tan, L."], "source": "openalex"}]
+                    }
+                })
+                pid = cp.json()["id"]
+
+                plan_resp = client.post(f"/projects/{pid}/stage/plan", headers=headers)
+                duration = time.time() - start_time
+
+                if plan_resp.status_code == 200 and duration < 30.0:
+                    data = plan_resp.json()
+                    plan = data.get("current_plan_json") or {}
+                    if (
+                        data.get("plan_id")
+                        and data.get("plan_version") == 1
+                        and len(plan.get("objectives", [])) >= 2
+                        and len(plan.get("key_milestones", [])) >= 3
+                        and len(plan.get("timeline", [])) >= 2
+                    ):
+                        passed = True
+                        notes = f"Plan generated in {duration:.3f}s (<30s) with valid schema (v1, plan_id: {data['plan_id']})"
+                    else:
+                        notes = f"Incomplete plan schema: {data}"
+                else:
+                    notes = f"Plan generation failed: status {plan_resp.status_code}, duration {duration:.3f}s"
+
+            elif case_id == "P4_PLAN_REFINEMENT":
+                user_email = f"eval_refine_{int(time.time()*1000)}@utm.my"
+                login_resp = client.post("/auth/demo-login", json={"email": user_email})
+                token = login_resp.json()["access_token"]
+                headers = {"Authorization": f"Bearer {token}"}
+
+                cp = client.post("/projects", headers=headers, json={
+                    "title": "FinTech Adoption in Malaysian Islamic Banking",
+                    "stage": "deep-dive",
+                    "state_json": {
+                        "chosen_title": "FinTech Adoption in Malaysian Islamic Banking",
+                        "chosen_gap_id": "GAP-MY-01",
+                        "gaps": [{"gap_id": "GAP-MY-01", "description": "Shariah compliance gap"}],
+                        "papers": [{"title": "Banking Tech", "authors": ["Ahmad, K."], "source": "openalex"}]
+                    }
+                })
+                pid = cp.json()["id"]
+
+                # Generate initial plan v1
+                plan_resp = client.post(f"/projects/{pid}/stage/plan", headers=headers)
+                plan_id = plan_resp.json()["plan_id"]
+                plan_v1 = plan_resp.json()["current_plan_json"]
+
+                # Refine plan
+                ref_resp = client.post("/api/plan/refine", headers=headers, json={
+                    "plan_id": plan_id,
+                    "project_id": pid,
+                    "user_prompt": "Narrow scope to Malaysian SMEs and reduce timeline to 18 months."
+                })
+                duration = time.time() - start_time
+
+                if ref_resp.status_code == 200:
+                    ref_data = ref_resp.json()
+                    plan_v2 = ref_data.get("plan", {})
+                    if ref_data.get("plan_version") == 2 and plan_v1 != plan_v2:
+                        passed = True
+                        notes = f"Plan refined in {duration:.3f}s to v2 with demonstrably changed plan JSON in DB: '{ref_data.get('diff_summary')}'"
+                    else:
+                        notes = f"Refinement did not increment version or change plan: {ref_data}"
+                else:
+                    notes = f"Refine endpoint returned {ref_resp.status_code}: {ref_resp.text}"
+
+            elif case_id == "P4_DB_BACKUP_RESTORE":
+                backup_script = Path(__file__).resolve().parent.parent / "scripts" / "db_backup.py"
+                restore_script = Path(__file__).resolve().parent.parent / "scripts" / "db_restore.py"
+
+                if not backup_script.exists() or not restore_script.exists():
+                    notes = f"Scripts missing: backup exists={backup_script.exists()}, restore exists={restore_script.exists()}"
+                else:
+                    import subprocess
+                    test_dump_path = Path(__file__).resolve().parent.parent / "database" / "backups" / "eval_test_dump.sql"
+                    test_dump_path.parent.mkdir(parents=True, exist_ok=True)
+
+                    b_res = subprocess.run([sys.executable, str(backup_script), "-o", str(test_dump_path)], capture_output=True, text=True)
+                    if b_res.returncode == 0 and test_dump_path.exists() and test_dump_path.stat().st_size > 1000:
+                        r_res = subprocess.run([sys.executable, str(restore_script), "-i", str(test_dump_path)], capture_output=True, text=True)
+                        duration = time.time() - start_time
+                        if r_res.returncode == 0:
+                            passed = True
+                            notes = f"Backup ({test_dump_path.stat().st_size} bytes) & restore verified successfully in {duration:.3f}s"
+                        else:
+                            notes = f"Restore returned code {r_res.returncode}: {r_res.stderr.strip()}"
+                    else:
+                        notes = f"Backup failed (code {b_res.returncode}): {b_res.stderr.strip()}"
+
+
 
         except Exception as e:
             duration = time.time() - start_time
@@ -272,7 +376,7 @@ if __name__ == "__main__":
     all_passed = all(r["passed"] for r in results)
     
     print("=" * 60)
-    print("MTIS MULTI-PHASE EVALUATION RESULTS (PHASE 1, 2 & 3)")
+    print("MTIS MULTI-PHASE EVALUATION RESULTS (PHASE 1, 2, 3 & 4)")
     print("=" * 60)
 
     for r in results:

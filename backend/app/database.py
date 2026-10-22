@@ -51,7 +51,26 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 def init_db():
     """Create tables and seed initial tenants/users/projects if needed."""
     Base.metadata.create_all(bind=engine)
+    # Migrate newly added columns if table already existed
+    try:
+        from sqlalchemy import inspect
+        insp = inspect(engine)
+        if insp.has_table("projects"):
+            cols = [c["name"] for c in insp.get_columns("projects")]
+            with engine.begin() as conn:
+                if "plan_id" not in cols:
+                    conn.execute(text("ALTER TABLE projects ADD COLUMN plan_id VARCHAR(64)"))
+                if "current_plan_json" not in cols:
+                    conn.execute(text("ALTER TABLE projects ADD COLUMN current_plan_json JSON"))
+                if "plan_version" not in cols:
+                    conn.execute(text("ALTER TABLE projects ADD COLUMN plan_version INTEGER DEFAULT 0"))
+                if "last_refined_at" not in cols:
+                    conn.execute(text("ALTER TABLE projects ADD COLUMN last_refined_at TIMESTAMP"))
+    except Exception as exc:
+        logger.warning("Column migration check notice: %s", exc)
+
     with SessionLocal() as db:
+
         utm_tenant = db.query(Tenant).filter_by(id="tenant-utm-001").first()
         if not utm_tenant:
             utm_tenant = Tenant(id="tenant-utm-001", name="Universiti Teknologi Malaysia (UTM)")

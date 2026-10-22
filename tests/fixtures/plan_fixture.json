@@ -1,0 +1,102 @@
+{
+  "plan_id": "plan-utm-101",
+  "title": "Empirical Analysis of Cybersecurity Trust Deficits in QR-Based Mobile Payment Adoption Among Semi-Rural Malaysian Micro-Enterprises",
+  "gap_id": "GAP-1",
+  "objectives": [
+    {
+      "objective_id": "RO-1",
+      "text": "To identify and evaluate the specific cybersecurity trust barriers and fraud vulnerabilities impacting semi-rural micro-merchants in Johor."
+    },
+    {
+      "objective_id": "RO-2",
+      "text": "To develop and empirically test an extended UTAUT2 structural model incorporating perceived transaction risk and merchant discount rate frictions."
+    },
+    {
+      "objective_id": "RO-3",
+      "text": "To formulate actionable policy and technical recommendations for Bank Negara Malaysia (BNM) and fintech payment operators."
+    }
+  ],
+  "key_milestones": [
+    {
+      "milestone_id": "M1",
+      "title": "Proposal Defense & Theoretical Framework Approval",
+      "description": "Synthesize literature review, finalize survey instrument, and present to faculty defense committee.",
+      "target_month": "Month 3"
+    },
+    {
+      "milestone_id": "M2",
+      "title": "Pilot Study & Instrument Validation",
+      "description": "Administer pilot questionnaire to 30 micro-retailers in Iskandar Malaysia; test Cronbach's alpha and composite reliability.",
+      "target_month": "Month 5"
+    },
+    {
+      "milestone_id": "M3",
+      "title": "Field Data Collection & SEM Modeling",
+      "description": "Collect complete cross-sectional data from 250 SME merchants across Johor commercial corridors; conduct PLS-SEM analysis in SmartPLS.",
+      "target_month": "Month 8"
+    },
+    {
+      "milestone_id": "M4",
+      "title": "Thesis Submission & Viva Voce",
+      "description": "Finalize thesis chapters, submit dissertation draft for examiner review, and defend in oral examination.",
+      "target_month": "Month 12"
+    }
+  ],
+  "necessary_resources": [
+    {
+      "category": "Software & Analytical Tools",
+      "item": "SmartPLS 4 & SPSS Statistics 28",
+      "justification": "Required for structural equation modeling, indicator loadings, and mediation testing."
+    },
+    {
+      "category": "Data & Institutional Access",
+      "item": "Johor SME Association Merchant Registry",
+      "justification": "Sampling frame access for stratified random sampling of retail micro-enterprises."
+    },
+    {
+      "category": "Regulatory & Ethics",
+      "item": "Institutional Human Research Ethics Clearance (UTM REC)",
+      "justification": "Mandatory prior to field survey distribution involving small business proprietors."
+    }
+  ],
+  "timeline": [
+    {
+      "phase_name": "Phase 1: Conceptualization & Proposal Defense",
+      "months": "Months 1 - 3",
+      "tasks": [
+        "Synthesize OpenAlex and UTM literature base",
+        "Formulate conceptual framework based on UTAUT2",
+        "Draft and defend research proposal"
+      ]
+    },
+    {
+      "phase_name": "Phase 2: Instrumentation & Field Sampling",
+      "months": "Months 4 - 6",
+      "tasks": [
+        "Develop bilingual (EN/BM) survey questionnaire",
+        "Conduct pre-testing and pilot validation (n=30)",
+        "Obtain UTM ethics board clearance"
+      ]
+    },
+    {
+      "phase_name": "Phase 3: Empirical Execution & Modeling",
+      "months": "Months 7 - 9",
+      "tasks": [
+        "Administer survey to 250 micro-retailers across Johor",
+        "Perform data screening, normality, and multi-collinearity checks",
+        "Execute PLS-SEM structural path estimation"
+      ]
+    },
+    {
+      "phase_name": "Phase 4: Synthesis, Write-Up & Viva",
+      "months": "Months 10 - 12",
+      "tasks": [
+        "Interpret hypothesis testing results and discuss theoretical implications",
+        "Draft recommendations for BNM digital blueprint",
+        "Complete thesis revision and viva voce defense"
+      ]
+    }
+  ],
+  "methodology_summary": "Cross-sectional quantitative survey design. Target sample of 250 semi-rural micro-merchants in Johor analyzed via PLS-SEM to evaluate cybersecurity risk moderations on continuous e-wallet persistence.",
+  "version": 1
+}

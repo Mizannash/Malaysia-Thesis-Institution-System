@@ -60,12 +60,17 @@ class Project(Base):
     title = Column(String(512), nullable=False)
     stage = Column(String(64), nullable=False, default="search")
     state_json = Column(JSON, nullable=False, default=dict)
+    plan_id = Column(String(64), nullable=True)
+    current_plan_json = Column(JSON, nullable=True)
+    plan_version = Column(Integer, nullable=False, default=0)
+    last_refined_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
+
 
     tenant = relationship("Tenant", back_populates="projects")
     user = relationship("User", back_populates="projects")

@@ -29,10 +29,15 @@ from app.schemas import (
     GapItem,
     TitleItem,
     Paper,
+    StructuredPlan,
+    PlanGenerateRequest,
+    PlanRefineRequest,
+    PlanRefineResponse,
 )
 from app.agents.gap_agent import analyze_research_gaps
 from app.agents.title_agent import generate_thesis_titles
 from app.agents.deepdive_agent import execute_deepdive_search
+from app.agents.plan_agent import generate_research_plan, refine_research_plan
 from app.ai.contract import (
     AIContractError,
     AIPolicyRefusalError,
@@ -277,6 +282,194 @@ def run_stage_deepdive(
     return project
 
 
+# ---------------------------------------------------------
+# STAGE 5: PLAN GENERATION & ITERATIVE REFINEMENT
+# ---------------------------------------------------------
+@router.post("/projects/{project_id}/stage/plan", response_model=ProjectResponse)
+@router.post("/api/projects/{project_id}/stage/plan", response_model=ProjectResponse)
+def run_stage_plan(
+    project_id: str,
+    req: Optional[PlanGenerateRequest] = None,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Executes Stage 5 Plan Generation from full project state.
+    Generates structured plan, assigns plan_id, sets plan_version=1,
+    and writes immediately to projects.current_plan_json, plan_id, plan_version, and state_json (D3).
+    """
+    project = _get_isolated_project(project_id, current_user, db)
+
+    # Resolve project state context
+    state = dict(project.state_json or {})
+    if not state.get("chosen_title"):
+        state["chosen_title"] = project.title
+    if not state.get("gaps") and not state.get("papers"):
+        # Load sample literature if project has no initial search/gap data
+        from app.ai.provider import _load_fixture_data
+        sample_data = _load_fixture_data("sample_abstracts.json") or []
+        state["papers"] = sample_data
+        state["gaps"] = [
+            {"gap_id": "GAP-1", "description": "Absence of real-time multi-agent orchestration for Malaysian institutions"}
+        ]
+        project.state_json = state
+
+    custom_instructions = req.custom_instructions if req else None
+
+    try:
+        plan = generate_research_plan(
+            project_state=state,
+            custom_instructions=custom_instructions,
+            user=current_user,
+            user_email=current_user.email,
+        )
+    except AIPolicyRefusalError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": "REFUSED_POLICY", "message": e.user_message}
+        )
+    except AIQuotaExceededError as e:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail={"error": "REFUSED_QUOTA", "message": e.user_message}
+        )
+    except AIContractError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={"error": "AI_CONTRACT_ERROR", "message": e.user_message, "detail": e.detail}
+        )
+
+    # State Persistence (D3): Write immediately to DB
+    now_iso = datetime.now(timezone.utc).isoformat()
+    plan_dict = plan.model_dump()
+    project.plan_id = plan.plan_id
+    project.current_plan_json = plan_dict
+    project.plan_version = plan.version or 1
+    project.stage = "plan"
+
+    new_state = dict(project.state_json or {})
+    new_state["plan"] = plan_dict
+    new_state["last_saved_stage"] = "Stage 5 (Objectives & Methodology Plan)"
+    new_state["last_saved_at"] = now_iso
+    project.state_json = new_state
+
+    flag_modified(project, "state_json")
+    flag_modified(project, "current_plan_json")
+
+    current_user.quota_remaining = max(0, current_user.quota_remaining - 1)
+
+    db.commit()
+    db.refresh(project)
+    return project
+
+
+@router.post("/api/plan/refine", response_model=PlanRefineResponse)
+@router.post("/projects/{project_id}/plan/refine", response_model=PlanRefineResponse)
+def refine_plan_endpoint(
+    req: PlanRefineRequest,
+    project_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Iterative refinement loop (Requirement 2 & D3):
+    Accepts {plan_id, user_prompt, [project_id]}.
+    Retrieves the project, executes targeted repair prompt via Plan Agent,
+    persists new plan version to DB, updates last_refined_at, and returns the refined plan.
+    """
+    set_tenant_context(db, current_user.tenant_id)
+
+    target_project: Optional[Project] = None
+    target_project_id = project_id or req.project_id
+
+    if target_project_id:
+        target_project = db.query(Project).filter(Project.id == target_project_id).first()
+
+    if not target_project and req.plan_id:
+        target_project = db.query(Project).filter(Project.plan_id == req.plan_id).first()
+
+    if not target_project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"error": "PLAN_NOT_FOUND", "message": f"No project found matching plan_id='{req.plan_id}' or project_id='{target_project_id}'."}
+        )
+
+    # Multi-tenant and role check
+    if target_project.tenant_id != current_user.tenant_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access forbidden: Cross-tenant data access is strictly prohibited.",
+        )
+    if current_user.role == "student" and target_project.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access forbidden: You may only refine your own projects.",
+        )
+
+    # Current plan json
+    existing_plan = target_project.current_plan_json or target_project.state_json.get("plan")
+    if not existing_plan:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": "NO_EXISTING_PLAN", "message": "Project does not have an existing plan to refine. Please generate a plan first."}
+        )
+
+    try:
+        refined_plan = refine_research_plan(
+            existing_plan=existing_plan,
+            user_prompt=req.user_prompt,
+            user=current_user,
+            user_email=current_user.email,
+        )
+    except AIPolicyRefusalError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": "REFUSED_POLICY", "message": e.user_message}
+        )
+    except AIQuotaExceededError as e:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail={"error": "REFUSED_QUOTA", "message": e.user_message}
+        )
+    except AIContractError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={"error": "AI_CONTRACT_ERROR", "message": e.user_message, "detail": e.detail}
+        )
+
+    # State update (D3)
+    now_utc = datetime.now(timezone.utc)
+    now_iso = now_utc.isoformat()
+    plan_dict = refined_plan.model_dump()
+
+    target_project.current_plan_json = plan_dict
+    target_project.plan_version = refined_plan.version
+    target_project.last_refined_at = now_utc
+
+    new_state = dict(target_project.state_json or {})
+    new_state["plan"] = plan_dict
+    new_state["last_saved_stage"] = f"Stage 5 (Plan Refinement v{refined_plan.version})"
+    new_state["last_saved_at"] = now_iso
+    target_project.state_json = new_state
+
+    flag_modified(target_project, "state_json")
+    flag_modified(target_project, "current_plan_json")
+
+    current_user.quota_remaining = max(0, current_user.quota_remaining - 1)
+
+    db.commit()
+    db.refresh(target_project)
+
+    return PlanRefineResponse(
+        project_id=target_project.id,
+        plan_id=target_project.plan_id or refined_plan.plan_id,
+        plan_version=target_project.plan_version,
+        plan=refined_plan,
+        diff_summary=f"Refined based on supervisor/student feedback: '{req.user_prompt}'",
+    )
+
+
+
 
 # ---------------------------------------------------------
 # DIRECT AGENT ENDPOINTS (For standalone verification)
@@ -375,3 +568,33 @@ def direct_deepdive_agent(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={"error": "AI_CONTRACT_ERROR", "message": e.user_message, "detail": e.detail}
         )
+
+
+@router.post("/api/agents/plan", response_model=StructuredPlan)
+def direct_plan_agent(
+    state: Dict[str, Any],
+    current_user: Optional[User] = Depends(get_current_user),
+):
+    """Direct invocation of Plan Agent with contract enforcement."""
+    try:
+        return generate_research_plan(
+            project_state=state,
+            user=current_user,
+            user_email=current_user.email if current_user else "anonymous",
+        )
+    except AIPolicyRefusalError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": "REFUSED_POLICY", "message": e.user_message}
+        )
+    except AIQuotaExceededError as e:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail={"error": "REFUSED_QUOTA", "message": e.user_message}
+        )
+    except AIContractError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={"error": "AI_CONTRACT_ERROR", "message": e.user_message, "detail": e.detail}
+        )
+
