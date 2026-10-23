@@ -1,11 +1,11 @@
 import {
   DEMO_USERS,
   DEMO_TENANTS,
-  DEMO_SEARCH_PAPERS,
-  DEMO_GAPS,
-  DEMO_TITLES,
-  DEMO_PLAN,
   INITIAL_DEMO_PROJECTS,
+  getPapersForQuery,
+  getGapsForTopic,
+  getTitlesForTopic,
+  getPlanForTopic,
 } from "./demoData";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -18,7 +18,6 @@ export function getToken(): string | null {
 export function setToken(token: string) {
   if (typeof window !== "undefined") {
     localStorage.setItem("mtis_token", token);
-    // Also set a cookie so Next.js middleware can inspect auth status
     document.cookie = `mtis_token=${token}; path=/; max-age=28800; SameSite=Lax`;
   }
 }
@@ -32,12 +31,19 @@ export function clearToken() {
 }
 
 /**
- * Client-Side Demo Mock Engine
- * Activates when deployed on Netlify / remote hosts without a live backend connection.
+ * Universal Offline / Netlify Mock API Engine
+ * Handles all 5 research stages, API keys, quota refills, and project state.
  */
 function handleOfflineDemoResponse(endpoint: string, options: RequestInit = {}): Response {
   const method = (options.method || "GET").toUpperCase();
-  const body = options.body ? JSON.parse(options.body as string) : {};
+  let body: any = {};
+  if (options.body && typeof options.body === "string") {
+    try {
+      body = JSON.parse(options.body);
+    } catch {
+      body = {};
+    }
+  }
 
   // 1. /auth/me
   if (endpoint === "/auth/me") {
@@ -58,8 +64,8 @@ function handleOfflineDemoResponse(endpoint: string, options: RequestInit = {}):
       name: body.name || email.split("@")[0],
       email: email,
       role: body.role || "student",
-      plan: body.role === "student" ? "free" : "pro",
-      quota_remaining: body.role === "student" ? 3 : 99,
+      plan: body.role === "student" ? "free" : "enterprise",
+      quota_remaining: body.role === "student" ? 3 : 999,
       quota_reset_at: new Date(Date.now() + 86400000).toISOString(),
       created_at: new Date().toISOString(),
     };
@@ -78,19 +84,238 @@ function handleOfflineDemoResponse(endpoint: string, options: RequestInit = {}):
     );
   }
 
-  // 3. /projects
+  // 3. /auth/refill-quota
+  if (endpoint === "/auth/refill-quota") {
+    const stored = typeof window !== "undefined" ? localStorage.getItem("mtis_user") : null;
+    let user = stored ? JSON.parse(stored) : DEMO_USERS[0];
+    user.quota_remaining = 3;
+    if (typeof window !== "undefined") {
+      localStorage.setItem("mtis_user", JSON.stringify(user));
+    }
+    return new Response(JSON.stringify({ quota_remaining: 3, plan: user.plan }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // 4. /api/search OR /search/literature (STAGE 1 TOPIC LITERATURE SEARCH)
+  if (endpoint === "/api/search" || endpoint === "/search/literature" || endpoint === "/search") {
+    const query = body.query || "Malaysian Higher Education Research";
+    const scope = body.scope || "MY";
+    const papers = getPapersForQuery(query, scope);
+
+    return new Response(
+      JSON.stringify({
+        query: query,
+        scope: scope,
+        total: papers.length,
+        papers: papers,
+        sources: scope === "MY" ? ["openalex", "utm"] : ["openalex"],
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  // 5. STAGE 2: /projects/:id/stage/gap
+  if (endpoint.includes("/stage/gap")) {
+    const rawProjects = typeof window !== "undefined" ? localStorage.getItem("mtis_demo_projects") : null;
+    let projects = rawProjects ? JSON.parse(rawProjects) : INITIAL_DEMO_PROJECTS;
+    const parts = endpoint.split("/");
+    const projId = parts[2] || projects[0].id;
+    let proj = projects.find((p: any) => p.id === projId) || projects[0];
+
+    const topic = proj.title || proj.state_json?.topic || "TVET";
+    const generatedGaps = getGapsForTopic(topic);
+
+    proj = {
+      ...proj,
+      stage: "gap",
+      state_json: {
+        ...(proj.state_json || {}),
+        gaps: generatedGaps,
+        last_saved_stage: "Stage 2 (Gap Analysis)",
+        last_saved_at: new Date().toISOString(),
+      },
+      updated_at: new Date().toISOString(),
+    };
+
+    projects = projects.map((p: any) => (p.id === proj.id ? proj : p));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("mtis_demo_projects", JSON.stringify(projects));
+    }
+
+    return new Response(JSON.stringify(proj), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // 6. STAGE 3: /projects/:id/stage/title
+  if (endpoint.includes("/stage/title")) {
+    const rawProjects = typeof window !== "undefined" ? localStorage.getItem("mtis_demo_projects") : null;
+    let projects = rawProjects ? JSON.parse(rawProjects) : INITIAL_DEMO_PROJECTS;
+    const parts = endpoint.split("/");
+    const projId = parts[2] || projects[0].id;
+    let proj = projects.find((p: any) => p.id === projId) || projects[0];
+
+    const topic = proj.title || proj.state_json?.topic || "TVET";
+    const chosenGapId = body.gap_id || "GAP-1";
+    const generatedTitles = getTitlesForTopic(topic, chosenGapId);
+
+    proj = {
+      ...proj,
+      stage: "title",
+      state_json: {
+        ...(proj.state_json || {}),
+        titles: generatedTitles,
+        chosen_gap_id: chosenGapId,
+        last_saved_stage: "Stage 3 (Title Suggestions)",
+        last_saved_at: new Date().toISOString(),
+      },
+      updated_at: new Date().toISOString(),
+    };
+
+    projects = projects.map((p: any) => (p.id === proj.id ? proj : p));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("mtis_demo_projects", JSON.stringify(projects));
+    }
+
+    return new Response(JSON.stringify(proj), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // 7. STAGE 4: /projects/:id/stage/deepdive
+  if (endpoint.includes("/stage/deepdive")) {
+    const rawProjects = typeof window !== "undefined" ? localStorage.getItem("mtis_demo_projects") : null;
+    let projects = rawProjects ? JSON.parse(rawProjects) : INITIAL_DEMO_PROJECTS;
+    const parts = endpoint.split("/");
+    const projId = parts[2] || projects[0].id;
+    let proj = projects.find((p: any) => p.id === projId) || projects[0];
+
+    const topic = body.chosen_title || proj.title || "TVET";
+    const deepdivePapers = getPapersForQuery(topic, "MY");
+
+    proj = {
+      ...proj,
+      stage: "deepdive",
+      state_json: {
+        ...(proj.state_json || {}),
+        chosen_title: body.chosen_title || proj.title,
+        gap_id: body.gap_id || "GAP-1",
+        deepdive_papers: deepdivePapers,
+        last_saved_stage: "Stage 4 (Deep-Dive Search)",
+        last_saved_at: new Date().toISOString(),
+      },
+      updated_at: new Date().toISOString(),
+    };
+
+    projects = projects.map((p: any) => (p.id === proj.id ? proj : p));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("mtis_demo_projects", JSON.stringify(projects));
+    }
+
+    return new Response(JSON.stringify(proj), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // 8. STAGE 5: /projects/:id/stage/plan
+  if (endpoint.includes("/stage/plan")) {
+    const rawProjects = typeof window !== "undefined" ? localStorage.getItem("mtis_demo_projects") : null;
+    let projects = rawProjects ? JSON.parse(rawProjects) : INITIAL_DEMO_PROJECTS;
+    const parts = endpoint.split("/");
+    const projId = parts[2] || projects[0].id;
+    let proj = projects.find((p: any) => p.id === projId) || projects[0];
+
+    const title = proj.state_json?.chosen_title || proj.title || "Empirical TVET Skills Research";
+    const gapId = proj.state_json?.chosen_gap_id || "GAP-1";
+    const generatedPlan = getPlanForTopic(title, gapId);
+
+    proj = {
+      ...proj,
+      stage: "plan",
+      current_plan_json: generatedPlan,
+      state_json: {
+        ...(proj.state_json || {}),
+        plan: generatedPlan,
+        last_saved_stage: "Stage 5 (Research Plan Studio)",
+        last_saved_at: new Date().toISOString(),
+      },
+      updated_at: new Date().toISOString(),
+    };
+
+    projects = projects.map((p: any) => (p.id === proj.id ? proj : p));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("mtis_demo_projects", JSON.stringify(projects));
+    }
+
+    return new Response(JSON.stringify(proj), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // 9. PLAN REFINEMENT: /api/plan/refine
+  if (endpoint === "/api/plan/refine") {
+    const rawProjects = typeof window !== "undefined" ? localStorage.getItem("mtis_demo_projects") : null;
+    let projects = rawProjects ? JSON.parse(rawProjects) : INITIAL_DEMO_PROJECTS;
+    let proj = projects.find((p: any) => p.id === body.project_id) || projects[0];
+
+    const currentPlan = proj.current_plan_json || proj.state_json?.plan || getPlanForTopic(proj.title);
+    const newVersion = (currentPlan.version || 1) + 1;
+    const refinedPlan = {
+      ...currentPlan,
+      version: newVersion,
+      objectives: [
+        ...currentPlan.objectives,
+        {
+          objective_id: `RO-${currentPlan.objectives.length + 1}`,
+          text: `Refined Focus: ${body.user_prompt || "Enhanced quantitative indicator modeling and structural validation."}`,
+        },
+      ],
+    };
+
+    proj.current_plan_json = refinedPlan;
+    proj.state_json = { ...(proj.state_json || {}), plan: refinedPlan, last_refined_at: new Date().toISOString() };
+    projects = projects.map((p: any) => (p.id === proj.id ? proj : p));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("mtis_demo_projects", JSON.stringify(projects));
+    }
+
+    return new Response(
+      JSON.stringify({
+        plan: refinedPlan,
+        plan_version: newVersion,
+        diff_summary: `Added specialized research objective based on: "${body.user_prompt}". Incremented to Plan v${newVersion}.`,
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  // 10. /projects (GET all or POST create)
   if (endpoint === "/projects") {
     const rawProjects = typeof window !== "undefined" ? localStorage.getItem("mtis_demo_projects") : null;
     let projects = rawProjects ? JSON.parse(rawProjects) : INITIAL_DEMO_PROJECTS;
 
     if (method === "POST") {
+      const title = body.title || "Academic Thesis Research";
       const newP = {
         id: `proj-demo-${Date.now()}`,
         tenant_id: body.tenant_id || "tenant-demo-002",
         user_id: "usr-student",
-        title: body.title || "New Malaysian Thesis Topic",
+        title: title,
         stage: body.stage || "search",
-        state_json: body.state_json || {},
+        state_json: body.state_json || {
+          topic: title,
+          papers: getPapersForQuery(title, "MY"),
+          gaps: getGapsForTopic(title),
+          titles: getTitlesForTopic(title),
+          plan: getPlanForTopic(title),
+        },
+        current_plan_json: getPlanForTopic(title),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -110,8 +335,8 @@ function handleOfflineDemoResponse(endpoint: string, options: RequestInit = {}):
     });
   }
 
-  // 4. /projects/:id
-  if (endpoint.startsWith("/projects/")) {
+  // 11. /projects/:id (GET single or PATCH update)
+  if (endpoint.startsWith("/projects/") && !endpoint.includes("/stage/")) {
     const projId = endpoint.replace("/projects/", "");
     const rawProjects = typeof window !== "undefined" ? localStorage.getItem("mtis_demo_projects") : null;
     const projects = rawProjects ? JSON.parse(rawProjects) : INITIAL_DEMO_PROJECTS;
@@ -120,8 +345,10 @@ function handleOfflineDemoResponse(endpoint: string, options: RequestInit = {}):
     if (method === "PATCH") {
       proj = {
         ...proj,
+        title: body.title || proj.title,
         stage: body.stage || proj.stage,
         state_json: { ...(proj.state_json || {}), ...(body.state_json || {}) },
+        current_plan_json: body.current_plan_json || proj.current_plan_json,
         updated_at: new Date().toISOString(),
       };
       const updatedList = projects.map((p: any) => (p.id === proj.id ? proj : p));
@@ -136,21 +363,80 @@ function handleOfflineDemoResponse(endpoint: string, options: RequestInit = {}):
     });
   }
 
-  // 5. /api/settings/keys
+  // 12. /api/settings/keys (GET, POST, DELETE)
   if (endpoint === "/api/settings/keys") {
+    if (method === "POST") {
+      const apiKey = body.api_key || "";
+      const provider = body.provider || "deepseek";
+      if (typeof window !== "undefined") {
+        localStorage.setItem("mtis_custom_key", apiKey);
+        localStorage.setItem("mtis_provider", provider);
+        localStorage.setItem("mtis_demo_mode", "false");
+      }
+      const preview = apiKey.length >= 8 ? `${apiKey.slice(0, 3)}...${apiKey.slice(-4)}` : "sk-...demo";
+      return new Response(
+        JSON.stringify({
+          provider: provider,
+          has_custom_key: true,
+          key_preview: preview,
+          demo_mode: false,
+          tenant_id: "tenant-demo-002",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    if (method === "DELETE") {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("mtis_custom_key");
+        localStorage.setItem("mtis_demo_mode", "true");
+      }
+      return new Response(
+        JSON.stringify({
+          provider: "deepseek",
+          has_custom_key: false,
+          key_preview: null,
+          demo_mode: true,
+          tenant_id: "tenant-demo-002",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // GET
+    const savedKey = typeof window !== "undefined" ? localStorage.getItem("mtis_custom_key") : null;
+    const savedProvider = (typeof window !== "undefined" ? localStorage.getItem("mtis_provider") : null) || "deepseek";
+    const isDemoMode = (typeof window !== "undefined" ? localStorage.getItem("mtis_demo_mode") : null) !== "false";
+    const preview = savedKey && savedKey.length >= 8 ? `${savedKey.slice(0, 3)}...${savedKey.slice(-4)}` : null;
+
     return new Response(
       JSON.stringify({
-        provider: "deepseek",
-        has_custom_key: false,
-        key_preview: null,
-        demo_mode: true,
+        provider: savedProvider,
+        has_custom_key: Boolean(savedKey),
+        key_preview: preview,
+        demo_mode: isDemoMode,
         tenant_id: "tenant-demo-002",
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   }
 
-  // 6. /api/admin/users
+  // 13. /api/settings/mode (POST)
+  if (endpoint === "/api/settings/mode") {
+    const isDemo = Boolean(body.demo_mode);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("mtis_demo_mode", isDemo ? "true" : "false");
+    }
+    return new Response(
+      JSON.stringify({
+        demo_mode: isDemo,
+        message: `Mode successfully switched to ${isDemo ? "DEMO MODE" : "LIVE MODE"}.`,
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  // 14. /api/admin/users & /api/admin/stats
   if (endpoint === "/api/admin/users") {
     const rawUsers = typeof window !== "undefined" ? localStorage.getItem("mtis_demo_admin_users") : null;
     let users = rawUsers ? JSON.parse(rawUsers) : DEMO_USERS;
@@ -163,7 +449,7 @@ function handleOfflineDemoResponse(endpoint: string, options: RequestInit = {}):
         email: body.email,
         role: body.role || "student",
         plan: body.plan || "free",
-        quota_remaining: body.plan === "pro" ? 99 : 3,
+        quota_remaining: body.plan === "enterprise" ? 999 : body.plan === "pro" ? 99 : 3,
         quota_reset_at: new Date(Date.now() + 86400000).toISOString(),
         created_at: new Date().toISOString(),
       };
@@ -183,7 +469,6 @@ function handleOfflineDemoResponse(endpoint: string, options: RequestInit = {}):
     });
   }
 
-  // 7. /api/admin/users/:id/plan
   if (endpoint.includes("/api/admin/users/") && endpoint.endsWith("/plan")) {
     const parts = endpoint.split("/");
     const userId = parts[parts.length - 2];
@@ -201,7 +486,6 @@ function handleOfflineDemoResponse(endpoint: string, options: RequestInit = {}):
     });
   }
 
-  // 8. /api/admin/stats
   if (endpoint === "/api/admin/stats") {
     return new Response(
       JSON.stringify({
@@ -212,69 +496,6 @@ function handleOfflineDemoResponse(endpoint: string, options: RequestInit = {}):
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
-  }
-
-  // 9. /search/literature
-  if (endpoint === "/search/literature") {
-    return new Response(JSON.stringify(DEMO_SEARCH_PAPERS), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  // 10. /pipeline/stage2-gap
-  if (endpoint === "/pipeline/stage2-gap") {
-    return new Response(JSON.stringify({ gaps: DEMO_GAPS }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  // 11. /pipeline/stage3-titles
-  if (endpoint === "/pipeline/stage3-titles") {
-    return new Response(JSON.stringify({ titles: DEMO_TITLES }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  // 12. /pipeline/stage4-deepdive
-  if (endpoint === "/pipeline/stage4-deepdive") {
-    return new Response(
-      JSON.stringify({
-        chosen_title: body.chosen_title || DEMO_TITLES[0].title,
-        gap_id: body.gap_id || "GAP-1",
-        papers: DEMO_SEARCH_PAPERS,
-      }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
-  }
-
-  // 13. /pipeline/stage5-plan
-  if (endpoint === "/pipeline/stage5-plan") {
-    return new Response(JSON.stringify(DEMO_PLAN), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  // 14. /pipeline/refine-plan
-  if (endpoint === "/pipeline/refine-plan") {
-    const refinedPlan = {
-      ...DEMO_PLAN,
-      version: 2,
-      objectives: [
-        ...DEMO_PLAN.objectives,
-        {
-          objective_id: "RO-4",
-          text: `Refined Focus: ${body.refine_prompt || "Enhanced quantitative sampling across SME retail hubs."}`,
-        },
-      ],
-    };
-    return new Response(JSON.stringify(refinedPlan), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
   }
 
   // Default fallback
@@ -293,7 +514,7 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  // If running in browser on a deployed cloud domain (e.g. Netlify) and API_BASE is localhost
+  // Detect if running on cloud deployment without a configured live backend
   const isRemoteDeployment =
     typeof window !== "undefined" &&
     window.location.hostname !== "localhost" &&

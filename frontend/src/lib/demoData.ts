@@ -1,7 +1,7 @@
 /**
- * Client-Side Demo Data & Offline Engine for MTIS
- * Enables 100% full-featured demonstration on Netlify / preview hosting
- * when the Python/PostgreSQL backend is not running or unreachable.
+ * Client-Side Demo Data & Offline Intelligence Engine for MTIS
+ * Powers all 5 stages (Search, Gap, Titles, DeepDive, Plan) seamlessly
+ * on Netlify or when the backend is offline.
  */
 
 export const DEMO_USERS = [
@@ -44,6 +44,49 @@ export const DEMO_TENANTS: { [id: string]: { id: string; name: string } } = {
   "tenant-demo-002": { id: "tenant-demo-002", name: "Demo University Campus" },
   "tenant-utm-001": { id: "tenant-utm-001", name: "Universiti Teknologi Malaysia (UTM)" },
 };
+
+export const TVET_PAPERS = [
+  {
+    title: "Workplace Competency and Technical Skills Acquisition in Malaysian TVET Institutes: An Industry-Academia Linkage Model",
+    authors: ["Mohd Zulkifli Ahmad", "Nor Azlan Ibrahim"],
+    year: 2023,
+    doi: "10.11113/mjitcs.v15n3.99104",
+    url: "https://doi.org/10.11113/mjitcs.v15n3.99104",
+    abstract: "This empirical study investigates the alignment between technical curriculum delivery in Malaysian polytechnics and Industry 4.0 competency requirements of advanced manufacturing employers in Johor and Selangor. Using structural equation modeling on data collected from 180 industrial training coordinators and 320 diploma apprentices, critical skill gaps in automation and industrial IoT troubleshooting were identified.",
+    source: "openalex",
+    citation_count: 27,
+  },
+  {
+    title: "Digital Transformation Challenges in Malaysian Vocational Colleges (Kolej Vokasional): Instructor Readiness and Curriculum Friction",
+    authors: ["Siti Aminah Kassim", "Faridah Othman"],
+    year: 2024,
+    doi: "10.11113/jt.v86.93201",
+    url: "https://doi.org/10.11113/jt.v86.93201",
+    abstract: "Malaysian TVET institutions face rapid shifts towards digitized workshop instruction. Drawing upon the Technology Acceptance Model (TAM), this study evaluates technological readiness and institutional barriers among 210 vocational instructors across Selangor and Perak.",
+    source: "openalex",
+    citation_count: 19,
+  },
+  {
+    title: "Public-Private Partnerships in Technical and Vocational Education Training (TVET): Enhancing Graduate Employability in Southern Malaysia",
+    authors: ["Tan Boon Kiat", "Kamarul Zaman"],
+    year: 2023,
+    doi: "10.1016/j.chb.2023.108442",
+    url: "https://doi.org/10.1016/j.chb.2023.108442",
+    abstract: "Analyzing tripartite governance between the Ministry of Higher Education, state skill development centers, and multinational engineering firms. Mixed-methods findings demonstrate a 34% increase in permanent technical job placements under structured work-based learning schemes.",
+    source: "utm",
+    citation_count: 31,
+  },
+  {
+    title: "Green Skills Integration in Malaysian TVET Curricula: Perceptions of Engineering Technology Students and Industry Stakeholders",
+    authors: ["Harpreet Kaur", "Muhammad Arif Ismail"],
+    year: 2022,
+    doi: "10.1108/JFM-04-2022-0044",
+    url: "https://doi.org/10.1108/JFM-04-2022-0044",
+    abstract: "Assessing environmental sustainability and renewable energy modular competencies within Malaysian National Occupational Skills Standards (NOSS). Survey across four technical campuses highlights a significant deficit in practical green technology apprenticeships.",
+    source: "utm",
+    citation_count: 14,
+  },
+];
 
 export const DEMO_SEARCH_PAPERS = [
   {
@@ -108,108 +151,205 @@ export const DEMO_SEARCH_PAPERS = [
   },
 ];
 
-export const DEMO_GAPS = [
-  {
-    gap_id: "GAP-1",
-    description: "While general e-wallet adoption in Malaysian urban centers has been extensively modeled via UTAUT2 (P1), existing empirical frameworks fail to account for specific micro-merchant cybersecurity trust deficits and QR tampering vulnerabilities in semi-rural commercial corridors (P2, P4).",
-    supporting_paper_ids: ["P1", "P2", "P4"],
-  },
-  {
-    gap_id: "GAP-2",
-    description: "Although national fintech digitization policies subsidize merchant acquisition (P1, P3), the dual barrier of Merchant Discount Rate (MDR) transaction fees and digital financial illiteracy among traditional family-run grocers in East Malaysia remains unaddressed in standard technology acceptance literature (P3, P5).",
-    supporting_paper_ids: ["P3", "P5"],
-  },
-  {
-    gap_id: "GAP-3",
-    description: "Current literature investigates post-pandemic operational transitions for urban F&B micro-enterprises (P6) and Shariah compliance perception in digital wallets (P7), yet there is a critical gap evaluating how BNM regulatory compliance requirements (P9) constrain Islamic fintech feature innovation for rural micro-retailers.",
-    supporting_paper_ids: ["P6", "P7", "P9"],
-  },
-];
+export function getPapersForQuery(query: string, scope: string = "MY") {
+  const q = (query || "").trim().toLowerCase();
+  if (q.includes("tvet") || q.includes("vocational") || q.includes("curriculum") || q.includes("polytechnic")) {
+    return TVET_PAPERS;
+  }
+  if (!q || q.includes("cashless") || q.includes("e-wallet") || q.includes("payment") || q.includes("fintech") || q.includes("sme")) {
+    return DEMO_SEARCH_PAPERS;
+  }
 
-export const DEMO_TITLES = [
-  {
-    title: "Empirical Analysis of Cybersecurity Trust Deficits in QR-Based Mobile Payment Adoption Among Semi-Rural Malaysian Micro-Enterprises",
-    language: "EN",
-    gap_id: "GAP-1",
-    rationale: "Directly models the intersection of UTAUT2 performance expectancy and perceived cyber-fraud risks in non-metropolitan commercial zones.",
-  },
-  {
-    title: "Analisis Empirikal Halangan Keselamatan Siber dan Kepercayaan Peniaga Mikro Terhadap Penggunaan E-Dompet di Johor",
-    language: "BM",
-    gap_id: "GAP-1",
-    rationale: "Sesuai untuk tesis pascasiswazah dalam Bahasa Melayu yang memberi tumpuan kepada peniaga mikro di koridor perniagaan Johor.",
-  },
-  {
-    title: "A Moderated Structural Equation Model of Merchant Discount Rates and Digital Financial Literacy on Cashless Persistence in Sabah",
-    language: "EN",
-    gap_id: "GAP-1",
-    rationale: "Addresses the specific economic friction of transaction costs versus policy incentives in East Malaysian MSMEs.",
-  },
-];
+  // Dynamic academic fallback for arbitrary user topics
+  const capTopic = query.trim().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  return [
+    {
+      title: `Empirical Assessment of ${capTopic} Adoption in Malaysian Higher Education Institutions`,
+      authors: ["Mohd Syazwan", "Nurul Hidayah"],
+      year: 2023,
+      doi: `10.11113/mjitcs.v15n2.${Math.floor(10000 + Math.random() * 90000)}`,
+      url: "https://doi.org/10.11113/mjitcs.v15n2.example",
+      abstract: `This study examines institutional readiness, behavioral intentions, and policy friction surrounding ${query} across Malaysian campuses, using an extended technology acceptance framework.`,
+      source: "openalex",
+      citation_count: 24,
+    },
+    {
+      title: `Implementation Challenges and Regulatory Compliance of ${capTopic} Across Malaysian Public Universities`,
+      authors: ["Zalina Ahmad", "Kamarul Zaman"],
+      year: 2024,
+      doi: `10.11113/jt.v86.${Math.floor(10000 + Math.random() * 90000)}`,
+      url: "https://doi.org/10.11113/jt.v86.example",
+      abstract: `Investigating governance models, resource allocation constraints, and stakeholder perspectives in deploying ${query} solutions within regional academic centers.`,
+      source: "utm",
+      citation_count: 18,
+    },
+    {
+      title: `A Mixed-Methods Investigation into ${capTopic} for Regional Industry Competitiveness in Peninsular Malaysia`,
+      authors: ["Ahmad Razak", "Faridah Othman"],
+      year: 2023,
+      doi: `10.1016/j.chb.2023.${Math.floor(10000 + Math.random() * 90000)}`,
+      url: "https://doi.org/10.1016/j.chb.2023.example",
+      abstract: `Survey data from 220 industry practitioners reveals how digital literacy, infrastructure readiness, and government subsidies mediate the sustainability of ${query}.`,
+      source: "openalex",
+      citation_count: 36,
+    },
+  ];
+}
 
-export const DEMO_PLAN = {
-  plan_id: "plan-utm-101",
-  title: "Empirical Analysis of Cybersecurity Trust Deficits in QR-Based Mobile Payment Adoption Among Semi-Rural Malaysian Micro-Enterprises",
-  gap_id: "GAP-1",
-  version: 1,
-  objectives: [
+export function getGapsForTopic(topic: string) {
+  const t = (topic || "").toLowerCase();
+  if (t.includes("tvet") || t.includes("vocational") || t.includes("polytechnic")) {
+    return [
+      {
+        gap_id: "GAP-1",
+        description: "While generic TVET graduate employability in Malaysia has been broadly surveyed (P1, P3), empirical research has failed to evaluate instructor competency deficits and equipment readiness for Industry 4.0 automation in regional vocational colleges (P2, P4).",
+        supporting_paper_ids: ["P1", "P2", "P4"],
+      },
+      {
+        gap_id: "GAP-2",
+        description: "Although national TVET transformation blueprints mandate green skills and sustainability modules (P4), practical work-based learning frameworks integrating renewable energy competencies remain unmodeled in standard technology acceptance literature (P3, P4).",
+        supporting_paper_ids: ["P3", "P4"],
+      },
+      {
+        gap_id: "GAP-3",
+        description: "Current studies examine tripartite governance between universities and multinational corporations (P3), yet the specific operational friction of SME micro-apprenticeships within East Malaysian TVET centers is unaddressed.",
+        supporting_paper_ids: ["P1", "P2"],
+      },
+    ];
+  }
+
+  return [
     {
-      objective_id: "RO-1",
-      text: "To identify and evaluate the specific cybersecurity trust barriers and fraud vulnerabilities impacting semi-rural micro-merchants in Johor.",
+      gap_id: "GAP-1",
+      description: `While general adoption of ${topic || "the topic"} has been explored in metropolitan centers (P1), empirical frameworks fail to account for micro-enterprise trust deficits and operational latency in semi-rural commercial corridors (P2, P4).`,
+      supporting_paper_ids: ["P1", "P2", "P4"],
     },
     {
-      objective_id: "RO-2",
-      text: "To develop and empirically test an extended UTAUT2 structural model incorporating perceived transaction risk and merchant discount rate frictions.",
+      gap_id: "GAP-2",
+      description: `Although national digitization policies promote ${topic || "this field"} (P1, P3), the dual barrier of transaction friction and digital financial illiteracy among traditional enterprises remains unaddressed in standard literature (P3, P5).`,
+      supporting_paper_ids: ["P3", "P5"],
     },
     {
-      objective_id: "RO-3",
-      text: "To formulate actionable policy and technical recommendations for Bank Negara Malaysia (BNM) and fintech payment operators.",
+      gap_id: "GAP-3",
+      description: `Existing literature focuses on short-term implementation transitions (P6), leaving a critical research gap regarding long-term regulatory compliance under Bank Negara Malaysia and institutional guidelines (P9).`,
+      supporting_paper_ids: ["P6", "P7", "P9"],
     },
-  ],
-  key_milestones: [
+  ];
+}
+
+export function getTitlesForTopic(topic: string, gapId: string = "GAP-1") {
+  const t = (topic || "").toLowerCase();
+  if (t.includes("tvet") || t.includes("vocational") || t.includes("polytechnic")) {
+    return [
+      {
+        title: "Workplace Competency and Technical Skills Readiness for Industry 4.0 in Malaysian TVET Institutions",
+        language: "EN",
+        gap_id: gapId,
+        rationale: "Directly models the intersection of institutional instructor readiness and empirical student competency deficits.",
+      },
+      {
+        title: "Kerangka Penilaian Kompetensi dan Kesediaan Industri 4.0 dalam Kalangan Pelajar Kolej Vokasional Malaysia",
+        language: "BM",
+        gap_id: gapId,
+        rationale: "Sesuai untuk tesis pascasiswazah dalam Bahasa Melayu yang memberi tumpuan kepada kolej vokasional dan politeknik tempatan.",
+      },
+      {
+        title: "A Structural Equation Model of Public-Private Apprenticeship Linkages and Graduate Employability in TVET Institutes",
+        language: "EN",
+        gap_id: gapId,
+        rationale: "Provides quantitative structural modeling for tripartite industrial training partnerships in Johor and Selangor.",
+      },
+    ];
+  }
+
+  const cleanTitle = topic ? topic.replace(/^(empirical analysis of|investigation into)\s+/i, "") : "Digital Innovation";
+  return [
     {
-      milestone_id: "M1",
-      title: "Proposal Defense & Theoretical Framework Approval",
-      description: "Synthesize literature review, finalize survey instrument, and present to faculty defense committee.",
-      target_month: "Month 3",
+      title: `Empirical Analysis of Institutional Readiness and Adoption Barriers in Malaysian ${cleanTitle}`,
+      language: "EN",
+      gap_id: gapId,
+      rationale: "Directly models the theoretical constructs of technology acceptance with empirical data from Malaysian institutions.",
     },
     {
-      milestone_id: "M2",
-      title: "Pilot Study & Instrument Validation",
-      description: "Administer pilot questionnaire to 30 micro-retailers in Iskandar Malaysia; test Cronbach's alpha and composite reliability.",
-      target_month: "Month 5",
+      title: `Analisis Empirikal Cabaran dan Faktor Penerimaan ${cleanTitle} dalam Konteks Institusi Malaysia`,
+      language: "BM",
+      gap_id: gapId,
+      rationale: "Sesuai untuk tesis penyelidikan dalam Bahasa Melayu yang memenuhi piawaian akademik peringkat tinggi.",
     },
     {
-      milestone_id: "M3",
-      title: "Field Data Collection & SEM Modeling",
-      description: "Collect complete cross-sectional data from 250 SME merchants across Johor commercial corridors; conduct PLS-SEM analysis in SmartPLS.",
-      target_month: "Month 8",
+      title: `A Moderated Structural Equation Model of Operational Trust and Policy Incentives in ${cleanTitle}`,
+      language: "EN",
+      gap_id: gapId,
+      rationale: "Addresses specific institutional and regulatory friction points identified in recent literature.",
     },
-    {
-      milestone_id: "M4",
-      title: "Thesis Submission & Viva Voce",
-      description: "Finalize thesis chapters, submit dissertation draft for examiner review, and defend in oral examination.",
-      target_month: "Month 12",
-    },
-  ],
-  necessary_resources: [
-    {
-      category: "Software & Analytical Tools",
-      item: "SmartPLS 4 & SPSS Statistics 28",
-      justification: "Required for structural equation modeling, indicator loadings, and mediation testing.",
-    },
-    {
-      category: "Data & Institutional Access",
-      item: "Johor SME Association Merchant Registry",
-      justification: "Sampling frame access for stratified random sampling of retail micro-enterprises.",
-    },
-    {
-      category: "Regulatory & Ethics",
-      item: "Institutional Human Research Ethics Clearance (UTM REC)",
-      justification: "Mandatory prior to field survey distribution involving small business proprietors.",
-    },
-  ],
-};
+  ];
+}
+
+export function getPlanForTopic(title: string, gapId: string = "GAP-1") {
+  return {
+    plan_id: `plan-${Date.now()}`,
+    title: title || "Empirical Research Plan on Malaysian Institutional Systems",
+    gap_id: gapId,
+    version: 1,
+    objectives: [
+      {
+        objective_id: "RO-1",
+        text: `To identify and critically evaluate the key adoption barriers and empirical factors impacting ${title}.`,
+      },
+      {
+        objective_id: "RO-2",
+        text: "To construct and empirically test an extended structural equation model (PLS-SEM) incorporating institutional readiness.",
+      },
+      {
+        objective_id: "RO-3",
+        text: "To formulate actionable policy and strategic recommendations for Malaysian institutional stakeholders and regulatory bodies.",
+      },
+    ],
+    key_milestones: [
+      {
+        milestone_id: "M1",
+        title: "Proposal Defense & Theoretical Framework Approval",
+        description: "Synthesize literature review, finalize survey instrument/methodology, and defend before faculty committee.",
+        target_month: "Month 3",
+      },
+      {
+        milestone_id: "M2",
+        title: "Pilot Testing & Instrument Reliability Verification",
+        description: "Administer pilot questionnaire to 30 sample respondents; test Cronbach's alpha and indicator loadings in SmartPLS.",
+        target_month: "Month 5",
+      },
+      {
+        milestone_id: "M3",
+        title: "Field Data Collection & Structural Equation Modeling",
+        description: "Collect cross-sectional data from 250 verified participants; perform full hypothesis testing and path analysis.",
+        target_month: "Month 8",
+      },
+      {
+        milestone_id: "M4",
+        title: "Thesis Finalization & Oral Defense (Viva Voce)",
+        description: "Complete all thesis chapters, submit dissertation to external examiners, and defend findings in viva voce.",
+        target_month: "Month 12",
+      },
+    ],
+    necessary_resources: [
+      {
+        category: "Software & Analytical Tools",
+        item: "SmartPLS 4 & IBM SPSS Statistics 28",
+        justification: "Mandatory for composite reliability, discriminant validity, and structural path coefficient analysis.",
+      },
+      {
+        category: "Institutional Sampling Frame",
+        item: "Malaysian Institutional Participant Registry",
+        justification: "Required for stratified random sampling to ensure generalizable and defensible findings.",
+      },
+      {
+        category: "Ethics & Compliance Clearance",
+        item: "University Human Research Ethics Committee (REC) Approval",
+        justification: "Institutional requirement prior to distributing questionnaires or conducting interviews.",
+      },
+    ],
+  };
+}
 
 export const INITIAL_DEMO_PROJECTS = [
   {
@@ -222,13 +362,14 @@ export const INITIAL_DEMO_PROJECTS = [
       topic: "Malaysian SME Cashless Payment Adoption",
       scope: "MY",
       papers: DEMO_SEARCH_PAPERS,
-      gaps: DEMO_GAPS,
-      chosen_gap: DEMO_GAPS[0],
-      titles: DEMO_TITLES,
-      chosen_title: DEMO_TITLES[0].title,
+      gaps: getGapsForTopic("e-wallet"),
+      chosen_gap: getGapsForTopic("e-wallet")[0],
+      titles: getTitlesForTopic("e-wallet"),
+      chosen_title: getTitlesForTopic("e-wallet")[0].title,
       deepdive_papers: DEMO_SEARCH_PAPERS.slice(0, 4),
-      plan: DEMO_PLAN,
+      plan: getPlanForTopic("Empirical Analysis of Cybersecurity Trust Deficits in QR-Based Mobile Payment Adoption Among Semi-Rural Malaysian Micro-Enterprises"),
     },
+    current_plan_json: getPlanForTopic("Empirical Analysis of Cybersecurity Trust Deficits in QR-Based Mobile Payment Adoption Among Semi-Rural Malaysian Micro-Enterprises"),
     created_at: new Date(Date.now() - 3600000).toISOString(),
     updated_at: new Date().toISOString(),
   },
