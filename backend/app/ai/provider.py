@@ -653,31 +653,48 @@ def call_llm_provider(
                 lower_fb = feedback.lower()
                 fixture_data["version"] = fixture_data.get("version", 1) + 1
 
-                # Determine targeted scope for Johor Bahru and other foci
-                if "johor bahru" in lower_fb or "jb" in lower_fb:
-                    target_scope = "Kolej Vokasional and Polytechnic institutions specifically within Johor Bahru (e.g., KV Tanjung Puteri, KV Perdagangan JB, and Politeknik Ibrahim Sultan)"
-                    target_scope_short = "Johor Bahru technical and vocational campuses"
-                    stakeholder_scope = "Johor Bahru vocational directors, Johor State Education Department (JPN Johor), and Southern Corridor (Iskandar Malaysia/Pasir Gudang) stakeholders"
-                    scope_name = "Johor Bahru"
-                elif "selangor" in lower_fb:
-                    target_scope = "Kolej Vokasional and Polytechnic institutions across Selangor (e.g., KV Shah Alam, KV Klang, Politeknik Sultan Salahuddin Abdul Aziz Shah)"
-                    target_scope_short = "Selangor technical campuses"
-                    stakeholder_scope = "Selangor State Education Department and Klang Valley industrial development councils"
-                    scope_name = "Selangor"
-                elif "penang" in lower_fb:
-                    target_scope = "Kolej Vokasional and Polytechnic campuses across Penang (Seberang Perai and Bayan Lepas clusters)"
-                    target_scope_short = "Penang technical institutions"
-                    stakeholder_scope = "Penang State Education Department and PSDC industrial partners"
-                    scope_name = "Penang"
-                else:
-                    scope_name = feedback.capitalize()
-                    target_scope = f"Malaysian technical and higher education institutions with specific focus on {feedback}"
-                    target_scope_short = f"participating campuses focusing on {feedback}"
-                    stakeholder_scope = f"Malaysian educational leadership, policy directors, and {feedback} stakeholders"
+                # Clean conversational preambles
+                cleaned_subject = re.sub(
+                    r'^(?:please\s+|can\s+you\s+|could\s+you\s+|i\s+(?:want|need|wish|would\s+like)\s+to\s+|my\s+supervisor\s+(?:wants|asked|suggested|told)\s+(?:me\s+)?to\s+|we\s+(?:need|should|want)\s+to\s+|try\s+to\s+|how\s+about\s+|what\s+if\s+we\s+|change\s+(?:to\s+)?|switch\s+(?:to\s+)?|update\s+(?:to\s+)?|add\s+|include\s+|look\s+into\s+|study\s+|investigate\s+|examine\s+|explore\s+|focus(?:ing)?\s+on\s+|concentrate\s+on\s+|emphasize\s+|target(?:ing)?\s+|tailor(?:ed)?\s+to\s+|scoped?\s+to\s+)',
+                    '',
+                    feedback,
+                    flags=re.IGNORECASE
+                ).strip('.?! ')
+                cleaned_subject = re.sub(r'^(?:also\s+|make\s+sure\s+|now\s+|kindly\s+|furthermore\s+)', '', cleaned_subject, flags=re.IGNORECASE).strip()
+
+                # Determine location
+                detected_location = ""
+                loc_institutions = ""
+                loc_stakeholders = ""
+                if any(x in lower_fb for x in ["johor bahru", "jb", "tanjung puteri", "pasir gudang", "iskandar"]):
+                    detected_location = "Johor Bahru"
+                    loc_institutions = "Kolej Vokasional and Polytechnic institutions specifically within Johor Bahru (e.g., KV Tanjung Puteri, KV Perdagangan JB, and Politeknik Ibrahim Sultan)"
+                    loc_stakeholders = "Johor Bahru vocational directors, Johor State Education Department (JPN Johor), and Southern Corridor (Iskandar Malaysia/Pasir Gudang) stakeholders"
+                elif any(x in lower_fb for x in ["selangor", "shah alam", "klang", "bangi"]):
+                    detected_location = "Selangor"
+                    loc_institutions = "Kolej Vokasional and Polytechnic institutions across Selangor (e.g., KV Shah Alam, KV Klang, and Politeknik Sultan Salahuddin Abdul Aziz Shah)"
+                    loc_stakeholders = "Selangor State Education Department (JPN Selangor) and Klang Valley industrial development councils"
+                elif "penang" in lower_fb or "pulau pinang" in lower_fb:
+                    detected_location = "Penang"
+                    loc_institutions = "Kolej Vokasional and Polytechnic campuses across Penang (Seberang Perai and Bayan Lepas clusters)"
+                    loc_stakeholders = "Penang State Education Department and Penang Skills Development Centre (PSDC) industrial partners"
+                elif "sabah" in lower_fb or "sarawak" in lower_fb:
+                    detected_location = "Sabah" if "sabah" in lower_fb else "Sarawak"
+                    loc_institutions = f"technical and vocational institutions across {detected_location}"
+                    loc_stakeholders = f"{detected_location} State Education Department and regional technical advisory panels"
+
+                # Topic and Cohort
+                topic_focus = cleaned_subject or detected_location or "Curriculum Modernization & Technical Competency"
+                formatted_focus = topic_focus[:55].capitalize()
+                scope_name = detected_location or formatted_focus
+
+                target_scope = loc_institutions or f"Malaysian technical and higher education institutions with specific focus on {topic_focus}"
+                target_scope_short = f"{detected_location} technical institutions" if detected_location else "participating Malaysian educational campuses"
+                stakeholder_scope = loc_stakeholders or f"Malaysian educational directors, curriculum heads, and {topic_focus} stakeholders"
 
                 fixture_data["scope_focus"] = scope_name
                 if "title" in fixture_data and scope_name and scope_name.lower() not in fixture_data["title"].lower():
-                    fixture_data["title"] = f"{fixture_data['title']}: An Empirical Study in {scope_name}"
+                    fixture_data["title"] = f"{fixture_data['title']}: Focus on {scope_name}"
 
                 fixture_data["methodology_summary"] = (
                     f"Refined Research Architecture (v{fixture_data['version']}) tailored to: '{feedback}'. "
@@ -686,26 +703,26 @@ def call_llm_provider(
 
                 if fixture_data.get("objectives") and len(fixture_data["objectives"]) >= 3:
                     fixture_data["objectives"][0]["text"] = (
-                        f"To identify, evaluate, and prioritize the key empirical factors and operational barriers impacting {target_scope}."
+                        f"To identify, evaluate, and prioritize the key empirical factors and operational barriers impacting {topic_focus} within {target_scope}."
                     )
                     fixture_data["objectives"][1]["text"] = (
-                        f"To construct and empirically test an extended structural equation model (PLS-SEM) measuring the predictive relationships between institutional readiness, digital competency, and curriculum modernizations within {target_scope_short}."
+                        f"To construct and empirically test an extended structural equation model (PLS-SEM) measuring the predictive relationships between institutional readiness, digital competency, and curriculum modernizations focusing on {topic_focus} within {target_scope_short}."
                     )
                     fixture_data["objectives"][2]["text"] = (
-                        f"To formulate actionable institutional policy frameworks and strategic implementation roadmaps for {stakeholder_scope}."
+                        f"To formulate actionable institutional policy frameworks and strategic implementation roadmaps for {stakeholder_scope} to foster sustainable {topic_focus} advancements."
                     )
 
                 if fixture_data.get("key_milestones"):
                     for m in fixture_data["key_milestones"]:
                         mid = m.get("milestone_id")
                         if mid == "M1":
-                            m["description"] = f"Synthesize literature review, operationalize constructs tailored specifically to {target_scope_short}, and secure departmental committee defense approval."
+                            m["description"] = f"Synthesize systematic literature review on {topic_focus}, operationalize constructs tailored to {target_scope_short}, and secure departmental defense approval."
                         elif mid == "M2":
-                            m["description"] = f"Administer pilot testing with 30 target vocational educators and respondents from {target_scope_short}; establish composite reliability and Cronbach's alpha > 0.70."
+                            m["description"] = f"Administer pilot testing with target educators and respondents from {target_scope_short}; establish composite reliability and Cronbach's alpha > 0.70."
                         elif mid == "M3":
-                            m["description"] = f"Collect empirical cross-sectional data (N=250) from {target_scope_short}; perform path coefficient estimation and hypothesis testing in SmartPLS 4."
+                            m["description"] = f"Collect empirical cross-sectional data from {target_scope_short}; perform path coefficient estimation and hypothesis testing in SmartPLS 4."
                         elif mid == "M4":
-                            m["description"] = f"Compile dissertation findings, submit draft with localized policy implications for {scope_name} to external examiners, and successfully defend thesis before the faculty viva board."
+                            m["description"] = f"Compile dissertation findings, submit draft with localized policy implications for {stakeholder_scope} to external examiners, and defend thesis before faculty viva board."
 
             return ProviderResponse(
                 content=json.dumps(fixture_data),
