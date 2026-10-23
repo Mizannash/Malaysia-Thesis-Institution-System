@@ -129,26 +129,6 @@ export const DEMO_SEARCH_PAPERS = [
     source: "openalex",
     citation_count: 12,
   },
-  {
-    title: "Mobile Payment System Architecture and Compliance with Bank Negara Malaysia Regulatory Framework",
-    authors: ["Norhayati Sulaiman"],
-    year: 2021,
-    doi: "10.11113/englet.v30.89100",
-    url: "https://doi.org/10.11113/englet.v30.89100",
-    abstract: "Architectural analysis of payment gateway latency, compliance requirements under the Financial Services Act 2013, and customer authentication protocols.",
-    source: "utm",
-    citation_count: 16,
-  },
-  {
-    title: "Fintech Adoption In Retail Food and Beverage Micro-Enterprises Across Johor Southern Corridor",
-    authors: ["Harpreet Kaur", "Zalina Yusof"],
-    year: 2023,
-    doi: "10.11113/utmpj.v19n1.101452",
-    url: "https://doi.org/10.11113/utmpj.v19n1.101452",
-    abstract: "Investigating operational transitions from physical cash handling to DuitNow QR and Touch 'n Go eWallet platforms during post-pandemic recovery among hawkers in Iskandar Malaysia.",
-    source: "utm",
-    citation_count: 15,
-  },
 ];
 
 export function getPapersForQuery(query: string, scope: string = "MY") {
@@ -160,7 +140,6 @@ export function getPapersForQuery(query: string, scope: string = "MY") {
     return DEMO_SEARCH_PAPERS;
   }
 
-  // Dynamic academic fallback for arbitrary user topics
   const capTopic = query.trim().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
   return [
     {
@@ -286,68 +265,288 @@ export function getTitlesForTopic(topic: string, gapId: string = "GAP-1") {
 }
 
 export function getPlanForTopic(title: string, gapId: string = "GAP-1") {
+  const isTvet = (title || "").toLowerCase().includes("tvet") || (title || "").toLowerCase().includes("vokasional") || (title || "").toLowerCase().includes("polytechnic");
+  
+  const objectives = isTvet
+    ? [
+        {
+          objective_id: "RO-1",
+          text: "To identify and evaluate the specific curriculum and technological readiness friction points among Kolej Vokasional and Polytechnic instructors.",
+        },
+        {
+          objective_id: "RO-2",
+          text: "To construct and empirically validate a structural equation model (PLS-SEM) measuring the impact of digitized workshop instruction on apprentice employability.",
+        },
+        {
+          objective_id: "RO-3",
+          text: "To formulate actionable policy and strategic recommendations for the National TVET Council and institutional curriculum directors.",
+        },
+      ]
+    : [
+        {
+          objective_id: "RO-1",
+          text: `To identify and critically evaluate the key adoption barriers and empirical factors impacting ${title}.`,
+        },
+        {
+          objective_id: "RO-2",
+          text: "To construct and empirically test an extended structural equation model (PLS-SEM) incorporating institutional readiness.",
+        },
+        {
+          objective_id: "RO-3",
+          text: "To formulate actionable policy and strategic recommendations for Malaysian institutional stakeholders and regulatory bodies.",
+        },
+      ];
+
+  const milestones = [
+    {
+      milestone_id: "M1",
+      title: "Proposal Defense & Theoretical Framework Approval",
+      description: "Synthesize literature review, finalize survey instrument and research methodology, and secure departmental committee defense approval.",
+      target_month: "Month 3",
+    },
+    {
+      milestone_id: "M2",
+      title: "Pilot Testing & Scale Reliability Verification",
+      description: "Administer pilot testing with 30 target respondents; establish composite reliability and Cronbach's alpha > 0.70 in SmartPLS.",
+      target_month: "Month 5",
+    },
+    {
+      milestone_id: "M3",
+      title: "Field Sampling & Computational Modeling",
+      description: "Collect empirical cross-sectional data (N=250) from target campuses; perform structural path modeling and hypothesis testing.",
+      target_month: "Month 8",
+    },
+    {
+      milestone_id: "M4",
+      title: "Thesis Finalization & Oral Defense (Viva Voce)",
+      description: "Compile dissertation findings, submit dissertation draft to external examiners, and defend findings before faculty viva board.",
+      target_month: "Month 12",
+    },
+  ];
+
+  const timeline = [
+    {
+      phase_name: "Phase 1: Conceptual Scoping & Institutional REC Ethics Clearance",
+      months: "Months 1–3",
+      tasks: [
+        "Synthesize comprehensive literature review on Malaysian institutional frameworks",
+        "Formulate conceptual model and operationalize indicator constructs",
+        "Secure Institutional Human Research Ethics Committee (REC) clearance"
+      ]
+    },
+    {
+      phase_name: "Phase 2: Instrument Validation & Pilot Testing",
+      months: "Months 4–6",
+      tasks: [
+        "Develop bilingual (EN/BM) survey questionnaire instrument",
+        "Administer pilot test to 30 respondents for reliability verification",
+        "Conduct Exploratory Factor Analysis (EFA) and refine scale items"
+      ]
+    },
+    {
+      phase_name: "Phase 3: Large-Scale Field Sampling & Computational Modeling",
+      months: "Months 7–9",
+      tasks: [
+        "Execute stratified random sampling across participating campuses",
+        "Perform Confirmatory Composite Analysis and PLS-SEM path modeling",
+        "Conduct mediation, moderation, and multi-group analysis in SmartPLS 4"
+      ]
+    },
+    {
+      phase_name: "Phase 4: Dissertation Finalization & Viva Voce Defense",
+      months: "Months 10–12",
+      tasks: [
+        "Compile empirical findings, discussion, and theoretical contributions",
+        "Formulate actionable policy roadmaps for institutional stakeholders",
+        "Submit dissertation for examination and conduct oral viva voce defense"
+      ]
+    }
+  ];
+
+  const necessary_resources = [
+    {
+      category: "Software & Analytical Tools",
+      item: "SmartPLS 4 & IBM SPSS Statistics 28",
+      justification: "Mandatory for composite reliability, discriminant validity, and structural path coefficient analysis.",
+    },
+    {
+      category: "Institutional Sampling Frame",
+      item: isTvet ? "Malaysian Kolej Vokasional & Polytechnic Institutional Directory" : "Malaysian Institutional Participant Registry",
+      justification: "Required for stratified random sampling to ensure generalizable and defensible findings.",
+    },
+    {
+      category: "Ethics & Compliance Clearance",
+      item: "University Human Research Ethics Committee (REC) Approval",
+      justification: "Institutional requirement prior to distributing questionnaires or conducting interviews.",
+    },
+    {
+      category: "Field Research & Sampling Grant",
+      item: "Institutional Travel & Sampling Operational Grant",
+      justification: "Covers enumerator travel, printed instrument distribution, and respondent honorariums across campuses.",
+    }
+  ];
+
   return {
     plan_id: `plan-${Date.now()}`,
     title: title || "Empirical Research Plan on Malaysian Institutional Systems",
     gap_id: gapId,
     version: 1,
-    objectives: [
-      {
-        objective_id: "RO-1",
-        text: `To identify and critically evaluate the key adoption barriers and empirical factors impacting ${title}.`,
-      },
-      {
-        objective_id: "RO-2",
-        text: "To construct and empirically test an extended structural equation model (PLS-SEM) incorporating institutional readiness.",
-      },
-      {
-        objective_id: "RO-3",
-        text: "To formulate actionable policy and strategic recommendations for Malaysian institutional stakeholders and regulatory bodies.",
-      },
-    ],
-    key_milestones: [
-      {
-        milestone_id: "M1",
-        title: "Proposal Defense & Theoretical Framework Approval",
-        description: "Synthesize literature review, finalize survey instrument/methodology, and defend before faculty committee.",
-        target_month: "Month 3",
-      },
-      {
-        milestone_id: "M2",
-        title: "Pilot Testing & Instrument Reliability Verification",
-        description: "Administer pilot questionnaire to 30 sample respondents; test Cronbach's alpha and indicator loadings in SmartPLS.",
-        target_month: "Month 5",
-      },
-      {
-        milestone_id: "M3",
-        title: "Field Data Collection & Structural Equation Modeling",
-        description: "Collect cross-sectional data from 250 verified participants; perform full hypothesis testing and path analysis.",
-        target_month: "Month 8",
-      },
-      {
-        milestone_id: "M4",
-        title: "Thesis Finalization & Oral Defense (Viva Voce)",
-        description: "Complete all thesis chapters, submit dissertation to external examiners, and defend findings in viva voce.",
-        target_month: "Month 12",
-      },
-    ],
-    necessary_resources: [
-      {
-        category: "Software & Analytical Tools",
-        item: "SmartPLS 4 & IBM SPSS Statistics 28",
-        justification: "Mandatory for composite reliability, discriminant validity, and structural path coefficient analysis.",
-      },
-      {
-        category: "Institutional Sampling Frame",
-        item: "Malaysian Institutional Participant Registry",
-        justification: "Required for stratified random sampling to ensure generalizable and defensible findings.",
-      },
-      {
-        category: "Ethics & Compliance Clearance",
-        item: "University Human Research Ethics Committee (REC) Approval",
-        justification: "Institutional requirement prior to distributing questionnaires or conducting interviews.",
-      },
-    ],
+    methodology_summary: "A rigorous mixed-methods / PLS-SEM empirical research design adhering to Malaysian thesis standards, structured across 4 deliverable phases.",
+    objectives,
+    key_milestones: milestones,
+    timeline,
+    necessary_resources,
+  };
+}
+
+/**
+ * Intelligent Academic Refinement Engine
+ * Dynamically re-synthesizes the 3 core objectives, adjusts deliverable milestones,
+ * updates high-level timeline & phases, and tailors institutional resources.
+ */
+export function refineResearchPlan(currentPlan: any, prompt: string) {
+  const p = (prompt || "").trim();
+  const lower = p.toLowerCase();
+  const newVersion = (currentPlan?.version || 1) + 1;
+
+  // 1. RE-SYNTHESIZE THE 3 CORE OBJECTIVES (Keep exactly 3 disciplined SMART objectives, do NOT accumulate 6+ objectives)
+  const isTvet = lower.includes("tvet") || lower.includes("vokasional") || lower.includes("polytechnic") || (currentPlan.title || "").toLowerCase().includes("tvet");
+  
+  let targetScope = "Malaysian higher education institutions";
+  if (lower.includes("selangor") || lower.includes("johor")) {
+    targetScope = "Kolej Vokasional and Polytechnic institutions across Selangor and Johor";
+  } else if (lower.includes("sme") || lower.includes("micro")) {
+    targetScope = "Malaysian SME retail micro-enterprises";
+  } else if (isTvet) {
+    targetScope = "Malaysian Kolej Vokasional and technical training institutes";
+  }
+
+  const isQualitative = lower.includes("interview") || lower.includes("qualitative") || lower.includes("mixed");
+  const methodologyText = isQualitative
+    ? "To construct and empirically validate a mixed-methods structural model integrating qualitative semi-structured expert interviews with PLS-SEM survey data"
+    : "To construct and empirically test an extended structural equation model (PLS-SEM) measuring the predictive relationships between institutional readiness and outcome competencies";
+
+  const objectives = [
+    {
+      objective_id: "RO-1",
+      text: `To identify, evaluate, and prioritize the key empirical factors and operational barriers impacting ${targetScope}.`,
+    },
+    {
+      objective_id: "RO-2",
+      text: `${methodologyText} within ${targetScope}.`,
+    },
+    {
+      objective_id: "RO-3",
+      text: `To formulate actionable institutional policy frameworks and strategic implementation roadmaps for Malaysian educational directors and stakeholders.`,
+    },
+  ];
+
+  // 2. ADAPT MILESTONES & TIMELINE
+  let isShortened = lower.includes("shorten") || lower.includes("reduce") || lower.includes("9 month") || lower.includes("6 month");
+  let isExtended = lower.includes("18 month") || lower.includes("24 month") || lower.includes("extend");
+
+  const mTarget1 = isShortened ? "Month 2" : isExtended ? "Month 4" : "Month 3";
+  const mTarget2 = isShortened ? "Month 4" : isExtended ? "Month 7" : "Month 5";
+  const mTarget3 = isShortened ? "Month 7" : isExtended ? "Month 13" : "Month 8";
+  const mTarget4 = isShortened ? "Month 9" : isExtended ? "Month 18" : "Month 12";
+
+  const milestones = [
+    {
+      milestone_id: "M1",
+      title: "Proposal Defense & Theoretical Framework Approval",
+      description: `Synthesize literature review, operationalize constructs tailored to ${targetScope}, and secure departmental committee defense approval.`,
+      target_month: mTarget1,
+    },
+    {
+      milestone_id: "M2",
+      title: "Pilot Testing & Scale Reliability Verification",
+      description: `Administer pilot testing with 30 target respondents in ${targetScope}; establish composite reliability and Cronbach's alpha > 0.70.`,
+      target_month: mTarget2,
+    },
+    {
+      milestone_id: "M3",
+      title: "Field Sampling & Computational Modeling",
+      description: `Collect empirical cross-sectional data (N=250) from ${targetScope}; perform path coefficient estimation and hypothesis testing in SmartPLS 4.`,
+      target_month: mTarget3,
+    },
+    {
+      milestone_id: "M4",
+      title: "Thesis Submission & Oral Viva Voce Defense",
+      description: `Compile dissertation findings, submit draft to external examiners, and successfully defend thesis before the faculty viva board.`,
+      target_month: mTarget4,
+    },
+  ];
+
+  const timeline = [
+    {
+      phase_name: "Phase 1: Scoping, Literature Synthesis & Ethics Clearance",
+      months: isShortened ? "Months 1–2" : isExtended ? "Months 1–4" : "Months 1–3",
+      tasks: [
+        `Conduct systematic literature review focusing on ${targetScope}`,
+        "Operationalize indicator scales and theoretical construct items",
+        "Obtain Human Research Ethics Committee (REC) approval clearance"
+      ]
+    },
+    {
+      phase_name: "Phase 2: Bilingual Instrument Pilot & Qualitative Pre-testing",
+      months: isShortened ? "Months 3–4" : isExtended ? "Months 5–7" : "Months 4–6",
+      tasks: [
+        `Distribute pilot instrument to 30 respondents in ${targetScope}`,
+        "Run convergent and discriminant validity tests in SmartPLS",
+        isQualitative ? "Conduct initial semi-structured exploratory interviews" : "Refine survey items based on pilot feedback"
+      ]
+    },
+    {
+      phase_name: "Phase 3: Field Sampling & Advanced Statistical Modeling",
+      months: isShortened ? "Months 5–7" : isExtended ? "Months 8–13" : "Months 7–9",
+      tasks: [
+        `Administer primary data collection across campuses in ${targetScope}`,
+        "Perform Confirmatory Composite Analysis and PLS-SEM path modeling",
+        "Conduct mediation, moderation, and robustness checks"
+      ]
+    },
+    {
+      phase_name: "Phase 4: Thesis Dissertation Compilation & Viva Voce Defense",
+      months: isShortened ? "Months 8–9" : isExtended ? "Months 14–18" : "Months 10–12",
+      tasks: [
+        "Write up empirical findings, discussion, and theoretical contributions",
+        "Present draft to academic supervisory committee for final sign-off",
+        "Formal thesis submission and oral examination (Viva Voce)"
+      ]
+    }
+  ];
+
+  const necessary_resources = [
+    {
+      category: "Software & Analytical Tools",
+      item: isQualitative ? "SmartPLS 4, NVivo 14 & IBM SPSS 28" : "SmartPLS 4 & IBM SPSS Statistics 28",
+      justification: "Required for structural equation modeling, path coefficient testing, and qualitative thematic analysis.",
+    },
+    {
+      category: "Institutional Sampling Frame",
+      item: `Institutional Directory of ${targetScope}`,
+      justification: "Sampling frame required to conduct stratified random sampling across participating campuses.",
+    },
+    {
+      category: "Ethics & Compliance Clearance",
+      item: "Institutional Human Research Ethics Committee (REC) Approval",
+      justification: "Mandatory prior to administering questionnaires or conducting interviews with institutional personnel.",
+    },
+    {
+      category: "Field Research Grant",
+      item: "Operational Field Research & Participant Travel Grant",
+      justification: `Covers fieldwork expenses, travel across campuses in ${targetScope}, and participant remuneration.`,
+    }
+  ];
+
+  return {
+    ...currentPlan,
+    version: newVersion,
+    methodology_summary: `Refined Research Architecture (v${newVersion}) tailored to: "${p}". Maintains 3 disciplined SMART objectives, synchronized milestones, full timeline, and institutional resource allocations.`,
+    objectives,
+    key_milestones: milestones,
+    timeline,
+    necessary_resources,
   };
 }
 

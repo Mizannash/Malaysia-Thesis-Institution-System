@@ -6,6 +6,7 @@ import {
   getGapsForTopic,
   getTitlesForTopic,
   getPlanForTopic,
+  refineResearchPlan,
 } from "./demoData";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -265,21 +266,14 @@ function handleOfflineDemoResponse(endpoint: string, options: RequestInit = {}):
     let proj = projects.find((p: any) => p.id === body.project_id) || projects[0];
 
     const currentPlan = proj.current_plan_json || proj.state_json?.plan || getPlanForTopic(proj.title);
-    const newVersion = (currentPlan.version || 1) + 1;
-    const refinedPlan = {
-      ...currentPlan,
-      version: newVersion,
-      objectives: [
-        ...currentPlan.objectives,
-        {
-          objective_id: `RO-${currentPlan.objectives.length + 1}`,
-          text: `Refined Focus: ${body.user_prompt || "Enhanced quantitative indicator modeling and structural validation."}`,
-        },
-      ],
-    };
+    const refinedPlan = refineResearchPlan(currentPlan, body.user_prompt || "");
 
     proj.current_plan_json = refinedPlan;
-    proj.state_json = { ...(proj.state_json || {}), plan: refinedPlan, last_refined_at: new Date().toISOString() };
+    proj.state_json = {
+      ...(proj.state_json || {}),
+      plan: refinedPlan,
+      last_refined_at: new Date().toISOString(),
+    };
     projects = projects.map((p: any) => (p.id === proj.id ? proj : p));
     if (typeof window !== "undefined") {
       localStorage.setItem("mtis_demo_projects", JSON.stringify(projects));
@@ -288,8 +282,8 @@ function handleOfflineDemoResponse(endpoint: string, options: RequestInit = {}):
     return new Response(
       JSON.stringify({
         plan: refinedPlan,
-        plan_version: newVersion,
-        diff_summary: `Added specialized research objective based on: "${body.user_prompt}". Incremented to Plan v${newVersion}.`,
+        plan_version: refinedPlan.version,
+        diff_summary: `Successfully refined all 3 research objectives, delivery milestones, timeline phases, and institutional resources based on: "${body.user_prompt}".`,
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
