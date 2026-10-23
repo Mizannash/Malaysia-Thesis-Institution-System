@@ -110,12 +110,43 @@ docker compose down -v
 
 ---
 
+## 🌐 Mode C: Cloud Deployment (Frontend on Netlify)
+
+MTIS is structured as a modern decoupled full-stack application:
+* **Frontend**: Next.js 14 Web Application (deploys cleanly on **Netlify**)
+* **Backend**: FastAPI Python Server + PostgreSQL (deploys on Render, Railway, Fly.io, or any Docker VPS)
+
+### Deploying Frontend to Netlify from GitHub
+
+1. **Connect Repository in Netlify**:
+   * Log into [Netlify](https://app.netlify.com/) and click **"Add new site"** → **"Import an existing project"**.
+   * Select **GitHub** and authorize access to `Mizannash/Malaysia-Thesis-Institution-System`.
+
+2. **Build Settings**:
+   * Netlify automatically reads the included [`netlify.toml`](netlify.toml) with zero manual configuration required:
+     * **Base directory**: `frontend`
+     * **Build command**: `npm run build`
+     * **Publish directory**: `.next`
+
+3. **Configure Environment Variables** (In Netlify Site Settings → *Environment variables*):
+   * `NEXT_PUBLIC_API_URL`: Your live backend API URL (e.g. `https://mtis-backend.onrender.com`).
+     *(Note: If left unset or set to `http://localhost:8000`, the frontend will attempt to connect to localhost).*
+   * `NEXT_PUBLIC_DEMO_MODE`: `true`
+   * `NODE_VERSION`: `20`
+
+4. **Deploy**:
+   * Click **"Deploy site"**. Netlify will build Next.js and serve the app with global CDN distribution and SSL.
+
+---
+
 ## 🔐 Environment Variables Summary
 
-| Variable | Scope | Default (Native) | Default (Docker) | Purpose |
-| :--- | :--- | :--- | :--- | :--- |
-| `DATABASE_URL` | Backend | `postgresql://user:password@localhost:5432/...` | `postgresql://user:password@db:5432/...` | Database connection |
-| `DEMO_MODE` | Backend | `true` | `true` | Enables zero-key local fixture inference |
-| `LLM_PROVIDER` | Backend | `deepseek` | `deepseek` | Model provider (`deepseek` or `openai`) |
-| `APP_SECRET` | Backend | Random token | Random token | JWT and AES-256 master key |
-| `NEXT_PUBLIC_API_URL` | Frontend | `http://localhost:8000` | `http://localhost:8000` | Browser API target URL |
+| Variable | Scope | Default (Native) | Default (Docker) | Default (Netlify) | Purpose |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `DATABASE_URL` | Backend | `postgresql://user:password@localhost:5432/...` | `postgresql://user:password@db:5432/...` | N/A | Database connection |
+| `DEMO_MODE` | Backend | `true` | `true` | N/A | Enables zero-key local fixture inference |
+| `LLM_PROVIDER` | Backend | `deepseek` | `deepseek` | N/A | Model provider (`deepseek` or `openai`) |
+| `APP_SECRET` | Backend | Random token | Random token | N/A | JWT and AES-256 master key |
+| `NEXT_PUBLIC_API_URL` | Frontend | `http://localhost:8000` | `http://localhost:8000` | `https://your-backend.url` | Browser API target URL |
+| `NEXT_PUBLIC_DEMO_MODE`| Frontend | `true` | `true` | `true` | Demo mode UI switch |
+

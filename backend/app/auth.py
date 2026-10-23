@@ -90,12 +90,16 @@ def get_current_user(
 
     # Auto-reset daily quota if quota_reset_at has passed
     now = datetime.now(timezone.utc)
-    if user.quota_reset_at and now >= user.quota_reset_at:
-        plan_defaults = {"free": 3, "pro": 99, "enterprise": 999}
-        user.quota_remaining = plan_defaults.get(user.plan, 3)
-        user.quota_reset_at = now + timedelta(days=1)
-        db.commit()
-        db.refresh(user)
+    reset_at = user.quota_reset_at
+    if reset_at is not None:
+        if reset_at.tzinfo is None:
+            reset_at = reset_at.replace(tzinfo=timezone.utc)
+        if now >= reset_at:
+            plan_defaults = {"free": 3, "pro": 99, "enterprise": 999}
+            user.quota_remaining = plan_defaults.get(user.plan, 3)
+            user.quota_reset_at = now + timedelta(days=1)
+            db.commit()
+            db.refresh(user)
 
     # CRITICAL MULTI-TENANCY ENFORCEMENT:
     # Set the session tenant context so PostgreSQL Row Level Security (RLS) is applied
