@@ -323,6 +323,8 @@ async function handleOfflineDemoResponse(endpoint: string, options: RequestInit 
     const currentPlan = proj.current_plan_json || proj.state_json?.plan || getPlanForTopic(proj.title);
     const refinedPlan = refineResearchPlan(currentPlan, body.user_prompt || "");
 
+    proj.title = refinedPlan.title || proj.title;
+    proj.plan_version = refinedPlan.version;
     proj.current_plan_json = refinedPlan;
     proj.state_json = {
       ...(proj.state_json || {}),

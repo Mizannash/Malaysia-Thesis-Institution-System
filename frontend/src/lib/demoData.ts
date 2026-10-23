@@ -409,23 +409,117 @@ export function refineResearchPlan(currentPlan: any, prompt: string) {
   const lower = p.toLowerCase();
   const newVersion = (currentPlan?.version || 1) + 1;
 
-  // 1. RE-SYNTHESIZE THE 3 CORE OBJECTIVES (Keep exactly 3 disciplined SMART objectives, do NOT accumulate 6+ objectives)
-  const isTvet = lower.includes("tvet") || lower.includes("vokasional") || lower.includes("polytechnic") || (currentPlan.title || "").toLowerCase().includes("tvet");
-  
-  let targetScope = "Malaysian higher education institutions";
-  if (lower.includes("selangor") || lower.includes("johor")) {
-    targetScope = "Kolej Vokasional and Polytechnic institutions across Selangor and Johor";
+  const isTvet =
+    lower.includes("tvet") ||
+    lower.includes("vokasional") ||
+    lower.includes("polytechnic") ||
+    (currentPlan?.title || "").toLowerCase().includes("tvet") ||
+    (currentPlan?.title || "").toLowerCase().includes("technical");
+
+  // Determine specific geographical or sectoral focus
+  let scopeLocationName = "";
+  let targetScope = "";
+  let targetScopeShort = "";
+  let stakeholderScope = "Malaysian educational directors and institutional stakeholders";
+
+  if (
+    lower.includes("johor bahru") ||
+    lower.includes("jb") ||
+    lower.includes("tanjung puteri") ||
+    lower.includes("pasir gudang") ||
+    lower.includes("iskandar")
+  ) {
+    scopeLocationName = "Johor Bahru";
+    targetScopeShort = "Johor Bahru technical and vocational campuses";
+    targetScope = isTvet
+      ? "Kolej Vokasional and Polytechnic institutions specifically within Johor Bahru (e.g., KV Tanjung Puteri, KV Perdagangan Johor Bahru, and Politeknik Ibrahim Sultan)"
+      : "higher educational institutions located within Johor Bahru and the southern industrial corridor";
+    stakeholderScope =
+      "Johor Bahru vocational directors, Johor State Education Department (JPN Johor), and Southern Industrial Corridor (Iskandar Malaysia/Pasir Gudang) stakeholders";
+  } else if (lower.includes("selangor") && !lower.includes("johor")) {
+    scopeLocationName = "Selangor";
+    targetScopeShort = "Selangor technical and vocational campuses";
+    targetScope = isTvet
+      ? "Kolej Vokasional and Polytechnic institutions across Selangor (e.g., KV Shah Alam, KV Klang, and Politeknik Sultan Salahuddin Abdul Aziz Shah)"
+      : "higher educational institutions across Selangor";
+    stakeholderScope =
+      "Selangor State Education Department (JPN Selangor) and Klang Valley industrial development councils";
+  } else if (lower.includes("johor") && !lower.includes("selangor")) {
+    scopeLocationName = "Johor State";
+    targetScopeShort = "Johor State technical and vocational campuses";
+    targetScope = isTvet
+      ? "Kolej Vokasional and Polytechnic institutions across Johor State (e.g., KV Tanjung Puteri, KV Kluang, KV Batu Pahat, and Politeknik Ibrahim Sultan)"
+      : "higher educational institutions across Johor State";
+    stakeholderScope =
+      "Johor State Education Department (JPN Johor) and regional institutional leadership";
+  } else if (lower.includes("kuala lumpur") || lower.includes("kl") || lower.includes("putrajaya")) {
+    scopeLocationName = "Kuala Lumpur & Klang Valley";
+    targetScopeShort = "Kuala Lumpur & Klang Valley technical institutions";
+    targetScope = isTvet
+      ? "polytechnic colleges and vocational training institutes across Kuala Lumpur and Putrajaya"
+      : "higher education institutions across the Federal Territory of Kuala Lumpur";
+    stakeholderScope =
+      "Kuala Lumpur Education Department (JPWPKL) and central federal TVET curriculum committees";
+  } else if (lower.includes("penang") || lower.includes("pulau pinang")) {
+    scopeLocationName = "Penang";
+    targetScopeShort = "Penang technical and vocational institutions";
+    targetScope = isTvet
+      ? "Kolej Vokasional and Polytechnic campuses across Penang (including Seberang Perai and Bayan Lepas clusters)"
+      : "higher education institutions in Penang";
+    stakeholderScope =
+      "Penang State Education Department and Penang Skills Development Centre (PSDC) industrial partners";
+  } else if (lower.includes("sabah") || lower.includes("sarawak") || lower.includes("borneo")) {
+    const isSabah = lower.includes("sabah");
+    scopeLocationName = isSabah ? "Sabah" : "Sarawak";
+    targetScopeShort = `${scopeLocationName} technical institutions`;
+    targetScope = isTvet
+      ? `technical and vocational institutions across ${scopeLocationName}`
+      : `higher education institutions across ${scopeLocationName}`;
+    stakeholderScope = `${scopeLocationName} State Education Department and regional technical human resource advisory panels`;
   } else if (lower.includes("sme") || lower.includes("micro")) {
-    targetScope = "Malaysian SME retail micro-enterprises";
-  } else if (isTvet) {
-    targetScope = "Malaysian Kolej Vokasional and technical training institutes";
+    scopeLocationName = "Malaysian SMEs";
+    targetScopeShort = "Malaysian SME retail enterprises";
+    targetScope = "Malaysian SME retail micro-enterprises and local merchants";
+    stakeholderScope =
+      "SME Corporation Malaysia, local merchant associations, and Ministry of Entrepreneur and Cooperatives Development (KUSKOP)";
+  } else {
+    // Dynamic extraction: if user entered "focus on XYZ" or "emphasize XYZ"
+    const focusMatch = p.match(
+      /(?:focus(?:ing)?\s+on|concentrate\s+on|emphasize|tailor(?:ed)?\s+to|look\s+into|target(?:ing)?|scoped?\s+to)\s+([^,.;]+)/i
+    );
+    if (focusMatch && focusMatch[1]) {
+      const extracted = focusMatch[1].trim();
+      scopeLocationName = extracted.charAt(0).toUpperCase() + extracted.slice(1);
+      targetScopeShort = `${scopeLocationName} target institutions`;
+      targetScope = isTvet
+        ? `Kolej Vokasional and technical training institutions specifically focused on ${extracted}`
+        : `higher educational institutions specifically investigating ${extracted}`;
+      stakeholderScope = `Malaysian educational leadership, policy directors, and ${extracted} industry stakeholders`;
+    } else {
+      scopeLocationName = "National Scope";
+      targetScopeShort = isTvet ? "Malaysian TVET campuses" : "Malaysian higher education institutions";
+      targetScope = isTvet
+        ? "Malaysian Kolej Vokasional and technical training institutes"
+        : "Malaysian higher education institutions";
+      stakeholderScope = "Malaysian educational directors, institutional leadership, and curriculum stakeholders";
+    }
   }
 
+  // Update working title if scope is defined and not already in title
+  const rawBaseTitle = currentPlan?.title || "TVET Curriculum & Skill Modernization in Malaysian Technical Institutions";
+  const baseTitle = rawBaseTitle.replace(/\s*:\s*(An Empirical Study|A Case Study|Focus on).*$/i, "");
+  const updatedTitle =
+    scopeLocationName && !baseTitle.toLowerCase().includes(scopeLocationName.toLowerCase())
+      ? `${baseTitle}: An Empirical Study in ${scopeLocationName}`
+      : baseTitle;
+
+  // Methodology customization
   const isQualitative = lower.includes("interview") || lower.includes("qualitative") || lower.includes("mixed");
   const methodologyText = isQualitative
     ? "To construct and empirically validate a mixed-methods structural model integrating qualitative semi-structured expert interviews with PLS-SEM survey data"
-    : "To construct and empirically test an extended structural equation model (PLS-SEM) measuring the predictive relationships between institutional readiness and outcome competencies";
+    : "To construct and empirically test an extended structural equation model (PLS-SEM) measuring the predictive relationships between institutional readiness, digital competency, and curriculum modernizations";
 
+  // Exactly 3 SMART objectives
   const objectives = [
     {
       objective_id: "RO-1",
@@ -433,17 +527,17 @@ export function refineResearchPlan(currentPlan: any, prompt: string) {
     },
     {
       objective_id: "RO-2",
-      text: `${methodologyText} within ${targetScope}.`,
+      text: `${methodologyText} within ${targetScopeShort}.`,
     },
     {
       objective_id: "RO-3",
-      text: `To formulate actionable institutional policy frameworks and strategic implementation roadmaps for Malaysian educational directors and stakeholders.`,
+      text: `To formulate actionable institutional policy frameworks and strategic implementation roadmaps for ${stakeholderScope}.`,
     },
   ];
 
-  // 2. ADAPT MILESTONES & TIMELINE
-  let isShortened = lower.includes("shorten") || lower.includes("reduce") || lower.includes("9 month") || lower.includes("6 month");
-  let isExtended = lower.includes("18 month") || lower.includes("24 month") || lower.includes("extend");
+  // Adapt Milestones & Timeline
+  const isShortened = lower.includes("shorten") || lower.includes("reduce") || lower.includes("9 month") || lower.includes("6 month");
+  const isExtended = lower.includes("18 month") || lower.includes("24 month") || lower.includes("extend");
 
   const mTarget1 = isShortened ? "Month 2" : isExtended ? "Month 4" : "Month 3";
   const mTarget2 = isShortened ? "Month 4" : isExtended ? "Month 7" : "Month 5";
@@ -454,25 +548,25 @@ export function refineResearchPlan(currentPlan: any, prompt: string) {
     {
       milestone_id: "M1",
       title: "Proposal Defense & Theoretical Framework Approval",
-      description: `Synthesize literature review, operationalize constructs tailored to ${targetScope}, and secure departmental committee defense approval.`,
+      description: `Synthesize literature review, operationalize constructs tailored specifically to ${targetScopeShort}, and secure departmental committee defense approval.`,
       target_month: mTarget1,
     },
     {
       milestone_id: "M2",
       title: "Pilot Testing & Scale Reliability Verification",
-      description: `Administer pilot testing with 30 target respondents in ${targetScope}; establish composite reliability and Cronbach's alpha > 0.70.`,
+      description: `Administer pilot testing with 30 target vocational educators and respondents from ${targetScopeShort}; establish composite reliability and Cronbach's alpha > 0.70.`,
       target_month: mTarget2,
     },
     {
       milestone_id: "M3",
       title: "Field Sampling & Computational Modeling",
-      description: `Collect empirical cross-sectional data (N=250) from ${targetScope}; perform path coefficient estimation and hypothesis testing in SmartPLS 4.`,
+      description: `Collect empirical cross-sectional data (N=250) from ${targetScopeShort}; perform path coefficient estimation and hypothesis testing in SmartPLS 4.`,
       target_month: mTarget3,
     },
     {
       milestone_id: "M4",
       title: "Thesis Submission & Oral Viva Voce Defense",
-      description: `Compile dissertation findings, submit draft to external examiners, and successfully defend thesis before the faculty viva board.`,
+      description: `Compile dissertation findings, submit draft with localized policy implications for ${scopeLocationName || targetScopeShort} to external examiners, and successfully defend thesis before the faculty viva board.`,
       target_month: mTarget4,
     },
   ];
@@ -482,8 +576,8 @@ export function refineResearchPlan(currentPlan: any, prompt: string) {
       phase_name: "Phase 1: Scoping, Literature Synthesis & Ethics Clearance",
       months: isShortened ? "Months 1–2" : isExtended ? "Months 1–4" : "Months 1–3",
       tasks: [
-        `Conduct systematic literature review focusing on ${targetScope}`,
-        "Operationalize indicator scales and theoretical construct items",
+        `Conduct systematic literature review focusing on institutional readiness and curriculum needs in ${scopeLocationName || targetScopeShort}`,
+        `Operationalize indicator scales and theoretical construct items tailored to ${targetScopeShort}`,
         "Obtain Human Research Ethics Committee (REC) approval clearance"
       ]
     },
@@ -491,16 +585,16 @@ export function refineResearchPlan(currentPlan: any, prompt: string) {
       phase_name: "Phase 2: Bilingual Instrument Pilot & Qualitative Pre-testing",
       months: isShortened ? "Months 3–4" : isExtended ? "Months 5–7" : "Months 4–6",
       tasks: [
-        `Distribute pilot instrument to 30 respondents in ${targetScope}`,
-        "Run convergent and discriminant validity tests in SmartPLS",
-        isQualitative ? "Conduct initial semi-structured exploratory interviews" : "Refine survey items based on pilot feedback"
+        `Distribute pilot instrument to 30 respondents across ${targetScopeShort}`,
+        "Run convergent and discriminant validity tests in SmartPLS 4",
+        isQualitative ? "Conduct initial semi-structured exploratory interviews" : "Refine survey items based on pilot feedback from local educators"
       ]
     },
     {
       phase_name: "Phase 3: Field Sampling & Advanced Statistical Modeling",
       months: isShortened ? "Months 5–7" : isExtended ? "Months 8–13" : "Months 7–9",
       tasks: [
-        `Administer primary data collection across campuses in ${targetScope}`,
+        `Administer primary data collection across participating campuses in ${targetScopeShort}`,
         "Perform Confirmatory Composite Analysis and PLS-SEM path modeling",
         "Conduct mediation, moderation, and robustness checks"
       ]
@@ -510,7 +604,7 @@ export function refineResearchPlan(currentPlan: any, prompt: string) {
       months: isShortened ? "Months 8–9" : isExtended ? "Months 14–18" : "Months 10–12",
       tasks: [
         "Write up empirical findings, discussion, and theoretical contributions",
-        "Present draft to academic supervisory committee for final sign-off",
+        `Formulate localized institutional policy roadmaps for ${stakeholderScope}`,
         "Formal thesis submission and oral examination (Viva Voce)"
       ]
     }
@@ -520,29 +614,31 @@ export function refineResearchPlan(currentPlan: any, prompt: string) {
     {
       category: "Software & Analytical Tools",
       item: isQualitative ? "SmartPLS 4, NVivo 14 & IBM SPSS 28" : "SmartPLS 4 & IBM SPSS Statistics 28",
-      justification: "Required for structural equation modeling, path coefficient testing, and qualitative thematic analysis.",
+      justification: "Required for structural equation modeling, path coefficient testing, and composite reliability checks.",
     },
     {
       category: "Institutional Sampling Frame",
-      item: `Institutional Directory of ${targetScope}`,
-      justification: "Sampling frame required to conduct stratified random sampling across participating campuses.",
+      item: `Institutional Directory of ${targetScopeShort}`,
+      justification: `Sampling frame required to conduct stratified random sampling across participating campuses in ${scopeLocationName || targetScopeShort}.`,
     },
     {
       category: "Ethics & Compliance Clearance",
-      item: "Institutional Human Research Ethics Committee (REC) Approval",
-      justification: "Mandatory prior to administering questionnaires or conducting interviews with institutional personnel.",
+      item: "Institutional Human Research Ethics Committee (REC) Approval & EPRD Clearance",
+      justification: `Mandatory prior to administering questionnaires or conducting interviews with institutional personnel in ${scopeLocationName || targetScopeShort}.`,
     },
     {
       category: "Field Research Grant",
-      item: "Operational Field Research & Participant Travel Grant",
-      justification: `Covers fieldwork expenses, travel across campuses in ${targetScope}, and participant remuneration.`,
+      item: `Fieldwork & Travel Operational Grant (${scopeLocationName || targetScopeShort})`,
+      justification: `Covers fieldwork expenses, local campus travel across ${scopeLocationName || targetScopeShort}, and participant remuneration.`,
     }
   ];
 
   return {
     ...currentPlan,
+    title: updatedTitle,
+    scope_focus: scopeLocationName,
     version: newVersion,
-    methodology_summary: `Refined Research Architecture (v${newVersion}) tailored to: "${p}". Maintains 3 disciplined SMART objectives, synchronized milestones, full timeline, and institutional resource allocations.`,
+    methodology_summary: `Refined Research Architecture (v${newVersion}) tailored to: "${p}". Maintains 3 disciplined SMART objectives, synchronized milestones, full timeline, and institutional resource allocations specifically aligned with ${scopeLocationName || "targeted institutional scope"}.`,
     objectives,
     key_milestones: milestones,
     timeline,

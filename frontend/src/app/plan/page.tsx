@@ -155,6 +155,7 @@ function PlanViewContent() {
         setPlan(refineData.plan);
         setProject((prev: any) => ({
           ...prev,
+          title: refineData.plan?.title || prev?.title,
           plan_version: refineData.plan_version,
           current_plan_json: refineData.plan,
           last_refined_at: new Date().toISOString(),
@@ -236,7 +237,7 @@ function PlanViewContent() {
             </span>
             <span style={{ color: "var(--border-subtle)" }}>•</span>
             <span className="badge badge-secondary">
-              Plan v{project?.plan_version || plan?.version || 1} • {t("plan_badge")}
+              Plan v{project?.plan_version || plan?.version || 1} • {plan?.scope_focus ? `Focus: ${plan.scope_focus}` : t("plan_badge")}
             </span>
           </div>
 
@@ -311,11 +312,16 @@ function PlanViewContent() {
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.6rem", flexWrap: "wrap" }}>
                   <span className="badge badge-primary">Stage 5 Architecture</span>
                   <span className="badge badge-secondary">Plan v{project?.plan_version || plan.version || 1}</span>
+                  {plan.scope_focus && (
+                    <span className="badge" style={{ background: "#e0f2fe", color: "#0369a1", border: "1px solid #bae6fd", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
+                      <Target size={12} /> Focus: {plan.scope_focus}
+                    </span>
+                  )}
                   <span style={{ fontSize: "0.8rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>ID: {project?.id}</span>
                 </div>
 
                 <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "var(--on-surface)", lineHeight: 1.3, marginBottom: "0.75rem" }}>
-                  {project?.title || "Research Proposal & Methodology Architecture"}
+                  {plan?.title || project?.title || "Research Proposal & Methodology Architecture"}
                 </h1>
 
                 <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", fontSize: "0.85rem", color: "var(--on-surface-variant)" }}>

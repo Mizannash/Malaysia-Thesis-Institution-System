@@ -650,12 +650,62 @@ def call_llm_provider(
             if stage == "refine":
                 feedback_match = re.search(r'(?:Feedback|revision instructions|user_prompt)[:\s]*([^\n"]+)', messages_text, re.IGNORECASE)
                 feedback = feedback_match.group(1).strip() if feedback_match else "Focused refinement on Malaysian institutions"
+                lower_fb = feedback.lower()
                 fixture_data["version"] = fixture_data.get("version", 1) + 1
+
+                # Determine targeted scope for Johor Bahru and other foci
+                if "johor bahru" in lower_fb or "jb" in lower_fb:
+                    target_scope = "Kolej Vokasional and Polytechnic institutions specifically within Johor Bahru (e.g., KV Tanjung Puteri, KV Perdagangan JB, and Politeknik Ibrahim Sultan)"
+                    target_scope_short = "Johor Bahru technical and vocational campuses"
+                    stakeholder_scope = "Johor Bahru vocational directors, Johor State Education Department (JPN Johor), and Southern Corridor (Iskandar Malaysia/Pasir Gudang) stakeholders"
+                    scope_name = "Johor Bahru"
+                elif "selangor" in lower_fb:
+                    target_scope = "Kolej Vokasional and Polytechnic institutions across Selangor (e.g., KV Shah Alam, KV Klang, Politeknik Sultan Salahuddin Abdul Aziz Shah)"
+                    target_scope_short = "Selangor technical campuses"
+                    stakeholder_scope = "Selangor State Education Department and Klang Valley industrial development councils"
+                    scope_name = "Selangor"
+                elif "penang" in lower_fb:
+                    target_scope = "Kolej Vokasional and Polytechnic campuses across Penang (Seberang Perai and Bayan Lepas clusters)"
+                    target_scope_short = "Penang technical institutions"
+                    stakeholder_scope = "Penang State Education Department and PSDC industrial partners"
+                    scope_name = "Penang"
+                else:
+                    scope_name = feedback.capitalize()
+                    target_scope = f"Malaysian technical and higher education institutions with specific focus on {feedback}"
+                    target_scope_short = f"participating campuses focusing on {feedback}"
+                    stakeholder_scope = f"Malaysian educational leadership, policy directors, and {feedback} stakeholders"
+
+                fixture_data["scope_focus"] = scope_name
+                if "title" in fixture_data and scope_name and scope_name.lower() not in fixture_data["title"].lower():
+                    fixture_data["title"] = f"{fixture_data['title']}: An Empirical Study in {scope_name}"
+
                 fixture_data["methodology_summary"] = (
-                    f"{fixture_data.get('methodology_summary', '')} Refined based on feedback: {feedback}."
+                    f"Refined Research Architecture (v{fixture_data['version']}) tailored to: '{feedback}'. "
+                    f"Maintains 3 disciplined SMART objectives, synchronized milestones, full timeline, and institutional resource allocations specifically aligned with {scope_name}."
                 )
+
+                if fixture_data.get("objectives") and len(fixture_data["objectives"]) >= 3:
+                    fixture_data["objectives"][0]["text"] = (
+                        f"To identify, evaluate, and prioritize the key empirical factors and operational barriers impacting {target_scope}."
+                    )
+                    fixture_data["objectives"][1]["text"] = (
+                        f"To construct and empirically test an extended structural equation model (PLS-SEM) measuring the predictive relationships between institutional readiness, digital competency, and curriculum modernizations within {target_scope_short}."
+                    )
+                    fixture_data["objectives"][2]["text"] = (
+                        f"To formulate actionable institutional policy frameworks and strategic implementation roadmaps for {stakeholder_scope}."
+                    )
+
                 if fixture_data.get("key_milestones"):
-                    fixture_data["key_milestones"][0]["description"] += f" (Refined: {feedback})"
+                    for m in fixture_data["key_milestones"]:
+                        mid = m.get("milestone_id")
+                        if mid == "M1":
+                            m["description"] = f"Synthesize literature review, operationalize constructs tailored specifically to {target_scope_short}, and secure departmental committee defense approval."
+                        elif mid == "M2":
+                            m["description"] = f"Administer pilot testing with 30 target vocational educators and respondents from {target_scope_short}; establish composite reliability and Cronbach's alpha > 0.70."
+                        elif mid == "M3":
+                            m["description"] = f"Collect empirical cross-sectional data (N=250) from {target_scope_short}; perform path coefficient estimation and hypothesis testing in SmartPLS 4."
+                        elif mid == "M4":
+                            m["description"] = f"Compile dissertation findings, submit draft with localized policy implications for {scope_name} to external examiners, and successfully defend thesis before the faculty viva board."
 
             return ProviderResponse(
                 content=json.dumps(fixture_data),
