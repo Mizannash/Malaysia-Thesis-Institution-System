@@ -6,9 +6,12 @@ import Link from "next/link";
 import { signInWithGoogle } from "@/lib/supabase";
 import { setToken } from "@/lib/api";
 import { Shield, Sparkles, Building2, UserCheck, ArrowRight, GraduationCap, Lock, ShieldCheck } from "lucide-react";
+import { useLanguage } from "@/lib/LanguageContext";
+import LanguageToggle from "@/components/LanguageToggle";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -94,15 +97,16 @@ export default function LoginPage() {
           <Link href="/" className="logo">
             <span className="logo-dot"></span>
             ScholarPulse <span style={{ color: "var(--primary)", fontWeight: 800 }}>MTIS</span>
-            <span className="logo-badge">Academic Coach v2.4</span>
+            <span className="logo-badge">{t("app_badge")}</span>
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <LanguageToggle />
             <Link href="/pricing" style={{ color: "var(--on-surface-variant)", fontSize: "0.9rem", fontWeight: 500 }}>
-              Pricing (RM15/mo)
+              {t("nav_pricing")}
             </Link>
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", color: "var(--secondary)", background: "var(--secondary-container)", padding: "0.25rem 0.65rem", borderRadius: "9999px" }}>
               <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--secondary)" }}></span>
-              Zero-Key Demo Active
+              {t("nav_demo_badge")}
             </div>
           </div>
         </div>
@@ -116,10 +120,10 @@ export default function LoginPage() {
               <GraduationCap size={28} />
             </div>
             <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "var(--on-surface)", marginBottom: "0.4rem" }}>
-              Sign in to MTIS
+              {t("login_title")}
             </h1>
             <p style={{ color: "var(--on-surface-variant)", fontSize: "0.92rem" }}>
-              Institutional Thesis Structuring &amp; Research Gap Discovery
+              {t("login_subtitle")}
             </p>
           </div>
 
@@ -129,7 +133,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Primary Action: Google Auth (Coming Soon — Supabase not configured) */}
+          {/* Primary Action: Google Auth */}
           <button
             disabled={true}
             className="btn-secondary"
@@ -141,15 +145,15 @@ export default function LoginPage() {
               <path fill="#FBBC05" d="M6.59 12.93c-.2-.6-.32-1.25-.32-1.93s.12-1.33.32-1.93V6.49H3.24A9.99 9.99 0 0 0 2 11c0 1.61.39 3.14 1.24 4.51l3.35-2.58z"/>
               <path fill="#EA4335" d="M12.18 4.96c1.47 0 2.78.51 3.82 1.5l2.86-2.86C17.13 1.99 14.88 1 12.18 1 7.68 1 3.84 3.58 2.01 7.49l3.35 2.58c.79-2.36 2.99-4.11 5.82-4.11z"/>
             </svg>
-            Continue with Google (Coming Soon)
+            {t("login_google_btn")}
           </button>
           <p style={{ textAlign: "center", fontSize: "0.75rem", color: "var(--outline)", marginBottom: "1.25rem" }}>
-            Google Sign-In will be available after deployment. Use demo personas below.
+            {t("login_google_hint")}
           </p>
 
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "1.25rem 0", color: "var(--outline)", fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
             <div style={{ flex: 1, height: "1px", background: "var(--border-subtle)" }} />
-            <span>OR TEST PERSONAS (DEMO MODE)</span>
+            <span>{t("login_or_divider")}</span>
             <div style={{ flex: 1, height: "1px", background: "var(--border-subtle)" }} />
           </div>
 
@@ -157,7 +161,7 @@ export default function LoginPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "0.2rem 0", color: "var(--outline)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
               <div style={{ flex: 1, height: "1px", background: "var(--border-subtle)" }} />
-              <span>RESEARCHER / STUDENT ACCESS</span>
+              <span>{t("login_student_section")}</span>
               <div style={{ flex: 1, height: "1px", background: "var(--border-subtle)" }} />
             </div>
 
@@ -167,7 +171,7 @@ export default function LoginPage() {
               style={{ width: "100%", justifyContent: "space-between", padding: "0.65rem 0.85rem", fontSize: "0.88rem" }}
             >
               <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <Building2 size={16} color="var(--primary)" /> Demo University Researcher
+                <Building2 size={16} color="var(--primary)" /> {t("login_demo_uni")}
               </span>
               <span className="badge badge-student">student@demo.test</span>
             </button>
@@ -178,14 +182,14 @@ export default function LoginPage() {
               style={{ width: "100%", justifyContent: "space-between", padding: "0.65rem 0.85rem", fontSize: "0.88rem" }}
             >
               <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <Building2 size={16} color="var(--secondary)" /> UTM Researcher (Ahmad)
+                <Building2 size={16} color="var(--secondary)" /> {t("login_utm_ahmad")}
               </span>
               <span className="badge badge-tenant">ahmad@utm.my</span>
             </button>
 
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "0.5rem 0 0.2rem 0", color: "var(--outline)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
               <div style={{ flex: 1, height: "1px", background: "var(--border-subtle)" }} />
-              <span>SYSTEM OWNER / ADMIN ACCESS</span>
+              <span>{t("login_admin_section")}</span>
               <div style={{ flex: 1, height: "1px", background: "var(--border-subtle)" }} />
             </div>
 
@@ -195,7 +199,7 @@ export default function LoginPage() {
               style={{ width: "100%", justifyContent: "space-between", padding: "0.65rem 0.85rem", fontSize: "0.88rem", borderColor: "#fecaca" }}
             >
               <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <ShieldCheck size={16} color="#dc2626" /> System Admin (Owner)
+                <ShieldCheck size={16} color="#dc2626" /> {t("login_admin_owner")}
               </span>
               <span className="badge badge-admin">admin@demo.test</span>
             </button>
@@ -207,7 +211,7 @@ export default function LoginPage() {
               <Sparkles size={14} color="var(--tertiary)" />
               Coach Guidance
             </div>
-            MTIS isolates research workspaces by institutional tenant. Selecting any demo persona simulates verified campus credentials with zero external setup required.
+            {t("login_coach_note")}
           </div>
         </div>
       </main>

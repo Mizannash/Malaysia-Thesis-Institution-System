@@ -36,9 +36,12 @@ import {
   Users,
   UserPlus
 } from "lucide-react";
+import { useLanguage } from "@/lib/LanguageContext";
+import LanguageToggle from "@/components/LanguageToggle";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [user, setUser] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState<any>(null);
@@ -735,7 +738,7 @@ export default function DashboardPage() {
             <Link href="/" className="logo">
               <span className="logo-dot"></span>
               ScholarPulse <span style={{ color: "var(--primary)", fontWeight: 800 }}>MTIS</span>
-              <span className="logo-badge">Academic Coach v2.4</span>
+              <span className="logo-badge">{t("app_badge")}</span>
             </Link>
 
             {selectedProject && (
@@ -749,6 +752,8 @@ export default function DashboardPage() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
+            <LanguageToggle />
+
             {isAdmin && (
               <div style={{ display: "flex", background: "var(--surface-low)", padding: "0.2rem", borderRadius: "8px", border: "1px solid var(--border-subtle)" }}>
                 <button
@@ -768,7 +773,7 @@ export default function DashboardPage() {
                     gap: "0.35rem"
                   }}
                 >
-                  <ShieldCheck size={14} /> Admin Center
+                  <ShieldCheck size={14} /> {t("nav_admin")}
                 </button>
                 <button
                   type="button"
@@ -787,7 +792,7 @@ export default function DashboardPage() {
                     gap: "0.35rem"
                   }}
                 >
-                  <BookOpen size={14} /> Thesis Workspace
+                  <BookOpen size={14} /> {t("nav_workspace")}
                 </button>
               </div>
             )}
@@ -803,7 +808,7 @@ export default function DashboardPage() {
               style={{ padding: "0.45rem 0.85rem", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "0.45rem", textDecoration: "none" }}
             >
               <CreditCard size={14} color="var(--primary)" />
-              <span>Subscriptions</span>
+              <span>{t("nav_subscriptions")}</span>
             </Link>
 
             {/* Mode & Key Management Trigger */}
@@ -822,7 +827,7 @@ export default function DashboardPage() {
             </button>
 
             <button onClick={handleLogout} className="btn-secondary" style={{ padding: "0.45rem 0.85rem", fontSize: "0.82rem" }}>
-              <LogOut size={14} /> Sign Out
+              <LogOut size={14} /> {t("nav_signout")}
             </button>
           </div>
         </div>
@@ -1208,12 +1213,12 @@ export default function DashboardPage() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.25rem" }}>
                 <span style={{ fontSize: "0.78rem", fontWeight: 600, color: stageIndex > 1 ? "var(--secondary)" : "var(--primary)", display: "flex", alignItems: "center", gap: "0.3rem" }}>
                   {stageIndex > 1 ? <Check size={14} /> : <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }}></span>}
-                  1. Topic Search
+                  {t("dash_stage1_title")}
                 </span>
                 <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex > 1 ? "Done" : "Active"}</span>
               </div>
               <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                OpenAlex &amp; UTM Index
+                {t("dash_stage1_sub")}
               </p>
               <div style={{ width: "100%", height: "4px", background: "var(--border-subtle)", borderRadius: "9999px", marginTop: "0.5rem", overflow: "hidden" }}>
                 <div style={{ height: "100%", background: stageIndex > 1 ? "var(--secondary)" : "var(--primary)", width: stageIndex >= 1 ? "100%" : "0%" }}></div>
@@ -1225,12 +1230,12 @@ export default function DashboardPage() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.25rem" }}>
                 <span style={{ fontSize: "0.78rem", fontWeight: 600, color: stageIndex > 2 ? "var(--secondary)" : stageIndex === 2 ? "var(--primary)" : "var(--outline)", display: "flex", alignItems: "center", gap: "0.3rem" }}>
                   {stageIndex > 2 ? <Check size={14} /> : stageIndex === 2 ? <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }}></span> : null}
-                  2. Gap Analysis
+                  {t("dash_stage2_title")}
                 </span>
                 <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex > 2 ? "Done" : stageIndex === 2 ? "Active" : "Queue"}</span>
               </div>
               <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                Novel Gap Discovery
+                {t("dash_stage2_sub")}
               </p>
               <div style={{ width: "100%", height: "4px", background: "var(--border-subtle)", borderRadius: "9999px", marginTop: "0.5rem", overflow: "hidden" }}>
                 <div style={{ height: "100%", background: stageIndex > 2 ? "var(--secondary)" : "var(--primary)", width: stageIndex >= 2 ? "100%" : "0%" }}></div>
@@ -1242,12 +1247,12 @@ export default function DashboardPage() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.25rem" }}>
                 <span style={{ fontSize: "0.78rem", fontWeight: 600, color: stageIndex > 3 ? "var(--secondary)" : stageIndex === 3 ? "var(--primary)" : "var(--outline)", display: "flex", alignItems: "center", gap: "0.3rem" }}>
                   {stageIndex > 3 ? <Check size={14} /> : stageIndex === 3 ? <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }}></span> : null}
-                  3. Title Suggestions
+                  {t("dash_stage3_title")}
                 </span>
                 <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex > 3 ? "Done" : stageIndex === 3 ? "Active" : "Queue"}</span>
               </div>
               <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                Defended EN/BM Titles
+                {t("dash_stage3_sub")}
               </p>
               <div style={{ width: "100%", height: "4px", background: "var(--border-subtle)", borderRadius: "9999px", marginTop: "0.5rem", overflow: "hidden" }}>
                 <div style={{ height: "100%", background: stageIndex > 3 ? "var(--secondary)" : "var(--primary)", width: stageIndex >= 3 ? "100%" : "0%" }}></div>
@@ -1259,12 +1264,12 @@ export default function DashboardPage() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.25rem" }}>
                 <span style={{ fontSize: "0.78rem", fontWeight: 600, color: stageIndex > 4 ? "var(--secondary)" : stageIndex === 4 ? "var(--primary)" : "var(--outline)", display: "flex", alignItems: "center", gap: "0.3rem" }}>
                   {stageIndex > 4 ? <Check size={14} /> : stageIndex === 4 ? <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }}></span> : null}
-                  4. Deep-Dive Search
+                  {t("dash_stage4_title")}
                 </span>
                 <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex > 4 ? "Done" : stageIndex === 4 ? "Active" : "Queue"}</span>
               </div>
               <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                Targeted Sub-field Papers
+                {t("dash_stage4_sub")}
               </p>
               <div style={{ width: "100%", height: "4px", background: "var(--border-subtle)", borderRadius: "9999px", marginTop: "0.5rem", overflow: "hidden" }}>
                 <div style={{ height: "100%", background: stageIndex > 4 ? "var(--secondary)" : "var(--primary)", width: stageIndex >= 4 ? "100%" : "0%" }}></div>
@@ -1276,12 +1281,12 @@ export default function DashboardPage() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.25rem" }}>
                 <span style={{ fontSize: "0.78rem", fontWeight: 600, color: stageIndex === 5 ? "var(--primary)" : "var(--outline)", display: "flex", alignItems: "center", gap: "0.3rem" }}>
                   {stageIndex === 5 ? <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }}></span> : null}
-                  5. Research Plan
+                  {t("dash_stage5_title")}
                 </span>
                 <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex === 5 ? "Active" : "Final"}</span>
               </div>
               <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                Objectives &amp; Methodology
+                {t("dash_stage5_sub")}
               </p>
               <div style={{ width: "100%", height: "4px", background: "var(--border-subtle)", borderRadius: "9999px", marginTop: "0.5rem", overflow: "hidden" }}>
                 <div style={{ height: "100%", background: "var(--primary)", width: stageIndex === 5 ? "100%" : "0%" }}></div>
@@ -1337,10 +1342,10 @@ export default function DashboardPage() {
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 700, fontSize: "0.98rem", color: "var(--on-surface)" }}>
                     <Search size={16} color="var(--primary)" />
-                    Stage 1: Topic Literature Search &amp; Article Discovery
+                    {t("dash_stage1_header")}
                   </div>
                   <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", marginTop: "0.15rem" }}>
-                    Query Malaysian university e-prints (UTM E-Theses) &amp; global peer-reviewed repositories (OpenAlex).
+                    {t("dash_stage1_desc")}
                   </p>
                 </div>
 
@@ -1363,7 +1368,7 @@ export default function DashboardPage() {
                       gap: "0.3rem"
                     }}
                   >
-                    🇲🇾 Malaysian (UTM &amp; MY)
+                    🇲🇾 {t("dash_scope_my")}
                   </button>
                   <button
                     type="button"
@@ -1382,7 +1387,7 @@ export default function DashboardPage() {
                       gap: "0.3rem"
                     }}
                   >
-                    🌐 Global (OpenAlex)
+                    🌐 {t("dash_scope_int")}
                   </button>
                 </div>
               </div>
@@ -1393,7 +1398,7 @@ export default function DashboardPage() {
                   <Search size={16} color="var(--outline)" style={{ position: "absolute", left: "0.9rem", top: "50%", transform: "translateY(-50%)" }} />
                   <input
                     type="text"
-                    placeholder="Enter thesis domain or keywords (e.g. smart agriculture palm oil, blockchain logistics, NLP bahasa melayu...)"
+                    placeholder={t("dash_search_placeholder")}
                     value={searchTopicInput}
                     onChange={(e) => setSearchTopicInput(e.target.value)}
                     className="input-control"
@@ -1407,7 +1412,7 @@ export default function DashboardPage() {
                   style={{ padding: "0.5rem 1.15rem", fontSize: "0.88rem", display: "flex", alignItems: "center", gap: "0.45rem", whiteSpace: "nowrap" }}
                 >
                   {isSearching ? <RotateCw className="animate-spin" size={15} /> : <Search size={15} />}
-                  {isSearching ? "Searching..." : "Search Articles"}
+                  {isSearching ? t("dash_searching") : t("dash_btn_search")}
                 </button>
               </form>
 
@@ -1506,7 +1511,7 @@ export default function DashboardPage() {
                 style={{ fontSize: "0.85rem", padding: "0.5rem 0.95rem" }}
               >
                 {runningStage === "gap" ? <RotateCw className="animate-spin" size={14} /> : <Sparkles size={14} />}
-                Run Stage 2: Gap Analysis
+                {t("dash_btn_gap")}
               </button>
 
               <button
@@ -1516,7 +1521,7 @@ export default function DashboardPage() {
                 style={{ fontSize: "0.85rem", padding: "0.5rem 0.95rem" }}
               >
                 {runningStage === "title" ? <RotateCw className="animate-spin" size={14} /> : <Lightbulb size={14} />}
-                Run Stage 3: Title Suggestions
+                {t("dash_btn_title")}
               </button>
 
               <button
@@ -1526,7 +1531,7 @@ export default function DashboardPage() {
                 style={{ fontSize: "0.85rem", padding: "0.5rem 0.95rem" }}
               >
                 {runningStage === "deepdive" ? <RotateCw className="animate-spin" size={14} /> : <Compass size={14} />}
-                Run Stage 4: Deep-Dive
+                {t("dash_btn_deepdive")}
               </button>
 
               <button
@@ -1536,7 +1541,7 @@ export default function DashboardPage() {
                 style={{ fontSize: "0.85rem", padding: "0.5rem 0.95rem" }}
               >
                 {runningStage === "plan" ? <RotateCw className="animate-spin" size={14} /> : <FileText size={14} />}
-                Run Stage 5: Research Plan
+                {t("dash_btn_plan")}
               </button>
 
               <Link
@@ -1544,7 +1549,7 @@ export default function DashboardPage() {
                 className="btn-secondary"
                 style={{ fontSize: "0.85rem", padding: "0.5rem 0.95rem", display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
               >
-                Open Plan Canvas <ChevronRight size={14} />
+                {t("dash_open_canvas")} <ChevronRight size={14} />
               </Link>
             </div>
 

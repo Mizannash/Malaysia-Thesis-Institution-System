@@ -27,9 +27,12 @@ import {
   User,
   GraduationCap
 } from "lucide-react";
+import { useLanguage } from "@/lib/LanguageContext";
+import LanguageToggle from "@/components/LanguageToggle";
 
 function PlanViewContent() {
   const router = useRouter();
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const projectIdParam = searchParams.get("projectId");
 
@@ -199,21 +202,22 @@ function PlanViewContent() {
         <div className="container nav-container">
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <Link href="/dashboard" className="btn-secondary" style={{ padding: "0.4rem 0.85rem", fontSize: "0.82rem" }}>
-              <ArrowLeft size={14} /> Back to Dashboard
+              <ArrowLeft size={14} /> {t("nav_back_dashboard")}
             </Link>
             <div className="logo" style={{ fontSize: "1.15rem" }}>
               <span className="logo-dot"></span>
               ScholarPulse <span style={{ color: "var(--primary)", fontWeight: 800 }}>MTIS</span>
-              <span className="logo-badge">Research Plan Studio</span>
+              <span className="logo-badge">{t("app_badge")}</span>
             </div>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
+            <LanguageToggle />
             <span className="badge badge-tenant">
               <Building2 size={13} /> {tenantName}
             </span>
             <button onClick={handleLogout} className="btn-secondary" style={{ padding: "0.4rem 0.85rem", fontSize: "0.82rem" }}>
-              <LogOut size={14} /> Sign Out
+              <LogOut size={14} /> {t("nav_signout")}
             </button>
           </div>
         </div>
@@ -228,11 +232,11 @@ function PlanViewContent() {
             </span>
             <span style={{ color: "var(--border-subtle)" }}>/</span>
             <span style={{ fontSize: "0.88rem", color: "var(--on-surface-variant)", fontWeight: 600 }}>
-              Objectives, Methodology &amp; Computational Execution
+              {t("plan_title")}
             </span>
             <span style={{ color: "var(--border-subtle)" }}>•</span>
             <span className="badge badge-secondary">
-              Plan v{project?.plan_version || plan?.version || 1} • Contract Hardened
+              Plan v{project?.plan_version || plan?.version || 1} • {t("plan_badge")}
             </span>
           </div>
 
@@ -343,7 +347,7 @@ function PlanViewContent() {
                     § 01
                   </span>
                   <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--on-surface)" }}>
-                    Primary Research Objectives
+                    {t("plan_sec1_title")}
                   </h2>
                 </div>
 
@@ -382,7 +386,7 @@ function PlanViewContent() {
                     § 02
                   </span>
                   <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--on-surface)" }}>
-                    Key Deliverable Milestones
+                    {t("plan_sec2_title")}
                   </h2>
                 </div>
 
@@ -428,7 +432,7 @@ function PlanViewContent() {
                     § 03
                   </span>
                   <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--on-surface)" }}>
-                    High-Level Timeline &amp; Phases
+                    {t("plan_sec3_title")}
                   </h2>
                 </div>
 
@@ -467,7 +471,7 @@ function PlanViewContent() {
                     § 04
                   </span>
                   <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--on-surface)" }}>
-                    Resource Requirements &amp; Feasibility
+                    {t("plan_sec4_title")}
                   </h2>
                 </div>
 
@@ -491,23 +495,23 @@ function PlanViewContent() {
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
                   <RefreshCw size={18} color="var(--primary)" />
                   <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--on-surface)" }}>
-                    Refine with Coach
+                    {t("plan_refine_title")}
                   </h3>
                 </div>
 
                 <p style={{ color: "var(--on-surface-variant)", fontSize: "0.85rem", marginBottom: "1rem", lineHeight: 1.5 }}>
-                  Provide feedback to iterate on objectives, methodology, or resources (e.g. <em>&quot;Focus more on Malaysian SMEs&quot;</em> or <em>&quot;Shorten timeline to 18 months&quot;</em>).
+                  {t("plan_refine_desc")}
                 </p>
 
                 <form onSubmit={handleRefinePlan}>
                   <div style={{ marginBottom: "1rem" }}>
                     <label style={{ display: "block", fontSize: "0.8rem", color: "var(--on-surface-variant)", marginBottom: "0.4rem", fontWeight: 600 }}>
-                      FEEDBACK PROMPT
+                      {t("plan_prompt_label")}
                     </label>
                     <textarea
                       value={refinePrompt}
                       onChange={(e) => setRefinePrompt(e.target.value)}
-                      placeholder="e.g. Focus more on Malaysian SMEs and reduce target duration..."
+                      placeholder={t("plan_prompt_ph")}
                       rows={4}
                       className="input-control"
                       style={{ resize: "none", fontSize: "0.88rem" }}
@@ -521,15 +525,15 @@ function PlanViewContent() {
                     style={{ width: "100%", fontSize: "0.9rem", padding: "0.65rem" }}
                   >
                     <Send size={15} />
-                    {refining ? "Applying Refinement..." : "Submit Refinement"}
+                    {refining ? t("plan_refining") : t("plan_btn_refine")}
                   </button>
                 </form>
 
                 <div className="coach-card" style={{ marginTop: "1.25rem", padding: "0.85rem" }}>
                   <div style={{ fontWeight: 600, fontSize: "0.82rem", marginBottom: "0.2rem" }}>
-                    Version Control Note
+                    {t("plan_vc_title")}
                   </div>
-                  Refinements generate a clean version increment (Plan v1 → v2) and update the database with zero partial corruption.
+                  {t("plan_vc_desc")}
                 </div>
               </div>
             </div>
