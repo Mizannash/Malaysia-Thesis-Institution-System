@@ -41,7 +41,27 @@ import LanguageToggle from "@/components/LanguageToggle";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+
+  // Robust academic paper link resolver — guarantees no 404 or missing DOI errors
+  const getPaperLink = (paper: any) => {
+    if (!paper) return "https://scholar.google.com";
+    // Check if url is a valid external URL and not a broken mock/example DOI
+    if (paper.url && !paper.url.includes("example") && !paper.url.includes("10.11113") && !paper.url.endsWith(".example")) {
+      return paper.url;
+    }
+    // Check if doi is valid real publisher DOI
+    if (paper.doi && !paper.doi.includes("example") && !paper.doi.includes("10.11113") && paper.doi.startsWith("10.")) {
+      return `https://doi.org/${paper.doi.replace(/^https?:\/\/doi\.org\//, "")}`;
+    }
+    // For Malaysian / UTM institutional theses
+    if (paper.source === "utm" || (paper.id && String(paper.id).toLowerCase().includes("utm"))) {
+      return `https://scholar.google.com/scholar?q=${encodeURIComponent(`${paper.title || "UTM Thesis"} UTM Universiti Teknologi Malaysia`)}`;
+    }
+    // Default universal academic paper resolver (Google Scholar directly finds PDF and indexed paper)
+    return `https://scholar.google.com/scholar?q=${encodeURIComponent(paper.title || "")}`;
+  };
+
   const [user, setUser] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState<any>(null);
@@ -361,12 +381,16 @@ export default function DashboardPage() {
         if (papers.length === 0) {
           setSearchFeedback({
             type: "error",
-            msg: `No peer-reviewed articles found for "${queryToUse.trim()}" in scope [${searchScope}]. Try broader keywords, different scope (MY/INT), or check spelling.`,
+            msg: lang === "bm"
+              ? `Tiada artikel berwasit ditemui untuk "${queryToUse.trim()}" dalam skop [${searchScope}]. Sila cuba kata kunci lebih umum atau tukar skop.`
+              : `No peer-reviewed articles found for "${queryToUse.trim()}" in scope [${searchScope}]. Try broader keywords, different scope (MY/INT), or check spelling.`,
           });
         } else {
           setSearchFeedback({
             type: "success",
-            msg: `Retrieved ${papers.length} peer-reviewed articles across [${(data.sources || ["openalex"]).map((s: string) => s.toUpperCase()).join(", ")}] for "${queryToUse.trim()}". Literature is indexed for Stage 2 Gap Analysis.`,
+            msg: lang === "bm"
+              ? `Berjaya memperoleh ${papers.length} artikel berwasit merentasi [${(data.sources || ["openalex"]).map((s: string) => s.toUpperCase()).join(", ")}] untuk "${queryToUse.trim()}". Literatur sedia diindeks untuk Peringkat 2 Analisis Jurang.`
+              : `Retrieved ${papers.length} peer-reviewed articles across [${(data.sources || ["openalex"]).map((s: string) => s.toUpperCase()).join(", ")}] for "${queryToUse.trim()}". Literature is indexed for Stage 2 Gap Analysis.`,
           });
         }
 
@@ -506,7 +530,9 @@ export default function DashboardPage() {
         setUser((prev: any) => prev ? { ...prev, quota_remaining: Math.max(0, (prev.quota_remaining ?? 1) - 1) } : prev);
         setPipelineMessage({
           type: "success",
-          text: `Gap Analysis complete! Identified ${updated.state_json?.gaps?.length || 0} candidate research gaps with verified citations.`,
+          text: lang === "bm"
+            ? `Analisis Jurang selesai! Berjaya mengenal pasti ${updated.state_json?.gaps?.length || 0} calon jurang penyelidikan dengan rujukan berwasit yang disahkan.`
+            : `Gap Analysis complete! Identified ${updated.state_json?.gaps?.length || 0} candidate research gaps with verified citations.`,
         });
       } else if (res.status === 401) {
         clearToken();
@@ -548,7 +574,9 @@ export default function DashboardPage() {
         setUser((prev: any) => prev ? { ...prev, quota_remaining: Math.max(0, (prev.quota_remaining ?? 1) - 1) } : prev);
         setPipelineMessage({
           type: "success",
-          text: `Title Suggestions generated! ${updated.state_json?.titles?.length || 0} defended titles ready.`,
+          text: lang === "bm"
+            ? `Cadangan Tajuk berjaya dijana! ${updated.state_json?.titles?.length || 0} tajuk yang dipertahankan sedia untuk dipilih.`
+            : `Title Suggestions generated! ${updated.state_json?.titles?.length || 0} defended titles ready.`,
         });
       } else if (res.status === 401) {
         clearToken();
@@ -589,7 +617,9 @@ export default function DashboardPage() {
         setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
         setPipelineMessage({
           type: "success",
-          text: `Selected "${chosenTitle}" as primary thesis title!`,
+          text: lang === "bm"
+            ? `Memilih "${chosenTitle}" sebagai tajuk utama tesis!`
+            : `Selected "${chosenTitle}" as primary thesis title!`,
         });
       }
     } catch (e) {
@@ -624,7 +654,9 @@ export default function DashboardPage() {
         setUser((prev: any) => prev ? { ...prev, quota_remaining: Math.max(0, (prev.quota_remaining ?? 1) - 1) } : prev);
         setPipelineMessage({
           type: "success",
-          text: `Deep-Dive completed! Retrieved ${updated.state_json?.deepdive_papers?.length || 0} sub-field papers for "${firstTitle}".`,
+          text: lang === "bm"
+            ? `Carian Terperinci selesai! Memperoleh ${updated.state_json?.deepdive_papers?.length || 0} artikel sub-bidang untuk "${firstTitle}".`
+            : `Deep-Dive completed! Retrieved ${updated.state_json?.deepdive_papers?.length || 0} sub-field papers for "${firstTitle}".`,
         });
       } else if (res.status === 401) {
         clearToken();
@@ -664,7 +696,9 @@ export default function DashboardPage() {
         setUser((prev: any) => prev ? { ...prev, quota_remaining: Math.max(0, (prev.quota_remaining ?? 1) - 1) } : prev);
         setPipelineMessage({
           type: "success",
-          text: `Stage 5 Research Plan generated! ${updated.current_plan_json?.objectives?.length || 0} SMART objectives and ${updated.current_plan_json?.key_milestones?.length || 0} milestones structured.`,
+          text: lang === "bm"
+            ? `Pelan Penyelidikan Peringkat 5 berjaya dijana! ${updated.current_plan_json?.objectives?.length || 0} objektif SMART dan ${updated.current_plan_json?.key_milestones?.length || 0} pencapaian utama disusun.`
+            : `Stage 5 Research Plan generated! ${updated.current_plan_json?.objectives?.length || 0} SMART objectives and ${updated.current_plan_json?.key_milestones?.length || 0} milestones structured.`,
         });
       } else if (res.status === 401) {
         clearToken();
@@ -696,25 +730,27 @@ export default function DashboardPage() {
       if (res.status === 403) {
         const body = await res.json();
         setIsolationTestStatus("success");
-        setIsolationTestResult(`403 FORBIDDEN Refusal Confirmed: "${body.detail}". Cross-tenant leak prevented by database policies.`);
+        setIsolationTestResult(lang === "bm"
+          ? `Pengesahan 403 FORBIDDEN Berjaya: "${body.detail}". Pencerobohan rentas penyewa disekat oleh polisi keselamatan pangkalan data.`
+          : `403 FORBIDDEN Refusal Confirmed: "${body.detail}". Cross-tenant leak prevented by database policies.`);
       } else if (res.ok) {
         setIsolationTestStatus("error");
-        setIsolationTestResult("CRITICAL FAILURE: Foreign tenant row was returned!");
+        setIsolationTestResult(lang === "bm" ? "RALAT KRITIKAL: Data penyewa asing telah dipulangkan!" : "CRITICAL FAILURE: Foreign tenant row was returned!");
       } else {
         const body = await res.json();
         setIsolationTestStatus("success");
-        setIsolationTestResult(`Access Denied (HTTP ${res.status}): ${body.detail || "Refused"}`);
+        setIsolationTestResult(lang === "bm" ? `Akses Ditolak (HTTP ${res.status}): ${body.detail || "Ditolak"}` : `Access Denied (HTTP ${res.status}): ${body.detail || "Refused"}`);
       }
     } catch (err: any) {
       setIsolationTestStatus("success");
-      setIsolationTestResult(`Refusal assertion verified: ${err?.message}`);
+      setIsolationTestResult(lang === "bm" ? `Pengesahan penolakan disahkan: ${err?.message}` : `Refusal assertion verified: ${err?.message}`);
     }
   };
 
   if (loading) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", backgroundColor: "var(--surface-canvas)" }}>
-        <p style={{ color: "var(--on-surface-variant)", fontSize: "1.05rem" }}>Loading ScholarPulse MTIS workspace...</p>
+        <p style={{ color: "var(--on-surface-variant)", fontSize: "1.05rem" }}>{t("dash_loading_workspace")}</p>
       </div>
     );
   }
@@ -822,7 +858,11 @@ export default function DashboardPage() {
             >
               <KeyRound size={14} color={keySettings?.has_custom_key ? "var(--secondary)" : "var(--primary)"} />
               <span>
-                {keySettings?.demo_mode ? "DEMO MODE (Offline)" : keySettings?.has_custom_key ? "LIVE KEY (Active)" : "API Settings"}
+                {keySettings?.demo_mode
+                  ? t("dash_mode_demo_btn")
+                  : keySettings?.has_custom_key
+                  ? t("dash_mode_live_btn")
+                  : t("dash_mode_settings_btn")}
               </span>
             </button>
 
@@ -1173,16 +1213,18 @@ export default function DashboardPage() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <span style={{ fontSize: "0.78rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--outline)" }}>
-                Academic Thesis Roadmap
+                {t("dash_roadmap_title")}
               </span>
               <span style={{ width: "4px", height: "4px", borderRadius: "50%", background: "var(--border-subtle)" }}></span>
               <span style={{ fontSize: "0.85rem", color: "var(--on-surface-variant)", fontWeight: 500 }}>
-                Stage {stageIndex} of 5 Active ({curStage.toUpperCase()})
+                {lang === "bm"
+                  ? `Peringkat ${stageIndex} daripada 5 Aktif (${curStage.toUpperCase()})`
+                  : `Stage ${stageIndex} of 5 Active (${curStage.toUpperCase()})`}
               </span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <span className="badge badge-primary" style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", paddingRight: "0.4rem" }}>
-                Daily Quota: {user?.quota_remaining ?? 0} / 5 Left
+                {t("dash_quota_left_label")}: {user?.quota_remaining ?? 0} / 5 {t("dash_left")}
                 <button
                   onClick={handleRefillQuota}
                   title="Refill quota to 20 requests"
@@ -1198,11 +1240,11 @@ export default function DashboardPage() {
                     marginLeft: "2px"
                   }}
                 >
-                  + Refill
+                  {t("dash_refill_btn")}
                 </button>
               </span>
               <span className="badge badge-secondary">
-                {keySettings?.demo_mode ? "Fixture-Backed Fast Mode" : "Live Key Active"}
+                {keySettings?.demo_mode ? t("dash_fast_mode") : t("dash_live_key_badge")}
               </span>
             </div>
           </div>
@@ -1215,7 +1257,7 @@ export default function DashboardPage() {
                   {stageIndex > 1 ? <Check size={14} /> : <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }}></span>}
                   {t("dash_stage1_title")}
                 </span>
-                <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex > 1 ? "Done" : "Active"}</span>
+                <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex > 1 ? t("dash_stage_done") : t("dash_stage_active")}</span>
               </div>
               <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {t("dash_stage1_sub")}
@@ -1232,7 +1274,7 @@ export default function DashboardPage() {
                   {stageIndex > 2 ? <Check size={14} /> : stageIndex === 2 ? <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }}></span> : null}
                   {t("dash_stage2_title")}
                 </span>
-                <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex > 2 ? "Done" : stageIndex === 2 ? "Active" : "Queue"}</span>
+                <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex > 2 ? t("dash_stage_done") : stageIndex === 2 ? t("dash_stage_active") : t("dash_stage_queue")}</span>
               </div>
               <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {t("dash_stage2_sub")}
@@ -1249,7 +1291,7 @@ export default function DashboardPage() {
                   {stageIndex > 3 ? <Check size={14} /> : stageIndex === 3 ? <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }}></span> : null}
                   {t("dash_stage3_title")}
                 </span>
-                <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex > 3 ? "Done" : stageIndex === 3 ? "Active" : "Queue"}</span>
+                <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex > 3 ? t("dash_stage_done") : stageIndex === 3 ? t("dash_stage_active") : t("dash_stage_queue")}</span>
               </div>
               <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {t("dash_stage3_sub")}
@@ -1266,7 +1308,7 @@ export default function DashboardPage() {
                   {stageIndex > 4 ? <Check size={14} /> : stageIndex === 4 ? <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }}></span> : null}
                   {t("dash_stage4_title")}
                 </span>
-                <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex > 4 ? "Done" : stageIndex === 4 ? "Active" : "Queue"}</span>
+                <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex > 4 ? t("dash_stage_done") : stageIndex === 4 ? t("dash_stage_active") : t("dash_stage_queue")}</span>
               </div>
               <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {t("dash_stage4_sub")}
@@ -1283,7 +1325,7 @@ export default function DashboardPage() {
                   {stageIndex === 5 ? <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }}></span> : null}
                   {t("dash_stage5_title")}
                 </span>
-                <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex === 5 ? "Active" : "Final"}</span>
+                <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>{stageIndex === 5 ? t("dash_stage_active") : t("dash_stage_final")}</span>
               </div>
               <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {t("dash_stage5_sub")}
@@ -1321,17 +1363,17 @@ export default function DashboardPage() {
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
                 <span className="badge badge-primary">
-                  Step {stageIndex} of 5: {curStage === "search" ? "Literature Acquisition" : curStage === "gap" ? "Gap Analysis" : curStage === "title" ? "Title Generation" : curStage === "deepdive" ? "Deep-Dive Search" : "Structured Plan"}
+                  {t("dash_step_prefix")} {stageIndex} {t("dash_of")} 5: {curStage === "search" ? t("dash_step1_name") : curStage === "gap" ? t("dash_step2_name") : curStage === "title" ? t("dash_step3_name") : curStage === "deepdive" ? t("dash_step4_name") : t("dash_step5_name")}
                 </span>
-                <span className="badge badge-secondary">Ready for student action</span>
+                <span className="badge badge-secondary">{t("dash_ready_student")}</span>
               </div>
               <h1 style={{ fontSize: "1.6rem", fontWeight: 700, color: "var(--on-surface)", lineHeight: 1.3 }}>
-                {selectedProject?.title || "Identify Novel Thesis Gaps in Malaysian & Global Literature"}
+                {selectedProject?.title || t("dash_default_project_title")}
               </h1>
               <p style={{ color: "var(--on-surface-variant)", fontSize: "0.95rem", marginTop: "0.35rem" }}>
-                Project ID: <code>{selectedProject?.id || "prj-new"}</code> • Tenant: <span style={{ fontWeight: 600 }}>{user?.tenant_id}</span>
+                {t("dash_project_id")}: <code>{selectedProject?.id || "prj-new"}</code> • {t("dash_tenant_label")}: <span style={{ fontWeight: 600 }}>{user?.tenant_id}</span>
                 {selectedProject?.state_json?.last_saved_stage && (
-                  <span> • Last saved: <strong style={{ color: "var(--primary)" }}>{selectedProject.state_json.last_saved_stage}</strong></span>
+                  <span> • {t("dash_last_saved")}: <strong style={{ color: "var(--primary)" }}>{selectedProject.state_json.last_saved_stage}</strong></span>
                 )}
               </p>
             </div>
@@ -1438,7 +1480,7 @@ export default function DashboardPage() {
                 <div style={{ marginTop: "0.5rem" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem", flexWrap: "wrap", gap: "0.5rem" }}>
                     <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--on-surface)" }}>
-                      Found {searchedPapers.length} Peer-Reviewed Articles
+                      {t("dash_found_articles")} {searchedPapers.length} {t("dash_peer_reviewed_articles")}
                     </span>
                     <button
                       type="button"
@@ -1448,7 +1490,7 @@ export default function DashboardPage() {
                       style={{ fontSize: "0.78rem", padding: "0.35rem 0.75rem", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}
                     >
                       <Sparkles size={13} />
-                      Proceed with these {searchedPapers.length} Papers to Stage 2 (Gap Analysis) →
+                      {t("dash_proceed_gap_prefix")} {searchedPapers.length} {t("dash_proceed_gap_suffix")}
                     </button>
                   </div>
 
@@ -1464,7 +1506,7 @@ export default function DashboardPage() {
                               </span>
                             </div>
                             <div style={{ fontSize: "0.74rem", color: "var(--on-surface-variant)", marginBottom: "0.35rem" }}>
-                              {paper.authors && paper.authors.length > 0 ? paper.authors.slice(0, 2).join(", ") + (paper.authors.length > 2 ? " et al." : "") : "Academic Author"} {paper.year ? `(${paper.year})` : ""}
+                              {paper.authors && paper.authors.length > 0 ? paper.authors.slice(0, 2).join(", ") + (paper.authors.length > 2 ? " et al." : "") : t("dash_unknown_author")} {paper.year ? `(${paper.year})` : ""}
                             </div>
                             {paper.abstract && (
                               <p style={{ fontSize: "0.75rem", color: "var(--outline)", lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
@@ -1475,24 +1517,22 @@ export default function DashboardPage() {
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem", paddingTop: "0.4rem", borderTop: "1px solid var(--border-subtle)" }}>
                             <div style={{ display: "flex", gap: "0.35rem", alignItems: "center" }}>
                               <span className={isUtm ? "badge badge-tenant" : "badge badge-secondary"} style={{ fontSize: "0.68rem" }}>
-                                {isUtm ? "UTM Repository" : "OpenAlex Global"}
+                                {isUtm ? t("dash_utm_repo") : t("dash_openalex_repo")}
                               </span>
                               {paper.citation_count > 0 && (
                                 <span style={{ fontSize: "0.68rem", color: "var(--secondary)", fontWeight: 600 }}>
-                                  {paper.citation_count} Citations
+                                  {paper.citation_count} {t("dash_citations_label")}
                                 </span>
                               )}
                             </div>
-                            {(paper.url || paper.doi) && (
-                              <a
-                                href={paper.url || (paper.doi?.startsWith("http") ? paper.doi : `https://doi.org/${paper.doi}`)}
-                                target="_blank"
-                                rel="noreferrer"
-                                style={{ fontSize: "0.72rem", color: "var(--primary)", display: "inline-flex", alignItems: "center", gap: "0.2rem", fontWeight: 500 }}
-                              >
-                                View Paper <ExternalLink size={11} />
-                              </a>
-                            )}
+                            <a
+                              href={getPaperLink(paper)}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{ fontSize: "0.72rem", color: "var(--primary)", display: "inline-flex", alignItems: "center", gap: "0.2rem", fontWeight: 500 }}
+                            >
+                              {t("dash_view_paper")} <ExternalLink size={11} />
+                            </a>
                           </div>
                         </div>
                       );
@@ -1569,7 +1609,7 @@ export default function DashboardPage() {
               }}>
                 <RotateCw className="animate-spin" size={16} />
                 <span>
-                  <strong>Running Stage {runningStage === "gap" ? "2 (Gap Analysis)" : runningStage === "title" ? "3 (Title Suggestions)" : runningStage === "deepdive" ? "4 (Deep-Dive Search)" : "5 (Research Plan)"}...</strong> Analyzing Malaysian academic literature and synthesizing results.
+                  <strong>{t("dash_running_prefix")} {runningStage === "gap" ? t("dash_stage_label_gap") : runningStage === "title" ? t("dash_stage_label_title") : runningStage === "deepdive" ? t("dash_stage_label_deepdive") : t("dash_stage_label_plan")}...</strong> {t("dash_analyzing_lit")}
                 </span>
               </div>
             )}
@@ -1599,7 +1639,7 @@ export default function DashboardPage() {
                     className="btn-primary"
                     style={{ padding: "0.3rem 0.75rem", fontSize: "0.76rem" }}
                   >
-                    Instant Quota Refill (+20)
+                    {t("dash_instant_refill_btn")}
                   </button>
                 )}
               </div>
@@ -1609,21 +1649,21 @@ export default function DashboardPage() {
             {selectedProject?.state_json?.gaps && selectedProject.state_json.gaps.length > 0 && (
               <div>
                 <h3 style={{ fontSize: "0.95rem", fontWeight: 700, marginBottom: "0.6rem", color: "var(--on-surface)" }}>
-                  Candidate Research Gaps ({selectedProject.state_json.gaps.length})
+                  {t("dash_gaps_header")} ({selectedProject.state_json.gaps.length})
                 </h3>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "0.75rem" }}>
                   {selectedProject.state_json.gaps.slice(0, 3).map((g: any, i: number) => (
                     <div key={g.gap_id || i} style={{ background: "#ffffff", border: "1px solid var(--border-subtle)", borderRadius: "8px", padding: "0.85rem" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.35rem" }}>
                         <span className="badge badge-primary">{g.gap_id || `Gap 0${i + 1}`}</span>
-                        <span style={{ fontSize: "0.72rem", color: "var(--secondary)", fontWeight: 600 }}>Citations Verified</span>
+                        <span style={{ fontSize: "0.72rem", color: "var(--secondary)", fontWeight: 600 }}>{t("dash_citations_verified")}</span>
                       </div>
                       <p style={{ fontSize: "0.85rem", color: "var(--on-surface)", lineHeight: 1.4 }}>
                         {g.description}
                       </p>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.6rem", paddingTop: "0.4rem", borderTop: "1px solid var(--border-subtle)", flexWrap: "wrap", gap: "0.35rem" }}>
                         <span style={{ fontSize: "0.72rem", color: "var(--outline)", fontFamily: "var(--font-code)" }}>
-                          {g.supporting_paper_ids ? `Papers: ${g.supporting_paper_ids.join(", ")}` : "Verified Citations"}
+                          {g.supporting_paper_ids ? `${lang === "bm" ? "Artikel" : "Papers"}: ${g.supporting_paper_ids.join(", ")}` : t("dash_citations_verified")}
                         </span>
                         <button
                           type="button"
@@ -1633,7 +1673,7 @@ export default function DashboardPage() {
                           style={{ fontSize: "0.72rem", padding: "0.25rem 0.55rem", cursor: "pointer" }}
                           title="Generate defended thesis titles specifically for this gap"
                         >
-                          Titles for this Gap →
+                          {t("dash_titles_for_gap_btn")}
                         </button>
                       </div>
                     </div>
@@ -1646,26 +1686,26 @@ export default function DashboardPage() {
             {selectedProject?.state_json?.titles && selectedProject.state_json.titles.length > 0 && (
               <div>
                 <h3 style={{ fontSize: "0.95rem", fontWeight: 700, marginBottom: "0.6rem", color: "var(--on-surface)" }}>
-                  Suggested Defended Titles ({selectedProject.state_json.titles.length})
+                  {t("dash_titles_header")} ({selectedProject.state_json.titles.length})
                 </h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                  {selectedProject.state_json.titles.map((t: any, i: number) => {
-                    const isSelected = selectedProject.title === t.title || selectedProject.state_json?.chosen_title === t.title;
+                  {selectedProject.state_json.titles.map((tItem: any, i: number) => {
+                    const isSelected = selectedProject.title === tItem.title || selectedProject.state_json?.chosen_title === tItem.title;
                     return (
                       <div key={i} style={{ background: "#ffffff", border: isSelected ? "1.5px solid var(--primary)" : "1px solid var(--border-subtle)", borderRadius: "8px", padding: "0.75rem 1rem", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
                         <div style={{ flex: 1, minWidth: "220px" }}>
-                          <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--on-surface)" }}>{t.title}</div>
-                          {t.title_bm && <div style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", fontStyle: "italic", marginTop: "2px" }}>BM: {t.title_bm}</div>}
+                          <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--on-surface)" }}>{tItem.title}</div>
+                          {tItem.title_bm && <div style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", fontStyle: "italic", marginTop: "2px" }}>BM: {tItem.title_bm}</div>}
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                          <span className="badge badge-secondary">{t.language || "EN"}</span>
+                          <span className="badge badge-secondary">{tItem.language || "EN"}</span>
                           <button
                             type="button"
-                            onClick={() => handleSelectTitle(t.title)}
+                            onClick={() => handleSelectTitle(tItem.title)}
                             className={isSelected ? "btn-primary" : "btn-secondary"}
                             style={{ fontSize: "0.75rem", padding: "0.3rem 0.65rem", cursor: "pointer" }}
                           >
-                            {isSelected ? "✓ Active Title" : "Select as Title"}
+                            {isSelected ? t("dash_active_title") : t("dash_select_title")}
                           </button>
                         </div>
                       </div>
@@ -1681,9 +1721,9 @@ export default function DashboardPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem" }}>
                   <h3 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, color: "var(--on-surface)", display: "flex", alignItems: "center", gap: "0.4rem" }}>
                     <Compass size={16} color="var(--primary)" />
-                    Stage 4 Deep-Dive Literature ({selectedProject.state_json.deepdive_papers.length} targeted papers)
+                    {t("dash_deepdive_header")} ({selectedProject.state_json.deepdive_papers.length} {t("dash_targeted_papers")})
                   </h3>
-                  <span className="badge badge-primary">Methodology Aligned</span>
+                  <span className="badge badge-primary">{t("dash_methodology_aligned")}</span>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                   {selectedProject.state_json.deepdive_papers.map((p: any, i: number) => (
@@ -1697,9 +1737,9 @@ export default function DashboardPage() {
                         </span>
                       </div>
                       <div style={{ fontSize: "0.76rem", color: "var(--outline)", marginTop: "0.25rem", display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-                        <span>Authors: {Array.isArray(p.authors) ? p.authors.join(", ") : p.authors || "N/A"}</span>
-                        <span>Year: {p.year || "N/A"}</span>
-                        {p.citation_count !== undefined && <span>Citations: {p.citation_count}</span>}
+                        <span>{t("dash_authors_label")}: {Array.isArray(p.authors) ? p.authors.join(", ") : p.authors || "N/A"}</span>
+                        <span>{t("dash_year_label")}: {p.year || "N/A"}</span>
+                        {p.citation_count !== undefined && <span>{t("dash_citations_label")}: {p.citation_count}</span>}
                       </div>
                       {p.abstract && (
                         <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", marginTop: "0.4rem", lineHeight: 1.4 }}>
@@ -1719,12 +1759,12 @@ export default function DashboardPage() {
                 <div style={{ background: "#ffffff", border: "1.5px solid var(--primary)", borderRadius: "10px", padding: "1.25rem" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem", flexWrap: "wrap", gap: "0.5rem" }}>
                     <div>
-                      <span className="badge badge-primary" style={{ marginBottom: "0.25rem" }}>Stage 5: Research Plan Ready</span>
+                      <span className="badge badge-primary" style={{ marginBottom: "0.25rem" }}>{t("dash_plan_ready_badge")}</span>
                       <h3 style={{ fontSize: "1.05rem", fontWeight: 700, margin: "0.2rem 0", color: "var(--on-surface)" }}>
                         {activePlan.title || selectedProject.title}
                       </h3>
                       <div style={{ fontSize: "0.78rem", color: "var(--outline)" }}>
-                        Plan ID: {activePlan.plan_id || "plan-active"} • Version {activePlan.version || selectedProject.plan_version || 1}
+                        {t("dash_plan_id_label")}: {activePlan.plan_id || "plan-active"} • {t("dash_version_label")} {activePlan.version || selectedProject.plan_version || 1}
                       </div>
                     </div>
                     <Link
@@ -1732,20 +1772,20 @@ export default function DashboardPage() {
                       className="btn-primary"
                       style={{ fontSize: "0.82rem", padding: "0.45rem 0.85rem", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}
                     >
-                      Open Full Plan Canvas <ChevronRight size={14} />
+                      {t("dash_open_full_plan_btn")} <ChevronRight size={14} />
                     </Link>
                   </div>
 
                   {activePlan.methodology_summary && (
                     <div style={{ background: "var(--surface-low)", padding: "0.75rem", borderRadius: "6px", marginBottom: "0.75rem", fontSize: "0.84rem", lineHeight: 1.45 }}>
-                      <strong>Methodology Summary:</strong> {activePlan.methodology_summary}
+                      <strong>{t("dash_methodology_summary_label")}</strong> {activePlan.methodology_summary}
                     </div>
                   )}
 
                   {activePlan.objectives && activePlan.objectives.length > 0 && (
                     <div style={{ marginBottom: "0.75rem" }}>
                       <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--on-surface)", marginBottom: "0.35rem" }}>
-                        Research Objectives ({activePlan.objectives.length}):
+                        {t("dash_research_objectives_label")} ({activePlan.objectives.length}):
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
                         {activePlan.objectives.map((obj: any, idx: number) => (
@@ -1761,7 +1801,7 @@ export default function DashboardPage() {
                   {activePlan.key_milestones && activePlan.key_milestones.length > 0 && (
                     <div>
                       <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--on-surface)", marginBottom: "0.35rem" }}>
-                        Key Research Milestones ({activePlan.key_milestones.length}):
+                        {t("dash_key_milestones_label")} ({activePlan.key_milestones.length}):
                       </div>
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "0.5rem" }}>
                         {activePlan.key_milestones.slice(0, 4).map((m: any, idx: number) => (
@@ -1784,19 +1824,19 @@ export default function DashboardPage() {
             {/* Coach Callout & Conversational Assistant */}
             <div className="coach-card">
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700, marginBottom: "0.4rem" }}>
-                <Sparkles size={16} /> Academic Coach Assistant
+                <Sparkles size={16} /> {t("dash_coach_companion")}
               </div>
               <p style={{ fontSize: "0.86rem", lineHeight: 1.5, marginBottom: "0.75rem" }}>
-                {curStage === "search" && "Coach priority: Review retrieved literature to confirm your research domain covers both local Malaysian institutional theses and international top-tier conferences."}
-                {curStage === "gap" && "Coach priority: Select a gap supported by at least 2 distinct empirical citations before advancing to thesis title generation."}
-                {curStage === "title" && "Coach priority: Your proposed title reflects both theoretical novelty and measurable methodology feasibility."}
-                {curStage === "deepdive" && "Coach priority: Sub-field papers targeted for your chosen title will populate Chapter 3 methodology alignment."}
-                {curStage === "plan" && "Coach priority: Research objectives and milestones are structured. Use iterative refinement to adjust resource bounds or committee requirements."}
+                {curStage === "search" && t("dash_coach_p_search")}
+                {curStage === "gap" && t("dash_coach_p_gap")}
+                {curStage === "title" && t("dash_coach_p_title")}
+                {curStage === "deepdive" && t("dash_coach_p_deepdive")}
+                {curStage === "plan" && t("dash_coach_p_plan")}
               </p>
 
               {/* Quick Guidance Prompt Chips */}
               <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginBottom: "0.75rem" }}>
-                <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--outline)", textTransform: "uppercase" }}>Quick Exploration Topics:</span>
+                <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--outline)", textTransform: "uppercase" }}>{t("dash_quick_topics_label")}</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -1807,7 +1847,7 @@ export default function DashboardPage() {
                   className="btn-secondary"
                   style={{ fontSize: "0.74rem", padding: "0.35rem 0.6rem", textAlign: "left", justifyContent: "flex-start" }}
                 >
-                  🌴 IoT Smart Agriculture in Palm Oil (MY)
+                  {t("dash_quick_topic_1")}
                 </button>
                 <button
                   type="button"
@@ -1819,7 +1859,7 @@ export default function DashboardPage() {
                   className="btn-secondary"
                   style={{ fontSize: "0.74rem", padding: "0.35rem 0.6rem", textAlign: "left", justifyContent: "flex-start" }}
                 >
-                  🔗 Halal Food Blockchain Supply Chain
+                  {t("dash_quick_topic_2")}
                 </button>
                 <button
                   type="button"
@@ -1831,7 +1871,7 @@ export default function DashboardPage() {
                   className="btn-secondary"
                   style={{ fontSize: "0.74rem", padding: "0.35rem 0.6rem", textAlign: "left", justifyContent: "flex-start" }}
                 >
-                  🎓 Automated Thesis Grading Systems
+                  {t("dash_quick_topic_3")}
                 </button>
               </div>
 
@@ -1848,7 +1888,7 @@ export default function DashboardPage() {
               >
                 <input
                   type="text"
-                  placeholder="Ask Coach or search topic..."
+                  placeholder={t("dash_coach_input_ph")}
                   value={academicCoachPrompt}
                   onChange={(e) => setAcademicCoachPrompt(e.target.value)}
                   className="input-control"
@@ -1863,12 +1903,12 @@ export default function DashboardPage() {
             {/* Account & Tenant Overview */}
             <div className="card" style={{ padding: "1.25rem" }}>
               <h3 style={{ fontSize: "0.95rem", fontWeight: 700, marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.45rem" }}>
-                <Building2 size={16} color="var(--primary)" /> Tenant Isolation
+                <Building2 size={16} color="var(--primary)" /> {t("dash_tenant_iso_title")}
               </h3>
               <p style={{ fontSize: "0.82rem", color: "var(--on-surface-variant)", marginBottom: "0.75rem" }}>
-                Current User: <strong>{user?.email}</strong><br />
-                Institutional ID: <code>{user?.tenant_id}</code><br />
-                Role: <span className="badge badge-student" style={{ padding: "0.1rem 0.4rem" }}>{user?.role}</span>
+                {t("dash_current_user_label")}: <strong>{user?.email}</strong><br />
+                {t("dash_inst_id_label")}: <code>{user?.tenant_id}</code><br />
+                {t("dash_role_label")}: <span className="badge badge-student" style={{ padding: "0.1rem 0.4rem" }}>{user?.role}</span>
               </p>
 
               <button
@@ -1877,7 +1917,7 @@ export default function DashboardPage() {
                 className="btn-secondary"
                 style={{ width: "100%", fontSize: "0.8rem", padding: "0.5rem" }}
               >
-                <Lock size={13} /> {isolationTestStatus === "testing" ? "Verifying..." : "Verify Tenant Isolation"}
+                <Lock size={13} /> {isolationTestStatus === "testing" ? t("dash_verifying_tenant") : t("dash_btn_verify_tenant")}
               </button>
 
               {isolationTestResult && (
@@ -1903,11 +1943,11 @@ export default function DashboardPage() {
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <FolderKanban size={18} color="var(--primary)" />
               <h2 style={{ fontSize: "1.15rem", fontWeight: 700 }}>
-                {isAdmin ? `All Institutional Projects (${tenantName})` : "My Research Theses"}
+                {isAdmin ? `${t("dash_all_projects_title")} (${tenantName})` : t("dash_my_projects_title")}
               </h2>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-              <span className="badge badge-tenant">{projects.length} Records</span>
+              <span className="badge badge-tenant">{projects.length} {t("dash_records_badge")}</span>
               <button
                 onClick={async () => {
                   try {
@@ -1925,7 +1965,12 @@ export default function DashboardPage() {
                       setSelectedProject(newProj);
                       setSearchTopicInput("");
                       setSearchedPapers([]);
-                      setPipelineMessage({ type: "success", text: `New project created: ${newProj.id}. Enter your research topic above to begin.` });
+                      setPipelineMessage({
+                        type: "success",
+                        text: lang === "bm"
+                          ? `Projek baharu dicipta: ${newProj.id}. Sila masukkan topik kajian anda di atas untuk bermula.`
+                          : `New project created: ${newProj.id}. Enter your research topic above to begin.`
+                      });
                     } else if (res.status === 401) {
                       clearToken();
                       router.push("/login");
@@ -1940,7 +1985,7 @@ export default function DashboardPage() {
                 className="btn-primary"
                 style={{ fontSize: "0.82rem", padding: "0.4rem 0.85rem" }}
               >
-                + New Project
+                {t("dash_btn_new_project")}
               </button>
             </div>
           </div>
@@ -1983,9 +2028,9 @@ export default function DashboardPage() {
                       )}
                     </div>
                     <div style={{ fontSize: "0.78rem", color: "var(--on-surface-variant)" }}>
-                      Stage: <strong style={{ color: "var(--primary)", textTransform: "capitalize" }}>{p.stage}</strong> • ID: <code>{p.id}</code>
+                      {t("dash_project_stage_label")}: <strong style={{ color: "var(--primary)", textTransform: "capitalize" }}>{p.stage}</strong> • ID: <code>{p.id}</code>
                       {p.state_json?.last_saved_stage && (
-                        <span> • Last saved: {p.state_json.last_saved_stage}</span>
+                        <span> • {t("dash_last_saved")}: {p.state_json.last_saved_stage}</span>
                       )}
                     </div>
                   </div>
@@ -1998,7 +2043,7 @@ export default function DashboardPage() {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <FileText size={13} />
-                      {hasPlan ? `View Plan (v${p.plan_version || 1})` : "Draft Plan"}
+                      {hasPlan ? `${t("dash_btn_view_plan")} (v${p.plan_version || 1})` : t("dash_btn_draft_plan")}
                     </Link>
                   </div>
                 </div>
@@ -2018,7 +2063,7 @@ export default function DashboardPage() {
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <KeyRound size={20} color="var(--primary)" />
                 <h2 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--on-surface)" }}>
-                  API Key &amp; Intelligence Settings
+                  {lang === "bm" ? "Kunci API & Tetapan Kecerdasan" : "API Key & Intelligence Settings"}
                 </h2>
               </div>
               <button onClick={() => setShowSettingsModal(false)} style={{ color: "var(--outline)" }}>
@@ -2045,12 +2090,12 @@ export default function DashboardPage() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: "0.92rem", color: "var(--on-surface)" }}>
-                    System Mode: {keySettings?.demo_mode ? "DEMO MODE (Default)" : "LIVE MODE"}
+                    {lang === "bm" ? "Mod Sistem" : "System Mode"}: {keySettings?.demo_mode ? (lang === "bm" ? "MOD DEMO (Piawai)" : "DEMO MODE (Default)") : (lang === "bm" ? "MOD SIARAN LANGSUNG" : "LIVE MODE")}
                   </div>
                   <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", marginTop: "0.2rem" }}>
                     {keySettings?.demo_mode 
-                      ? "Uses deterministic fixtures for instant evaluations with zero external keys required." 
-                      : "Calls live DeepSeek/OpenAI model endpoints using your encrypted key."}
+                      ? (lang === "bm" ? "Menggunakan data penanda aras bagi penilaian pantas tanpa kunci luaran." : "Uses deterministic fixtures for instant evaluations with zero external keys required.") 
+                      : (lang === "bm" ? "Memanggil model langsung DeepSeek/OpenAI menggunakan kunci sulit anda." : "Calls live DeepSeek/OpenAI model endpoints using your encrypted key.")}
                   </p>
                 </div>
                 <button
@@ -2060,7 +2105,7 @@ export default function DashboardPage() {
                   className="btn-amber"
                   style={{ fontSize: "0.8rem", padding: "0.4rem 0.75rem" }}
                 >
-                  {keySettings?.demo_mode ? "Switch to LIVE" : "Switch to DEMO"}
+                  {keySettings?.demo_mode ? (lang === "bm" ? "Tukar ke LANGSUNG" : "Switch to LIVE") : (lang === "bm" ? "Tukar ke DEMO" : "Switch to DEMO")}
                 </button>
               </div>
             </div>
@@ -2068,11 +2113,11 @@ export default function DashboardPage() {
             {/* Stored Key Status */}
             <div style={{ marginBottom: "1.25rem" }}>
               <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--on-surface)", marginBottom: "0.35rem" }}>
-                Stored Tenant Key (Tenant: <code>{keySettings?.tenant_id}</code>)
+                {lang === "bm" ? "Kunci Institusi Tersimpan" : "Stored Tenant Key"} ({lang === "bm" ? "Institusi" : "Tenant"}: <code>{keySettings?.tenant_id}</code>)
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#ffffff", border: "1px solid var(--border-subtle)", borderRadius: "8px", padding: "0.65rem 0.95rem" }}>
                 <span style={{ fontFamily: "var(--font-code)", fontSize: "0.88rem", color: keySettings?.has_custom_key ? "var(--on-surface)" : "var(--outline)" }}>
-                  {keySettings?.has_custom_key ? (keySettings.key_preview || "sk-••••••••••••") : "No custom key configured (Using system/demo fallback)"}
+                  {keySettings?.has_custom_key ? (keySettings.key_preview || "sk-••••••••••••") : (lang === "bm" ? "Tiada kunci khusus dikonfigurasi (Guna mod demo sandaran)" : "No custom key configured (Using system/demo fallback)")}
                 </span>
                 {keySettings?.has_custom_key && (
                   <button
@@ -2080,7 +2125,7 @@ export default function DashboardPage() {
                     disabled={savingKey}
                     style={{ color: "var(--error)", fontSize: "0.8rem", fontWeight: 600 }}
                   >
-                    Remove
+                    {lang === "bm" ? "Padam" : "Remove"}
                   </button>
                 )}
               </div>
@@ -2090,7 +2135,7 @@ export default function DashboardPage() {
             <form onSubmit={handleSaveApiKey} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               <div>
                 <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--on-surface)", marginBottom: "0.35rem" }}>
-                  LLM Provider
+                  {lang === "bm" ? "Pembekal Model LLM" : "LLM Provider"}
                 </label>
                 <select
                   value={selectedProvider}
@@ -2098,14 +2143,14 @@ export default function DashboardPage() {
                   className="input-control"
                   style={{ fontSize: "0.88rem" }}
                 >
-                  <option value="deepseek">DeepSeek (deepseek-chat) — Recommended for Thesis Guidance</option>
+                  <option value="deepseek">DeepSeek (deepseek-chat) — {lang === "bm" ? "Disyorkan untuk Panduan Tesis" : "Recommended for Thesis Guidance"}</option>
                   <option value="openai">OpenAI (gpt-4o-mini)</option>
                 </select>
               </div>
 
               <div>
                 <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--on-surface)", marginBottom: "0.35rem" }}>
-                  Enter API Key
+                  {lang === "bm" ? "Masukkan Kunci API" : "Enter API Key"}
                 </label>
                 <input
                   type="password"
@@ -2119,7 +2164,7 @@ export default function DashboardPage() {
 
               <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.78rem", color: "var(--outline)" }}>
                 <Shield size={13} color="var(--secondary)" />
-                Key is AES-256 encrypted before database storage. Plaintext keys are never stored in git or logs.
+                {lang === "bm" ? "Kunci disulitkan dengan AES-256 sebelum disimpan ke pangkalan data. Kunci teks biasa tidak pernah disimpan dalam git atau log." : "Key is AES-256 encrypted before database storage. Plaintext keys are never stored in git or logs."}
               </div>
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.6rem", marginTop: "0.5rem" }}>
@@ -2129,7 +2174,7 @@ export default function DashboardPage() {
                   className="btn-secondary"
                   style={{ fontSize: "0.88rem", padding: "0.5rem 1rem" }}
                 >
-                  Close
+                  {lang === "bm" ? "Tutup" : "Close"}
                 </button>
                 <button
                   type="submit"
@@ -2137,7 +2182,7 @@ export default function DashboardPage() {
                   className="btn-primary"
                   style={{ fontSize: "0.88rem", padding: "0.5rem 1rem" }}
                 >
-                  {savingKey ? "Encrypting..." : "Save Encrypted Key"}
+                  {savingKey ? (lang === "bm" ? "Menyulitkan..." : "Encrypting...") : (lang === "bm" ? "Simpan Kunci Disulitkan" : "Save Encrypted Key")}
                 </button>
               </div>
             </form>
