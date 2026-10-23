@@ -31,20 +31,53 @@ export default function LoginPage() {
       setError(null);
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const res = await fetch(`${apiUrl}/auth/demo-login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, role, tenant_id: tenantId, name }),
-      });
+      const isRemoteHost =
+        typeof window !== "undefined" &&
+        window.location.hostname !== "localhost" &&
+        window.location.hostname !== "127.0.0.1";
 
-      if (!res.ok) {
-        throw new Error(`Demo login failed with status ${res.status}`);
+      // If a real remote backend is configured or running locally, attempt real API login
+      if (!isRemoteHost || !apiUrl.includes("localhost")) {
+        try {
+          const res = await fetch(`${apiUrl}/auth/demo-login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, role, tenant_id: tenantId, name }),
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            setToken(data.access_token);
+            localStorage.setItem("mtis_user", JSON.stringify(data.user));
+            localStorage.setItem("mtis_tenant", JSON.stringify(data.tenant));
+            router.push("/dashboard");
+            return;
+          }
+        } catch (netErr) {
+          console.warn("Backend API not reachable, falling back to client-side demo mode:", netErr);
+        }
       }
 
-      const data = await res.json();
-      setToken(data.access_token);
-      localStorage.setItem("mtis_user", JSON.stringify(data.user));
-      localStorage.setItem("mtis_tenant", JSON.stringify(data.tenant));
+      // 100% Client-Side Demo Persona Fallback for Netlify / Cloud Preview
+      const demoUser = {
+        id: `usr-${email.split("@")[0]}`,
+        tenant_id: tenantId,
+        name: name,
+        email: email,
+        role: role,
+        plan: role === "student" ? "free" : "enterprise",
+        quota_remaining: role === "student" ? 3 : 999,
+        quota_reset_at: new Date(Date.now() + 86400000).toISOString(),
+        created_at: new Date().toISOString(),
+      };
+      const demoTenant = {
+        id: tenantId,
+        name: tenantId === "tenant-utm-001" ? "Universiti Teknologi Malaysia (UTM)" : "Demo University Campus",
+      };
+
+      setToken(`demo-token-${role}-${Date.now()}`);
+      localStorage.setItem("mtis_user", JSON.stringify(demoUser));
+      localStorage.setItem("mtis_tenant", JSON.stringify(demoTenant));
 
       router.push("/dashboard");
     } catch (err: any) {
