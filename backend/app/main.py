@@ -89,10 +89,10 @@ async def general_exception_handler(request: Request, exc: Exception):
     )
 
 
-# CORS Middleware for Next.js Frontend
+# CORS Middleware for Next.js Frontend (production: only the Netlify site via ALLOWED_ORIGINS)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.allowed_origins_list or ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

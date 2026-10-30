@@ -1,0 +1,33 @@
+# Render Blueprint for the MTIS backend (FastAPI). See DEPLOYMENT.md "Mode D".
+# Secrets marked sync: false are typed into the Render dashboard, never committed.
+services:
+  - type: web
+    name: mtis-backend
+    runtime: docker
+    plan: free
+    region: frankfurt  # close to the Supabase database (eu-west-1)
+    dockerContext: .
+    dockerfilePath: ./backend/Dockerfile.render
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DEMO_MODE
+        value: "false"
+      - key: LLM_PROVIDER
+        value: deepseek
+      - key: AI_DAILY_GLOBAL_LIMIT
+        value: "300"
+      - key: CHAT_DAILY_LIMIT
+        value: "30"
+      - key: APP_SECRET
+        generateValue: true
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false

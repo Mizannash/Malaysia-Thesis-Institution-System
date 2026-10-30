@@ -31,6 +31,16 @@ class Settings(BaseSettings):
     CHAT_DAILY_LIMIT: int = 30
     CHAT_PER_MINUTE_LIMIT: int = 10
 
+    # ── Production Safety ──
+    # Total paid AI calls per Malaysia day across all users (0 = no cap)
+    AI_DAILY_GLOBAL_LIMIT: int = 300
+    # Comma-separated browser origins allowed by CORS (e.g. https://your-site.netlify.app)
+    ALLOWED_ORIGINS: str = "*"
+
+    # ── Account → University Mapping ──
+    # Comma-separated "domain:tenant_id" pairs; other emails join INDEPENDENT_TENANT_ID
+    TENANT_EMAIL_DOMAINS: str = "utm.my:tenant-utm-001"
+
     # ── Data Source Settings ──
     # Polite-pool email for live OpenAlex queries (free, NOT a secret)
     OPENALEX_EMAIL: Optional[str] = None
@@ -53,6 +63,23 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore"
     )
+
+    @property
+    def is_production(self) -> bool:
+        return (self.APP_ENV or "").lower() == "production"
+
+    @property
+    def allowed_origins_list(self) -> list[str]:
+        return [o.strip() for o in (self.ALLOWED_ORIGINS or "").split(",") if o.strip()]
+
+    @property
+    def tenant_email_domains(self) -> dict[str, str]:
+        pairs = {}
+        for item in (self.TENANT_EMAIL_DOMAINS or "").split(","):
+            domain, _, tenant_id = item.strip().partition(":")
+            if domain.strip() and tenant_id.strip():
+                pairs[domain.strip().lower()] = tenant_id.strip()
+        return pairs
 
     @model_validator(mode="after")
     def validate_configuration(self) -> "Settings":
@@ -94,6 +121,9 @@ def validate_startup_config(s: Settings) -> None:
 try:
     settings = Settings()
 except Exception:
+    # Production must never silently fall back to demo mode (it would re-enable demo login)
+    if os.getenv("APP_ENV", "").lower() == "production":
+        raise
     # If loading with missing keys under DEMO_MODE=False, instantiate a fallback
     # so module import succeeds; validation failure will be explicitly caught at startup.
     settings = Settings(DEMO_MODE=True)

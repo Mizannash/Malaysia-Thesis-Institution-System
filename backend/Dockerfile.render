@@ -1,0 +1,23 @@
+# Production image for Render. Build context is the repository root (see render.yaml)
+# so the shared prompts/ folder is included alongside the backend code.
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY backend/ /app/
+COPY prompts/ /app/prompts/
+
+ENV APP_ENV=production \
+    PYTHONUNBUFFERED=1
+
+EXPOSE 8000
+
+# Render provides the port in $PORT
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers"]

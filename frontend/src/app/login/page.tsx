@@ -1,19 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signInWithGoogle } from "@/lib/supabase";
-import { setToken } from "@/lib/api";
+import { isSupabaseConfigured, signInWithGoogle, signOutSupabase, supabase } from "@/lib/supabase";
+import { clearToken, fetchWithAuth, getApiErrorMessage, setToken } from "@/lib/api";
 import { Shield, Sparkles, Building2, UserCheck, ArrowRight, GraduationCap, Lock, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/lib/LanguageContext";
 import LanguageToggle from "@/components/LanguageToggle";
+import EmailAuthForm from "@/components/EmailAuthForm";
 
 export default function LoginPage() {
   const router = useRouter();
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const completing = useRef(false);
+
+  // After Google returns here, exchange the Supabase session for the MTIS profile, then open the dashboard
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+
+    const completeSignIn = async (accessToken: string) => {
+      if (completing.current) return;
+      completing.current = true;
+      setLoading(true);
+      setError(null);
+      try {
+        setToken(accessToken);
+        const meRes = await fetchWithAuth("/auth/me");
+        const me = await meRes.json();
+        if (!meRes.ok) throw me;
+        localStorage.setItem("mtis_user", JSON.stringify(me));
+        try {
+          const tenantsRes = await fetchWithAuth("/auth/tenants");
+          const tenants = tenantsRes.ok ? await tenantsRes.json() : [];
+          const tenant = tenants.find((tn: any) => tn.id === me.tenant_id) || { id: me.tenant_id, name: me.tenant_id };
+          localStorage.setItem("mtis_tenant", JSON.stringify(tenant));
+        } catch {
+          localStorage.setItem("mtis_tenant", JSON.stringify({ id: me.tenant_id, name: me.tenant_id }));
+        }
+        router.push("/dashboard");
+      } catch (err) {
+        // Sign out of Supabase so the page does not loop back into a broken session
+        await signOutSupabase();
+        clearToken();
+        completing.current = false;
+        setError(getApiErrorMessage(err, "Sign-in failed. Please try again."));
+        setLoading(false);
+      }
+    };
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) completeSignIn(data.session.access_token);
+    });
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) completeSignIn(session.access_token);
+    });
+    return () => data.subscription.unsubscribe();
+  }, [router]);
 
   // Handle Google OAuth sign-in
   const handleGoogleSignIn = async () => {
@@ -133,11 +178,17 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Primary Action: Google Auth */}
+          {/* Real MTIS accounts (email + password via Supabase Auth) */}
+          {isSupabaseConfigured && <EmailAuthForm />}
+
+          {/* Demo mode only: Google placeholder (Google sign-in is off for now) */}
+          {!isSupabaseConfigured && (
           <button
-            disabled={true}
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={!isSupabaseConfigured || loading}
             className="btn-secondary"
-            style={{ width: "100%", padding: "0.75rem", fontSize: "0.95rem", marginBottom: "0.5rem", opacity: 0.5 }}
+            style={{ width: "100%", padding: "0.75rem", fontSize: "0.95rem", marginBottom: "0.5rem", opacity: isSupabaseConfigured ? 1 : 0.5 }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" style={{ marginRight: "0.25rem" }}>
               <path fill="#4285F4" d="M21.35 11.1h-9.17v2.98h5.27c-.23 1.25-.94 2.3-2 3.01v2.5h3.24c1.89-1.74 2.98-4.3 2.98-7.39 0-.71-.06-1.4-.32-1.1z"/>
@@ -147,10 +198,15 @@ export default function LoginPage() {
             </svg>
             {t("login_google_btn")}
           </button>
-          <p style={{ textAlign: "center", fontSize: "0.75rem", color: "var(--outline)", marginBottom: "1.25rem" }}>
-            {t("login_google_hint")}
-          </p>
+          )}
+          {!isSupabaseConfigured && (
+            <p style={{ textAlign: "center", fontSize: "0.75rem", color: "var(--outline)", marginBottom: "1.25rem" }}>
+              {t("login_google_hint")}
+            </p>
+          )}
 
+          {/* Demo personas only when real sign-in is not configured (local / offline demo) */}
+          {!isSupabaseConfigured && (<>
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "1.25rem 0", color: "var(--outline)", fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
             <div style={{ flex: 1, height: "1px", background: "var(--border-subtle)" }} />
             <span>{t("login_or_divider")}</span>
@@ -204,6 +260,7 @@ export default function LoginPage() {
               <span className="badge badge-admin">admin@demo.test</span>
             </button>
           </div>
+          </>)}
 
           {/* Coach Guidance Note */}
           <div className="coach-card" style={{ marginTop: "1.5rem" }}>

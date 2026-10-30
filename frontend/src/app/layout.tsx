@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { LanguageProvider } from "@/lib/LanguageContext";
+import SupabaseSessionSync from "@/components/SupabaseSessionSync";
 
 export const metadata: Metadata = {
   title: "MTIS — Malaysian Thesis Institution System",
@@ -15,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <SupabaseSessionSync />
         <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>

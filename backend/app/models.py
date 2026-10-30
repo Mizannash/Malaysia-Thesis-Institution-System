@@ -82,3 +82,11 @@ class Project(Base):
 
     tenant = relationship("Tenant", back_populates="projects")
     user = relationship("User", back_populates="projects")
+
+
+class AIDailyUsage(Base):
+    """Platform-wide count of paid AI calls per Malaysia day (spend cap, not tenant data)."""
+    __tablename__ = "ai_daily_usage"
+
+    day = Column(Date, primary_key=True)
+    calls = Column(Integer, nullable=False, default=0)

@@ -21,7 +21,7 @@ from app.schemas import CoachChatRequest, CoachChatResponse, CoachHistoryRespons
 from app.routers.pipeline import _get_isolated_project
 from app.agents.coach_agent import coach_reply
 from app.ai.provider import ChatProviderError
-from app.ai.contract import AIContractError, AIPolicyRefusalError
+from app.ai.contract import AIContractError, AIPolicyRefusalError, AIQuotaExceededError
 from app.ai import chat_limits
 
 logger = logging.getLogger(__name__)
@@ -77,6 +77,12 @@ def send_coach_message(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"error": "REFUSED_POLICY", "message": e.user_message},
+        )
+    except AIQuotaExceededError as e:
+        chat_limits.refund_daily_slot(db, tenant_id, user_id)
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail={"error": "REFUSED_GLOBAL_QUOTA", "message": e.user_message},
         )
     except (ChatProviderError, AIContractError):
         chat_limits.refund_daily_slot(db, tenant_id, user_id)

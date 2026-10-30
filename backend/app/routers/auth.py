@@ -32,7 +32,7 @@ def list_tenants(db: Session = Depends(get_db)):
 @router.post("/demo-login", response_model=AuthTokenResponse)
 def demo_login(req: DemoLoginRequest, db: Session = Depends(get_db)):
     """Quick login for DEMO_MODE, automated testing, and marker evaluation."""
-    if not settings.DEMO_MODE and not settings.APP_ENV == "development":
+    if settings.is_production or (not settings.DEMO_MODE and not settings.APP_ENV == "development"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Demo login is disabled in production environments.",

@@ -139,6 +139,96 @@ MTIS is structured as a modern decoupled full-stack application:
 
 ---
 
+## 🚀 Mode D: Production (Supabase + Render + Netlify)
+
+Live site: `https://malaysia-thesis-institution-system.netlify.app`. Real MTIS accounts (email + password with "Forgot password", run by Supabase Auth), a real PostgreSQL database, and the FastAPI backend with live DeepSeek on Render. Demo login is switched off in production.
+
+Do the steps in this order. Keep every secret in the dashboards; never commit it.
+
+### Step 1 — Supabase project (database + sign-in)
+1. Go to [supabase.com](https://supabase.com) → **New project**. Pick region **Southeast Asia (Singapore)**, set a strong database password, and save it in your password manager.
+2. **Project Settings → API**: copy the **Project URL** (`https://<ref>.supabase.co`) and the **anon public** key.
+3. **Connect** (top bar) → **Session pooler** → copy the URI. It looks like
+   `postgresql://postgres.<ref>:<PASSWORD>@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres`.
+   Use the *Session pooler*, not the direct connection: Render's free plan only has IPv4.
+4. **Authentication → URL Configuration**:
+   * Site URL: `https://malaysia-thesis-institution-system.netlify.app`
+   * Redirect URLs: add all four:
+     * `https://malaysia-thesis-institution-system.netlify.app/login`
+     * `https://malaysia-thesis-institution-system.netlify.app/reset-password`
+     * `http://localhost:3000/login`
+     * `http://localhost:3000/reset-password`
+
+### Step 2 — Email accounts (sign up, confirm, forgot password)
+1. Supabase → **Authentication → Sign In / Providers → Email**: turn **Enable Email provider** on, turn **Confirm email** on, set **Minimum password length** to `8`, then **Save**.
+2. (Optional) **Authentication → Emails**: edit the "Confirm signup" and "Reset password" templates (subject and text) to add Bahasa Malaysia. Keep the `{{ .ConfirmationURL }}` link in each template.
+3. Which university a new user joins is decided by the server from their email:
+   * `@utm.my` and its subdomains (e.g. `@graduate.utm.my`) → UTM.
+   * Any other email (Gmail, Yahoo, …) → **Independent Researchers**.
+   * More universities: set `TENANT_EMAIL_DOMAINS` on Render, e.g. `utm.my:tenant-utm-001,um.edu.my:tenant-um-001` (the tenant row must exist).
+   * To move one user: set `tenant_id` in their Supabase `app_metadata` (Authentication → Users → user → edit). Users cannot choose it themselves.
+
+Google sign-in is off for now. To add it later, create a Google OAuth client with redirect URI `https://<ref>.supabase.co/auth/v1/callback`, enable Google under Sign In / Providers, and show the Google button again on the login page.
+
+### Step 3 — Backend on Render
+1. [render.com](https://render.com) → **New → Blueprint** → connect GitHub → choose `Mizannash/Malaysia-Thesis-Institution-System`. Render reads [`render.yaml`](render.yaml) and creates `mtis-backend` (Docker, free plan, Singapore).
+2. Fill in the secrets it asks for:
+
+   | Variable | Value |
+   | :--- | :--- |
+   | `DEEPSEEK_API_KEY` | your DeepSeek key |
+   | `DATABASE_URL` | the Session pooler URI from Step 1.3 |
+   | `SUPABASE_URL` | `https://<ref>.supabase.co` |
+   | `ALLOWED_ORIGINS` | `https://malaysia-thesis-institution-system.netlify.app` |
+
+   Already set by the blueprint: `APP_ENV=production`, `DEMO_MODE=false`, `LLM_PROVIDER=deepseek`, `AI_DAILY_GLOBAL_LIMIT=300`, `CHAT_DAILY_LIMIT=30`, and a generated `APP_SECRET`.
+3. When the deploy is live, open `https://mtis-backend.onrender.com/health` → `{"status":"ok"}`. (Use the URL Render shows if the name differs.)
+   * If the deploy log says `DATABASE_URL is unreachable`, re-check the pooler URI and password. Production never falls back to SQLite.
+   * The free plan sleeps after ~15 minutes idle; the first request after that takes 30–60 seconds.
+
+### Step 4 — Point Netlify at the backend
+Netlify → Site configuration → **Environment variables**:
+
+| Variable | Value |
+| :--- | :--- |
+| `NEXT_PUBLIC_API_URL` | `https://mtis-backend.onrender.com` |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://<ref>.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | the anon public key (it is designed to be public) |
+
+Then **Deploys → Trigger deploy → Clear cache and deploy site**. With Supabase configured, the login page shows **Sign in / Create account** with "Forgot password?"; the demo personas disappear.
+
+### Step 5 — Check it works
+1. Open the site → **Create account** → open the confirmation email → you return to the site and land on the dashboard.
+2. Run a topic search and ask Prof. Bijak a question → a real DeepSeek reply.
+3. Sign out → **Forgot password?** → open the reset email → choose a new password → you are signed in again.
+4. Create a second account → it cannot see the first account's projects.
+5. Supabase → Table editor → `ai_daily_usage` → today's `calls` goes up with each AI call. At 300 the app answers "MTIS has reached today's AI limit" until midnight (Malaysia time).
+
+### Step 6 — Make yourself the admin
+Create your own account first, then Supabase → **Table Editor → `users`** → find your email → change `role` to `admin` → Save. Sign out and in again.
+
+### Step 7 — Before real students: a real email sender
+Supabase's built-in email sends only a few emails per hour and is meant for testing. Before launch:
+1. Create a free [Resend](https://resend.com) account (3,000 emails/month) and an API key.
+2. Supabase → **Authentication → SMTP Settings** → enable custom SMTP:
+   host `smtp.resend.com`, port `465`, username `resend`, password = the Resend API key, sender e.g. `MTIS <no-reply@your-domain>`.
+3. Without your own domain, Resend can only send to your own address; add and verify a domain in Resend to email students.
+
+### New variables for `.env.example`
+Add these to `.env.example` by hand (the agent is not allowed to open `.env*` files):
+```
+AI_DAILY_GLOBAL_LIMIT=300
+CHAT_DAILY_LIMIT=30
+ALLOWED_ORIGINS=*
+TENANT_EMAIL_DOMAINS=utm.my:tenant-utm-001
+SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
+
+
+---
+
 ## 🔐 Environment Variables Summary
 
 | Variable | Scope | Default (Native) | Default (Docker) | Default (Netlify) | Purpose |

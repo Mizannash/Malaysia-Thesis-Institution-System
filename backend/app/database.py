@@ -25,24 +25,42 @@ def is_postgres_available(url: str, timeout: float = 0.5) -> bool:
         return False
 
 
-database_url = settings.DATABASE_URL
-connect_args = {}
+SQLITE_FALLBACK_URL = "sqlite:///./demo_mtis.db"
 
-if database_url.startswith("postgresql"):
-    if is_postgres_available(database_url):
-        connect_args = {"connect_timeout": 2}
-    else:
+
+def resolve_database_url(url: str, production: bool, check=is_postgres_available) -> str:
+    """
+    Picks the database URL to use.
+    - Development: falls back to local SQLite when PostgreSQL is unreachable.
+    - Production: never falls back (data would vanish on redeploy); fails loudly instead.
+    Supabase connections get sslmode=require.
+    """
+    if not url.startswith("postgresql"):
+        return url
+    if not check(url, timeout=5.0 if production else 0.5):
+        if production:
+            raise RuntimeError(
+                "Startup configuration error: DATABASE_URL is unreachable. "
+                "Production never falls back to SQLite; check the Supabase Session pooler connection string."
+            )
         logger.info("PostgreSQL service not responding on 5432. Using SQLite in DEMO_MODE.")
-        database_url = "sqlite:///./demo_mtis.db"
-        connect_args = {"check_same_thread": False}
-elif database_url.startswith("sqlite"):
-    connect_args = {"check_same_thread": False}
+        return SQLITE_FALLBACK_URL
+    host = urlparse(url).hostname or ""
+    if "supabase" in host and "sslmode=" not in url:
+        url += ("&" if "?" in url else "?") + "sslmode=require"
+    return url
+
+
+database_url = resolve_database_url(settings.DATABASE_URL, production=settings.is_production)
+connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {"connect_timeout": 5}
 
 try:
     engine = create_engine(database_url, connect_args=connect_args, pool_pre_ping=True)
 except Exception as exc:
-    logger.warning("Failed to initialize engine for %s: %s. Using SQLite fallback.", database_url, exc)
-    database_url = "sqlite:///./demo_mtis.db"
+    if settings.is_production:
+        raise
+    logger.warning("Failed to initialize engine: %s. Using SQLite fallback.", type(exc).__name__)
+    database_url = SQLITE_FALLBACK_URL
     engine = create_engine(database_url, connect_args={"check_same_thread": False})
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -86,6 +104,11 @@ def init_db():
         logger.warning("Column migration check notice: %s", exc)
 
     with SessionLocal() as db:
+
+        # Private-email sign-ups (Gmail, Yahoo, ...) join this tenant; must exist in every environment
+        if not db.query(Tenant).filter_by(id="tenant-independent").first():
+            db.add(Tenant(id="tenant-independent", name="Independent Researchers"))
+            db.commit()
 
         utm_tenant = db.query(Tenant).filter_by(id="tenant-utm-001").first()
         if not utm_tenant:

@@ -743,7 +743,10 @@ def call_llm_provider(
             status="no_key_mode"
         )
 
-    # 4. Live Provider Call (DeepSeek / OpenAI)
+    # 4. Live Provider Call (DeepSeek / OpenAI); platform-wide spend cap first
+    from app.ai import usage_cap
+    usage_cap.check_global_ai_cap()
+
     from app.ai.llm_adapter import resolve_provider_config
     cfg = resolve_provider_config()
     target_model = model or cfg.model
@@ -892,7 +895,10 @@ def call_chat_provider(
             status="no_key_mode",
         )
 
-    # 3. Live Providers (primary, then backup)
+    # 3. Live Providers (primary, then backup); platform-wide spend cap first
+    from app.ai import usage_cap
+    usage_cap.check_global_ai_cap()
+
     import httpx
     last_error: Optional[Exception] = None
     for attempt, target in enumerate(_chat_provider_chain(tenant_id)):

@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/lib/LanguageContext";
 import FloatingCoach, { useCoachOpen } from "@/components/FloatingCoach";
+import { signOutSupabase } from "@/lib/supabase";
 import LanguageToggle from "@/components/LanguageToggle";
 
 export default function DashboardPage() {
@@ -270,7 +271,8 @@ export default function DashboardPage() {
     loadUserData();
   }, [router]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOutSupabase();
     clearToken();
     router.push("/login");
   };
