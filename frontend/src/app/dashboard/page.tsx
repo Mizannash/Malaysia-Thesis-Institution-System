@@ -31,17 +31,18 @@ import {
   Shield,
   CreditCard,
   Globe,
-  Send,
   GraduationCap,
   Users,
   UserPlus
 } from "lucide-react";
 import { useLanguage } from "@/lib/LanguageContext";
+import FloatingCoach, { useCoachOpen } from "@/components/FloatingCoach";
 import LanguageToggle from "@/components/LanguageToggle";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { t, lang } = useLanguage();
+  const [coachOpen, setCoachOpen] = useCoachOpen();
 
   // Robust academic paper link resolver — guarantees no 404 or missing DOI errors
   const getPaperLink = (paper: any) => {
@@ -110,7 +111,6 @@ export default function DashboardPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchedPapers, setSearchedPapers] = useState<any[]>([]);
   const [searchFeedback, setSearchFeedback] = useState<{ type: "success" | "error"; msg: string } | null>(null);
-  const [academicCoachPrompt, setAcademicCoachPrompt] = useState("");
 
   // Multi-tenant isolation test
   const [isolationTestResult, setIsolationTestResult] = useState<string | null>(null);
@@ -1875,29 +1875,15 @@ export default function DashboardPage() {
                 </button>
               </div>
 
-              {/* Conversational prompt form */}
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (!academicCoachPrompt.trim()) return;
-                  setSearchTopicInput(academicCoachPrompt.trim());
-                  handleSearchTopic(undefined, academicCoachPrompt.trim());
-                  setAcademicCoachPrompt("");
-                }}
-                style={{ display: "flex", gap: "0.4rem" }}
+              {/* Opens the floating Academic Coach chat */}
+              <button
+                type="button"
+                onClick={() => setCoachOpen(true)}
+                className="btn-primary"
+                style={{ width: "100%", fontSize: "0.8rem", padding: "0.45rem 0.75rem", justifyContent: "center" }}
               >
-                <input
-                  type="text"
-                  placeholder={t("dash_coach_input_ph")}
-                  value={academicCoachPrompt}
-                  onChange={(e) => setAcademicCoachPrompt(e.target.value)}
-                  className="input-control"
-                  style={{ fontSize: "0.8rem", padding: "0.4rem 0.6rem" }}
-                />
-                <button type="submit" disabled={isSearching} className="btn-primary" style={{ padding: "0.4rem 0.75rem", fontSize: "0.8rem" }}>
-                  <Send size={13} />
-                </button>
-              </form>
+                <Sparkles size={14} /> {t("coach_open")}
+              </button>
             </div>
 
             {/* Account & Tenant Overview */}
@@ -2189,6 +2175,20 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Floating Academic Coach (LLM via backend /api/projects/{id}/coach/chat) */}
+      <FloatingCoach
+        projectId={selectedProject?.id || null}
+        stage={curStage}
+        open={coachOpen}
+        onOpenChange={setCoachOpen}
+        busy={isSearching || runningStage !== null}
+        isSearching={isSearching}
+        onSearchTopic={(q) => {
+          setSearchTopicInput(q);
+          handleSearchTopic(undefined, q);
+        }}
+      />
     </div>
   );
 }

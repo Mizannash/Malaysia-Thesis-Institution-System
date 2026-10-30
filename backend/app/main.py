@@ -98,7 +98,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from app.routers import health, auth, projects, search, pipeline, settings as settings_router, admin as admin_router
+from app.routers import health, auth, projects, search, pipeline, coach, settings as settings_router, admin as admin_router
 
 # Mount Routers
 app.include_router(health.router)
@@ -106,6 +106,7 @@ app.include_router(auth.router)
 app.include_router(projects.router)
 app.include_router(search.router)
 app.include_router(pipeline.router)
+app.include_router(coach.router)
 app.include_router(settings_router.router)
 app.include_router(admin_router.router)
 

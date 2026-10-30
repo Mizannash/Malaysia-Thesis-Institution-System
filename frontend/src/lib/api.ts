@@ -11,6 +11,23 @@ import {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+export interface CoachMessage {
+  role: "user" | "assistant";
+  content: string;
+  at?: string;
+}
+
+export interface CoachChatResult {
+  reply?: string;
+  history: CoachMessage[];
+  chat_remaining: number;
+}
+
+const DEMO_COACH_REPLY = {
+  en: "[Demo mode] The live Academic Coach needs the MTIS backend. In the meantime: narrow your topic to one population, one outcome and one Malaysian setting, and pick a gap that at least two of your papers point to.",
+  bm: "[Mod demo] Jurulatih Akademik secara langsung memerlukan pelayan MTIS. Sementara itu: kecilkan topik anda kepada satu populasi, satu hasil dan satu konteks Malaysia, dan pilih jurang yang disokong oleh sekurang-kurangnya dua kertas kajian.",
+};
+
 export function getToken(): string | null {
   if (typeof window === "undefined") return null;
   return localStorage.getItem("mtis_token");
@@ -94,6 +111,31 @@ async function handleOfflineDemoResponse(endpoint: string, options: RequestInit 
       localStorage.setItem("mtis_user", JSON.stringify(user));
     }
     return new Response(JSON.stringify({ quota_remaining: 3, plan: user.plan }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // 3b. /api/projects/{id}/coach/chat and /coach/history (ACADEMIC COACH CHAT)
+  const coachMatch = endpoint.match(/^\/api\/projects\/([^/]+)\/coach\/(chat|history)$/);
+  if (coachMatch) {
+    const storageKey = `mtis_coach_${coachMatch[1]}`;
+    const stored = typeof window !== "undefined" ? localStorage.getItem(storageKey) : null;
+    const history: CoachMessage[] = stored ? JSON.parse(stored) : [];
+    if (coachMatch[2] === "chat" && method === "POST") {
+      const now = new Date().toISOString();
+      const reply = DEMO_COACH_REPLY[body.lang === "bm" ? "bm" : "en"];
+      history.push({ role: "user", content: String(body.message || ""), at: now });
+      history.push({ role: "assistant", content: reply, at: now });
+      if (typeof window !== "undefined") {
+        localStorage.setItem(storageKey, JSON.stringify(history.slice(-50)));
+      }
+      return new Response(JSON.stringify({ reply, history, chat_remaining: 30 }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return new Response(JSON.stringify({ history, chat_remaining: 30 }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -604,4 +646,21 @@ export function getApiErrorMessage(err: any, fallback: string = "An error occurr
   }
   if (typeof err.error === "string" && err.error) return err.error;
   return fallback;
+}
+
+export async function getCoachHistory(projectId: string): Promise<CoachChatResult> {
+  const res = await fetchWithAuth(`/api/projects/${projectId}/coach/history`);
+  const data = await res.json();
+  if (!res.ok) throw data;
+  return data;
+}
+
+export async function sendCoachMessage(projectId: string, message: string, lang: "en" | "bm"): Promise<CoachChatResult> {
+  const res = await fetchWithAuth(`/api/projects/${projectId}/coach/chat`, {
+    method: "POST",
+    body: JSON.stringify({ message, lang }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw data;
+  return data;
 }

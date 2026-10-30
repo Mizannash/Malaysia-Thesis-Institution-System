@@ -792,3 +792,153 @@ def call_llm_provider(
             model=target_model,
             status="error"
         )
+
+
+# ---------------------------------------------------------
+# ACADEMIC COACH CHAT (plain text, not JSON)
+# ---------------------------------------------------------
+class ChatProviderError(Exception):
+    """Raised when no provider could answer a coach chat message."""
+
+
+PROVIDER_BASE_URLS = {
+    "deepseek": "https://api.deepseek.com/v1",
+    "openai": "https://api.openai.com/v1",
+}
+PROVIDER_DEFAULT_MODELS = {
+    "deepseek": "deepseek-chat",
+    "openai": "gpt-4o-mini",
+}
+# USD per token (input, output)
+PROVIDER_TOKEN_RATES = {
+    "deepseek": (0.00000014, 0.00000028),
+    "openai": (0.00000015, 0.00000060),
+}
+RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
+
+DEMO_COACH_REPLIES = {
+    "en": {
+        "search": "Start by narrowing your topic: pick one population (e.g. TVET instructors in Johor), one outcome and one setting. Then search again and look for papers that disagree with each other.",
+        "gap": "A good gap is something at least two of your papers point to but none of them tested. Pick the gap whose papers come from Malaysian settings; it will be easier to defend to your supervisor.",
+        "title": "A strong thesis title names the variables, the population and the place. Try: <Factor> and <Outcome> among <Population> in <State/Institution>.",
+        "deepdive": "Read the methodology sections of your deep-dive papers first. Note their sample sizes and instruments; you can adapt a validated instrument instead of building one from scratch.",
+        "plan": "Check each objective is SMART and matches one research question. For a survey with several constructs, PLS-SEM in SmartPLS suits a sample of around 150 to 300 respondents.",
+    },
+    "bm": {
+        "search": "Mulakan dengan mengecilkan topik anda: pilih satu populasi (cth. pengajar TVET di Johor), satu hasil dan satu lokasi. Kemudian cari semula dan lihat kertas kajian yang saling bercanggah.",
+        "gap": "Jurang yang baik ialah perkara yang ditunjukkan oleh sekurang-kurangnya dua kertas kajian anda tetapi belum diuji. Pilih jurang daripada konteks Malaysia; lebih mudah dipertahankan di hadapan penyelia.",
+        "title": "Tajuk tesis yang kukuh menyebut pemboleh ubah, populasi dan lokasi. Cuba: <Faktor> dan <Hasil> dalam kalangan <Populasi> di <Negeri/Institusi>.",
+        "deepdive": "Baca bahagian metodologi kertas kajian mendalam anda dahulu. Catat saiz sampel dan instrumen; anda boleh mengadaptasi instrumen yang telah disahkan.",
+        "plan": "Pastikan setiap objektif adalah SMART dan sepadan dengan satu soalan kajian. Untuk tinjauan dengan beberapa konstruk, PLS-SEM dalam SmartPLS sesuai untuk sampel sekitar 150 hingga 300 responden.",
+    },
+}
+
+
+def _demo_coach_reply(lang: str, stage_hint: str) -> str:
+    replies = DEMO_COACH_REPLIES.get(lang, DEMO_COACH_REPLIES["en"])
+    stage_key = "deepdive" if stage_hint in ("deep-dive", "deepdive") else stage_hint
+    prefix = "[Mod demo] " if lang == "bm" else "[Demo mode] "
+    return prefix + replies.get(stage_key, replies["search"])
+
+
+def _chat_provider_chain(tenant_id: Optional[str]) -> List[Dict[str, Optional[str]]]:
+    """Primary provider (tenant key first), then the other provider as backup if it has a key."""
+    from app.ai.llm_adapter import resolve_provider_config
+    cfg = resolve_provider_config(tenant_id=tenant_id)
+    chain = [{"provider": cfg.provider, "model": cfg.model, "api_key": cfg.api_key}]
+    backup = "openai" if cfg.provider == "deepseek" else "deepseek"
+    backup_key = getattr(settings, f"{backup.upper()}_API_KEY", None) or os.getenv(f"{backup.upper()}_API_KEY")
+    if backup_key and backup_key.strip():
+        chain.append({"provider": backup, "model": PROVIDER_DEFAULT_MODELS[backup], "api_key": backup_key.strip()})
+    return chain
+
+
+def call_chat_provider(
+    messages: List[Dict[str, str]],
+    tenant_id: Optional[str] = None,
+    user_email: Optional[str] = "anonymous",
+    lang: str = "en",
+    stage_hint: str = "search",
+) -> ProviderResponse:
+    """
+    Plain-text chat completion for the Academic Coach.
+    Tries the primary provider, then the backup once on timeout, 429 or 5xx.
+    Logs one line per call (tokens, cost, status) and never the message text.
+    Raises ChatProviderError when no provider answers.
+    """
+    from app.ai.contract import log_ai_call
+
+    # 1. Test Mock Handler Hook
+    if _mock_handler is not None:
+        try:
+            content = _mock_handler("coach_chat", messages)
+        except Exception as exc:
+            log_ai_call(user=user_email, stage="coach_chat", model="mock-provider", tokens=0, cost_myr=0.00, status="error_mock")
+            raise ChatProviderError(type(exc).__name__) from exc
+        log_ai_call(user=user_email, stage="coach_chat", model="mock-provider", tokens=120, cost_myr=0.00, status="ok")
+        return ProviderResponse(content=content, tokens=120, cost_myr=0.00, model="mock-provider")
+
+    # 2. DEMO_MODE / No-Key Mode
+    deepseek_key = getattr(settings, "DEEPSEEK_API_KEY", None) or os.getenv("DEEPSEEK_API_KEY")
+    openai_key = getattr(settings, "OPENAI_API_KEY", None) or os.getenv("OPENAI_API_KEY")
+    has_live_keys = bool((deepseek_key and deepseek_key.strip()) or (openai_key and openai_key.strip()))
+    if getattr(settings, "DEMO_MODE", True) or not has_live_keys:
+        log_ai_call(user=user_email, stage="coach_chat", model="demo-fixtures", tokens=0, cost_myr=0.00, status="no_key_mode")
+        return ProviderResponse(
+            content=_demo_coach_reply(lang, stage_hint),
+            tokens=0,
+            cost_myr=0.00,
+            model="demo-fixtures",
+            status="no_key_mode",
+        )
+
+    # 3. Live Providers (primary, then backup)
+    import httpx
+    last_error: Optional[Exception] = None
+    for attempt, target in enumerate(_chat_provider_chain(tenant_id)):
+        if not target["api_key"]:
+            continue
+        status_label = "ok" if attempt == 0 else f"fallback_{target['provider']}"
+        try:
+            with httpx.Client(timeout=30.0) as client:
+                resp = client.post(
+                    f"{PROVIDER_BASE_URLS[target['provider']]}/chat/completions",
+                    json={
+                        "model": target["model"],
+                        "messages": messages,
+                        "temperature": 0.5,
+                        "max_tokens": 800,
+                    },
+                    headers={
+                        "Authorization": f"Bearer {target['api_key']}",
+                        "Content-Type": "application/json",
+                    },
+                )
+            resp.raise_for_status()
+            data = resp.json()
+            content = data["choices"][0]["message"]["content"] or ""
+            usage = data.get("usage", {})
+            prompt_toks = usage.get("prompt_tokens", 0)
+            comp_toks = usage.get("completion_tokens", 0)
+            total_toks = usage.get("total_tokens", prompt_toks + comp_toks)
+            rate_in, rate_out = PROVIDER_TOKEN_RATES[target["provider"]]
+            cost_myr = round(((prompt_toks * rate_in) + (comp_toks * rate_out)) * 4.65, 4)
+
+            log_ai_call(user=user_email, stage="coach_chat", model=target["model"], tokens=total_toks, cost_myr=cost_myr, status=status_label)
+            return ProviderResponse(content=content, tokens=total_toks, cost_myr=cost_myr, model=target["model"], status=status_label)
+
+        except httpx.HTTPStatusError as exc:
+            last_error = exc
+            log_ai_call(user=user_email, stage="coach_chat", model=target["model"], tokens=0, cost_myr=0.00, status=f"error_{target['provider']}_{exc.response.status_code}")
+            if exc.response.status_code not in RETRYABLE_STATUS_CODES:
+                break
+        except (httpx.TimeoutException, httpx.TransportError) as exc:
+            last_error = exc
+            log_ai_call(user=user_email, stage="coach_chat", model=target["model"], tokens=0, cost_myr=0.00, status=f"error_{target['provider']}_timeout")
+        except (KeyError, IndexError, ValueError) as exc:
+            last_error = exc
+            log_ai_call(user=user_email, stage="coach_chat", model=target["model"], tokens=0, cost_myr=0.00, status=f"error_{target['provider']}_malformed")
+            break
+
+    logger.error(f"Coach chat provider call failed: {type(last_error).__name__ if last_error else 'no provider'}")
+    raise ChatProviderError("No AI provider could answer the coach message.")

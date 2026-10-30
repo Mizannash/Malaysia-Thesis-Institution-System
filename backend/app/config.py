@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     DEEPSEEK_API_KEY: Optional[str] = None
     LLM_MODEL: Optional[str] = None
 
+    # ── Academic Coach Chat Limits (separate from generation quota) ──
+    CHAT_DAILY_LIMIT: int = 30
+    CHAT_PER_MINUTE_LIMIT: int = 10
+
     # ── Data Source Settings ──
     # Polite-pool email for live OpenAlex queries (free, NOT a secret)
     OPENALEX_EMAIL: Optional[str] = None

@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { clearToken, fetchWithAuth, getToken, getApiErrorMessage } from "@/lib/api";
+import FloatingCoach, { useCoachOpen } from "@/components/FloatingCoach";
 import {
   FileText,
   Sparkles,
@@ -35,6 +36,7 @@ function PlanViewContent() {
   const { t } = useLanguage();
   const searchParams = useSearchParams();
   const projectIdParam = searchParams.get("projectId");
+  const [coachOpen, setCoachOpen] = useCoachOpen();
 
   const [user, setUser] = useState<any>(null);
   const [project, setProject] = useState<any>(null);
@@ -546,6 +548,15 @@ function PlanViewContent() {
           </div>
         )}
       </main>
+
+      {/* Floating Academic Coach (LLM via backend /api/projects/{id}/coach/chat) */}
+      <FloatingCoach
+        projectId={project?.id || null}
+        stage="plan"
+        open={coachOpen}
+        onOpenChange={setCoachOpen}
+        busy={generating || refining}
+      />
     </div>
   );
 }

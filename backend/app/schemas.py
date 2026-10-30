@@ -1,6 +1,6 @@
 """Pydantic schemas for MTIS Backend."""
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 
@@ -207,5 +207,28 @@ class PlanRefineResponse(BaseModel):
     plan_version: int
     plan: StructuredPlan
     diff_summary: Optional[str] = None
+
+
+class CoachChatRequest(BaseModel):
+    # Whitespace is stripped before the length check, so blank messages fail min_length
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    message: str = Field(..., min_length=1, max_length=1000)
+    lang: Literal["en", "bm"] = "en"
+
+
+class CoachMessage(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
+    at: Optional[str] = None
+
+
+class CoachHistoryResponse(BaseModel):
+    history: list[CoachMessage] = Field(default_factory=list)
+    chat_remaining: int
+
+
+class CoachChatResponse(CoachHistoryResponse):
+    reply: str
 
 

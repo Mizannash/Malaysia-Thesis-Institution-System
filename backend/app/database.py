@@ -75,6 +75,13 @@ def init_db():
                     conn.execute(text("ALTER TABLE tenants ADD COLUMN encrypted_api_key TEXT"))
                 if "key_preview" not in t_cols:
                     conn.execute(text("ALTER TABLE tenants ADD COLUMN key_preview VARCHAR(32)"))
+        if insp.has_table("users"):
+            u_cols = [c["name"] for c in insp.get_columns("users")]
+            with engine.begin() as conn:
+                if "chat_count" not in u_cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN chat_count INTEGER NOT NULL DEFAULT 0"))
+                if "chat_count_date" not in u_cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN chat_count_date DATE"))
     except Exception as exc:
         logger.warning("Column migration check notice: %s", exc)
 

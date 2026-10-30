@@ -6,6 +6,7 @@ from sqlalchemy import (
     String,
     Text,
     Integer,
+    Date,
     DateTime,
     ForeignKey,
     JSON,
@@ -45,6 +46,9 @@ class User(Base):
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc) + timedelta(days=1),
     )
+    # Academic Coach chat allowance (counted per Malaysia calendar day)
+    chat_count = Column(Integer, nullable=False, default=0)
+    chat_count_date = Column(Date, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     tenant = relationship("Tenant", back_populates="users")

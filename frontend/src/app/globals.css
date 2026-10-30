@@ -354,3 +354,304 @@ button {
   color: #dc2626;
   border: 1px solid #fecaca;
 }
+
+/* ── Floating Academic Coach ── */
+.coach-launcher {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 80;
+  width: 66px;
+  height: 66px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--primary-container);
+  background: var(--surface-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.15s ease;
+}
+
+.coach-launcher:hover {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.coach-launcher:focus-visible,
+.coach-icon-btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.coach-unread-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: var(--error);
+  border: 2px solid var(--surface-card);
+}
+
+.coach-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 80;
+  width: 380px;
+  height: 560px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: coach-rise 0.18s ease-out;
+}
+
+.coach-panel[hidden] {
+  display: none;
+}
+
+.coach-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 0.9rem;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.coach-avatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--surface-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coach-icon-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.coach-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.coach-panel-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0.85rem 0.9rem 0.7rem;
+}
+
+.coach-nudge {
+  position: fixed;
+  right: 24px;
+  bottom: 104px;
+  z-index: 80;
+  width: 280px;
+  max-width: calc(100vw - 32px);
+  padding: 0.75rem 0.85rem;
+  background: var(--surface-card);
+  color: var(--on-surface);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--tertiary-accent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  animation: coach-rise 0.18s ease-out;
+}
+
+/* Speech-bubble tail pointing at Prof. Bijak */
+.coach-nudge::after {
+  content: "";
+  position: absolute;
+  right: 26px;
+  bottom: -7px;
+  width: 12px;
+  height: 12px;
+  background: var(--surface-card);
+  border-right: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  transform: rotate(45deg);
+}
+
+.coach-nudge--line {
+  width: 240px;
+  padding: 0.7rem 1.9rem 0.55rem 0.85rem;
+  border-left: 1px solid var(--border-subtle);
+  border-radius: 16px 16px 4px 16px;
+}
+
+.coach-nudge-text {
+  display: block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0 0 0.35rem;
+  text-align: left;
+  font: inherit;
+  font-weight: 600;
+  color: var(--on-surface);
+  cursor: pointer;
+}
+
+.coach-nudge-text:hover {
+  color: var(--primary);
+}
+
+.coach-nudge-mute {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.7rem;
+  color: var(--on-surface-variant);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.coach-nudge-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  color: var(--on-surface-variant);
+}
+
+.coach-nudge-close:hover {
+  background: var(--surface-low);
+}
+
+/* ── Prof. Bijak robot animations ── */
+.bijak {
+  display: block;
+  overflow: visible;
+}
+
+.bijak .bijak-eyes,
+.bijak .bijak-pupils,
+.bijak .bijak-arm,
+.bijak .bijak-antenna {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.bijak .bijak-arm {
+  transform-origin: left bottom;
+}
+
+.bijak--animated {
+  animation: bijak-float 3s ease-in-out infinite;
+}
+
+.bijak--animated .bijak-eyes {
+  animation: bijak-blink 4s infinite;
+}
+
+.bijak--talking .bijak-antenna {
+  animation: bijak-pulse 1s ease-in-out infinite;
+}
+
+.bijak--thinking .bijak-pupils {
+  animation: bijak-look 1.2s ease-in-out infinite;
+}
+
+.coach-launcher:hover .bijak-arm {
+  animation: bijak-wave 0.6s ease-in-out 2;
+}
+
+@keyframes bijak-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes bijak-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+@keyframes bijak-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.35); }
+}
+
+@keyframes bijak-look {
+  0%, 100% { transform: translateX(-1.5px); }
+  50% { transform: translateX(1.5px); }
+}
+
+@keyframes bijak-wave {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-25deg); }
+}
+
+@keyframes coach-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .coach-launcher {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .coach-nudge {
+    right: 16px;
+    bottom: 94px;
+  }
+
+  .coach-panel {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    border: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coach-panel,
+  .coach-nudge {
+    animation: none;
+  }
+
+  .coach-launcher {
+    transition: none;
+  }
+
+  .bijak,
+  .bijak * {
+    animation: none !important;
+  }
+}
