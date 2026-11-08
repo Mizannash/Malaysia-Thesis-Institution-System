@@ -33,6 +33,11 @@ class Settings(BaseSettings):
 
     # ── Production Safety ──
     # Total paid AI calls per Malaysia day across all users (0 = no cap)
+    # Stripe subscriptions (MTIS Pro). Secrets only from the environment, never in code
+    STRIPE_SECRET_KEY: Optional[str] = None
+    STRIPE_WEBHOOK_SECRET: Optional[str] = None
+    STRIPE_PRICE_ID: Optional[str] = None
+    FRONTEND_URL: str = "https://malaysia-thesis-institution-system.netlify.app"
     # Free trial length for new accounts; afterwards AI features need a paid plan
     TRIAL_DAYS: int = 10
     AI_DAILY_GLOBAL_LIMIT: int = 300

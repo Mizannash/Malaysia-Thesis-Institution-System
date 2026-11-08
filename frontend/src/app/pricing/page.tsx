@@ -1,12 +1,33 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Check, ArrowRight, ShieldCheck } from "lucide-react";
+import { getApiErrorMessage, getToken, startCheckout } from "@/lib/api";
 import { useLanguage } from "@/lib/LanguageContext";
 import LanguageToggle from "@/components/LanguageToggle";
 
 export default function PricingPage() {
   const { t } = useLanguage();
+  const router = useRouter();
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
+
+  const subscribe = async () => {
+    if (!getToken()) {
+      router.push("/login");
+      return;
+    }
+    setPaying(true);
+    setPayError(null);
+    try {
+      await startCheckout();
+    } catch (err: any) {
+      setPayError(err?.status === 503 ? t("billing_coming_soon") : getApiErrorMessage(err, t("billing_error")));
+      setPaying(false);
+    }
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
@@ -123,9 +144,15 @@ export default function PricingPage() {
             </div>
 
             <div style={{ marginTop: "2rem" }}>
-              <Link href="/login" className="btn-primary" style={{ width: "100%", justifyContent: "center" }}>
-                {t("price_pro_cta")} <ArrowRight size={16} />
-              </Link>
+              <button type="button" onClick={subscribe} disabled={paying} className="btn-primary" style={{ width: "100%", justifyContent: "center" }}>
+                {paying ? t("billing_redirecting") : t("price_pro_cta")} <ArrowRight size={16} />
+              </button>
+              {payError && (
+                <p role="alert" style={{ marginTop: "0.6rem", fontSize: "0.84rem", color: "var(--on-error-container)", background: "var(--error-container)", padding: "0.5rem 0.7rem", borderRadius: "8px" }}>
+                  {payError}
+                </p>
+              )}
+              <p style={{ marginTop: "0.6rem", fontSize: "0.76rem", color: "var(--text-dim)", textAlign: "center" }}>{t("billing_card_note")}</p>
             </div>
           </div>
         </div>

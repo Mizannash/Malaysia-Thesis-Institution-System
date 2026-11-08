@@ -23,6 +23,7 @@ class UserResponse(BaseModel):
     tenant_name: Optional[str] = None
     access_status: Optional[str] = None
     trial_ends_at: Optional[datetime] = None
+    subscription_status: Optional[str] = None
     name: str
     email: str
     role: str

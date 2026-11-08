@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import TrialBanner from "@/components/TrialBanner";
-import { IS_LIVE, clearToken, fetchWithAuth, getToken, getApiErrorMessage } from "@/lib/api";
+import { IS_LIVE, openBillingPortal, clearToken, fetchWithAuth, getToken, getApiErrorMessage } from "@/lib/api";
 import { 
   Search, 
   Sparkles, 
@@ -70,6 +70,7 @@ export default function DashboardPage() {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [billingNotice, setBillingNotice] = useState<string | null>(null);
   const [slowLoad, setSlowLoad] = useState(false);
 
   // Admin Management State
@@ -304,6 +305,39 @@ export default function DashboardPage() {
     }
     loadUserData();
   }, [router]);
+
+  // Back from Stripe Checkout: the webhook may need a few seconds, so re-check the account
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("billing") !== "success") return;
+    setBillingNotice(t("billing_success"));
+    window.history.replaceState(null, "", "/dashboard");
+    let tries = 0;
+    const timer = setInterval(async () => {
+      tries += 1;
+      try {
+        const res = await fetchWithAuth("/auth/me");
+        if (res.ok) {
+          const me = await res.json();
+          setUser(me);
+          if (me.access_status === "subscribed" || tries >= 3) clearInterval(timer);
+        }
+      } catch {
+        if (tries >= 3) clearInterval(timer);
+      }
+    }, 3000);
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleManageSubscription = async () => {
+    try {
+      await openBillingPortal();
+    } catch (e: any) {
+      setBillingNotice(getApiErrorMessage(e, t("billing_error")));
+    }
+  };
 
   const handleLogout = async () => {
     await signOutSupabase();
@@ -902,6 +936,12 @@ export default function DashboardPage() {
               <span>{t("nav_subscriptions")}</span>
             </Link>
 
+            {user?.access_status === "subscribed" && user?.subscription_status && (
+              <button onClick={handleManageSubscription} className="btn-secondary" style={{ padding: "0.45rem 0.85rem", fontSize: "0.82rem" }}>
+                {t("billing_manage")}
+              </button>
+            )}
+
             {/* Mode & Key Management Trigger */}
             {canManageKeys && (
             <button
@@ -931,6 +971,14 @@ export default function DashboardPage() {
       </header>
 
       <TrialBanner user={user} />
+      {billingNotice && (
+        <div role="status" className="container" style={{ marginTop: "1rem" }}>
+          <div style={{ background: "var(--secondary-container)", color: "var(--on-secondary-container)", borderRadius: "10px", padding: "0.7rem 1rem", fontSize: "0.88rem", display: "flex", justifyContent: "space-between", gap: "0.75rem" }}>
+            <span>{billingNotice}</span>
+            <button type="button" onClick={() => setBillingNotice(null)} style={{ background: "none", border: "none", color: "inherit", cursor: "pointer" }} aria-label="Close">×</button>
+          </div>
+        </div>
+      )}
 
       {/* Main Workspace Canvas */}
       <main className="container" style={{ flex: 1, padding: "2rem 1.5rem" }}>

@@ -696,3 +696,19 @@ export async function sendCoachMessage(projectId: string, message: string, lang:
   if (!res.ok) throw data;
   return data;
 }
+
+/** Starts Stripe Checkout for MTIS Pro and sends the browser there. */
+export async function startCheckout(): Promise<void> {
+  const res = await fetchWithAuth("/api/billing/checkout", { method: "POST" });
+  const data = await res.json();
+  if (!res.ok) throw { ...data, status: res.status };
+  window.location.href = data.url;
+}
+
+/** Opens the Stripe Customer Portal (cancel, change card, invoices). */
+export async function openBillingPortal(): Promise<void> {
+  const res = await fetchWithAuth("/api/billing/portal", { method: "POST" });
+  const data = await res.json();
+  if (!res.ok) throw { ...data, status: res.status };
+  window.location.href = data.url;
+}

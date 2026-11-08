@@ -107,6 +107,12 @@ def init_db():
                     conn.execute(text("ALTER TABLE users ADD COLUMN chat_count INTEGER NOT NULL DEFAULT 0"))
                 if "chat_count_date" not in u_cols:
                     conn.execute(text("ALTER TABLE users ADD COLUMN chat_count_date DATE"))
+                if "stripe_customer_id" not in u_cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN stripe_customer_id VARCHAR(64)"))
+                if "stripe_subscription_id" not in u_cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN stripe_subscription_id VARCHAR(64)"))
+                if "subscription_status" not in u_cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN subscription_status VARCHAR(32)"))
     except Exception as exc:
         logger.warning("Column migration check notice: %s", exc)
 

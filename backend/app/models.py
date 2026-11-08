@@ -53,6 +53,10 @@ class User(Base):
     # Academic Coach chat allowance (counted per Malaysia calendar day)
     chat_count = Column(Integer, nullable=False, default=0)
     chat_count_date = Column(Date, nullable=True)
+    # Stripe subscription (MTIS Pro); set by the billing webhook
+    stripe_customer_id = Column(String(64), nullable=True, index=True)
+    stripe_subscription_id = Column(String(64), nullable=True, index=True)
+    subscription_status = Column(String(32), nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     tenant = relationship("Tenant", back_populates="users")
