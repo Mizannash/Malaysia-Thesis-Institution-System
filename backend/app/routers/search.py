@@ -16,6 +16,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 
 from app.schemas import SearchRequest, SearchResponse, Paper, ErrorResponse
+from app.access import require_ai_access_if_signed_in
 from app.auth import get_current_user_optional
 from app.models import User
 from app.agents.openalex_client import (
@@ -169,8 +170,8 @@ def validate_search_query(query: str):
         )
 
 
-@router.post("/search", response_model=SearchResponse)
-@router.post("/api/search", response_model=SearchResponse)
+@router.post("/search", response_model=SearchResponse, dependencies=[Depends(require_ai_access_if_signed_in)])
+@router.post("/api/search", response_model=SearchResponse, dependencies=[Depends(require_ai_access_if_signed_in)])
 def search_academic_papers(
     req: SearchRequest,
     current_user: Optional[User] = Depends(get_current_user_optional)

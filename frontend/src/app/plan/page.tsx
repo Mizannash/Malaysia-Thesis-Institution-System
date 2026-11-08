@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import TrialBanner from "@/components/TrialBanner";
 import { IS_LIVE, clearToken, fetchWithAuth, getToken, getApiErrorMessage } from "@/lib/api";
 import FloatingCoach, { useCoachOpen } from "@/components/FloatingCoach";
 import {
@@ -231,6 +232,8 @@ function PlanViewContent() {
           </div>
         </div>
       </header>
+
+      <TrialBanner user={user} />
 
       {/* Interactive Top Sub-bar adhering to scholarpulse_research_plan */}
       <div style={{ background: "#ffffff", borderBottom: "1px solid var(--border-subtle)", padding: "0.85rem 0", boxShadow: "var(--shadow-sm)" }}>

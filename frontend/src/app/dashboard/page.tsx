@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import TrialBanner from "@/components/TrialBanner";
 import { IS_LIVE, clearToken, fetchWithAuth, getToken, getApiErrorMessage } from "@/lib/api";
 import { 
   Search, 
@@ -928,6 +929,8 @@ export default function DashboardPage() {
           </div>
         </div>
       </header>
+
+      <TrialBanner user={user} />
 
       {/* Main Workspace Canvas */}
       <main className="container" style={{ flex: 1, padding: "2rem 1.5rem" }}>

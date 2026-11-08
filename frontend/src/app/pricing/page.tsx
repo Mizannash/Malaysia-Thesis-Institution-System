@@ -57,7 +57,7 @@ export default function PricingPage() {
               
               <div style={{ display: "flex", alignItems: "baseline", gap: "0.25rem", marginBottom: "1.5rem" }}>
                 <span style={{ fontSize: "2.5rem", fontWeight: 800 }}>RM0</span>
-                <span style={{ color: "var(--text-dim)", fontSize: "0.95rem" }}>{t("price_month")}</span>
+                <span style={{ color: "var(--text-dim)", fontSize: "0.95rem" }}>{t("price_trial_period")}</span>
               </div>
 
               <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.75rem", fontSize: "0.9rem", color: "var(--text-main)" }}>
@@ -65,7 +65,7 @@ export default function PricingPage() {
                   <Check size={16} color="var(--primary)" /> {t("price_free_quota")}
                 </li>
                 <li style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <Check size={16} color="var(--primary)" /> OpenAlex &amp; UTM repository indexing
+                  <Check size={16} color="var(--primary)" /> OpenAlex &amp; Malaysian repository indexing
                 </li>
                 <li style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <Check size={16} color="var(--primary)" /> 2-5 Title Suggestions (EN &amp; BM)

@@ -21,6 +21,8 @@ class UserResponse(BaseModel):
     id: str
     tenant_id: str
     tenant_name: Optional[str] = None
+    access_status: Optional[str] = None
+    trial_ends_at: Optional[datetime] = None
     name: str
     email: str
     role: str
@@ -31,7 +33,7 @@ class UserResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    @field_serializer("quota_reset_at", when_used="json")
+    @field_serializer("quota_reset_at", "trial_ends_at", when_used="json")
     def serialize_quota_reset_at(self, dt: Optional[datetime]) -> Optional[str]:
         if dt is None:
             return None

@@ -33,6 +33,8 @@ class Settings(BaseSettings):
 
     # ── Production Safety ──
     # Total paid AI calls per Malaysia day across all users (0 = no cap)
+    # Free trial length for new accounts; afterwards AI features need a paid plan
+    TRIAL_DAYS: int = 10
     AI_DAILY_GLOBAL_LIMIT: int = 300
     # Comma-separated browser origins allowed by CORS (e.g. https://your-site.netlify.app)
     ALLOWED_ORIGINS: str = "*"

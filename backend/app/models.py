@@ -62,6 +62,16 @@ class User(Base):
     def tenant_name(self) -> Optional[str]:
         return self.tenant.name if self.tenant else None
 
+    @property
+    def access_status(self) -> str:
+        from app.access import access_status
+        return access_status(self)
+
+    @property
+    def trial_ends_at(self) -> Optional[datetime]:
+        from app.access import trial_ends_at
+        return trial_ends_at(self)
+
     __table_args__ = (
         CheckConstraint("role IN ('student', 'supervisor', 'admin')", name="check_user_role"),
     )

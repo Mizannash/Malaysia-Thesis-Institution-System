@@ -17,6 +17,7 @@ from sqlalchemy.orm.attributes import flag_modified
 
 from app.database import get_db, set_tenant_context
 from app.models import Project, User
+from app.access import require_ai_access
 from app.auth import get_current_user
 from app.schemas import (
     ProjectResponse,
@@ -74,8 +75,8 @@ def _get_isolated_project(project_id: str, current_user: User, db: Session) -> P
 # ---------------------------------------------------------
 # STAGE 2: GAP ANALYSIS
 # ---------------------------------------------------------
-@router.post("/projects/{project_id}/stage/gap", response_model=ProjectResponse)
-@router.post("/api/projects/{project_id}/stage/gap", response_model=ProjectResponse)
+@router.post("/projects/{project_id}/stage/gap", response_model=ProjectResponse, dependencies=[Depends(require_ai_access)])
+@router.post("/api/projects/{project_id}/stage/gap", response_model=ProjectResponse, dependencies=[Depends(require_ai_access)])
 def run_stage_gap(
     project_id: str,
     req: Optional[GapAnalysisRequest] = None,
@@ -156,8 +157,8 @@ def run_stage_gap(
 # ---------------------------------------------------------
 # STAGE 3: TITLE SUGGESTIONS
 # ---------------------------------------------------------
-@router.post("/projects/{project_id}/stage/title", response_model=ProjectResponse)
-@router.post("/api/projects/{project_id}/stage/title", response_model=ProjectResponse)
+@router.post("/projects/{project_id}/stage/title", response_model=ProjectResponse, dependencies=[Depends(require_ai_access)])
+@router.post("/api/projects/{project_id}/stage/title", response_model=ProjectResponse, dependencies=[Depends(require_ai_access)])
 def run_stage_title(
     project_id: str,
     req: TitleSuggestionsRequest,
@@ -256,8 +257,8 @@ def run_stage_title(
 # ---------------------------------------------------------
 # STAGE 4: DEEP-DIVE SEARCH
 # ---------------------------------------------------------
-@router.post("/projects/{project_id}/stage/deepdive", response_model=ProjectResponse)
-@router.post("/api/projects/{project_id}/stage/deepdive", response_model=ProjectResponse)
+@router.post("/projects/{project_id}/stage/deepdive", response_model=ProjectResponse, dependencies=[Depends(require_ai_access)])
+@router.post("/api/projects/{project_id}/stage/deepdive", response_model=ProjectResponse, dependencies=[Depends(require_ai_access)])
 def run_stage_deepdive(
     project_id: str,
     req: DeepDiveRequest,
@@ -323,8 +324,8 @@ def run_stage_deepdive(
 # ---------------------------------------------------------
 # STAGE 5: PLAN GENERATION & ITERATIVE REFINEMENT
 # ---------------------------------------------------------
-@router.post("/projects/{project_id}/stage/plan", response_model=ProjectResponse)
-@router.post("/api/projects/{project_id}/stage/plan", response_model=ProjectResponse)
+@router.post("/projects/{project_id}/stage/plan", response_model=ProjectResponse, dependencies=[Depends(require_ai_access)])
+@router.post("/api/projects/{project_id}/stage/plan", response_model=ProjectResponse, dependencies=[Depends(require_ai_access)])
 def run_stage_plan(
     project_id: str,
     req: Optional[PlanGenerateRequest] = None,
@@ -403,8 +404,8 @@ def run_stage_plan(
     return project
 
 
-@router.post("/api/plan/refine", response_model=PlanRefineResponse)
-@router.post("/projects/{project_id}/plan/refine", response_model=PlanRefineResponse)
+@router.post("/api/plan/refine", response_model=PlanRefineResponse, dependencies=[Depends(require_ai_access)])
+@router.post("/projects/{project_id}/plan/refine", response_model=PlanRefineResponse, dependencies=[Depends(require_ai_access)])
 def refine_plan_endpoint(
     req: PlanRefineRequest,
     project_id: Optional[str] = None,
@@ -514,7 +515,7 @@ def refine_plan_endpoint(
 # ---------------------------------------------------------
 # DIRECT AGENT ENDPOINTS (For standalone verification)
 # ---------------------------------------------------------
-@router.post("/api/agents/gap", response_model=GapAnalysisResponse)
+@router.post("/api/agents/gap", response_model=GapAnalysisResponse, dependencies=[Depends(require_ai_access)])
 def direct_gap_agent(
     req: GapAnalysisRequest,
     current_user: Optional[User] = Depends(get_current_user),
@@ -549,7 +550,7 @@ def direct_gap_agent(
         )
 
 
-@router.post("/api/agents/title", response_model=TitleSuggestionsResponse)
+@router.post("/api/agents/title", response_model=TitleSuggestionsResponse, dependencies=[Depends(require_ai_access)])
 def direct_title_agent(
     req: TitleSuggestionsRequest,
     current_user: Optional[User] = Depends(get_current_user),
@@ -580,7 +581,7 @@ def direct_title_agent(
         )
 
 
-@router.post("/api/agents/deepdive", response_model=DeepDiveResponse)
+@router.post("/api/agents/deepdive", response_model=DeepDiveResponse, dependencies=[Depends(require_ai_access)])
 def direct_deepdive_agent(
     req: DeepDiveRequest,
     current_user: Optional[User] = Depends(get_current_user),
@@ -610,7 +611,7 @@ def direct_deepdive_agent(
         )
 
 
-@router.post("/api/agents/plan", response_model=StructuredPlan)
+@router.post("/api/agents/plan", response_model=StructuredPlan, dependencies=[Depends(require_ai_access)])
 def direct_plan_agent(
     state: Dict[str, Any],
     current_user: Optional[User] = Depends(get_current_user),

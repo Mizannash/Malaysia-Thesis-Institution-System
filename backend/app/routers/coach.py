@@ -16,6 +16,7 @@ from sqlalchemy.orm.attributes import flag_modified
 from app.config import settings
 from app.database import get_db
 from app.models import User
+from app.access import require_ai_access
 from app.auth import get_current_user
 from app.schemas import CoachChatRequest, CoachChatResponse, CoachHistoryResponse
 from app.routers.pipeline import _get_isolated_project
@@ -46,7 +47,7 @@ def get_coach_history(
     )
 
 
-@router.post("/api/projects/{project_id}/coach/chat", response_model=CoachChatResponse)
+@router.post("/api/projects/{project_id}/coach/chat", response_model=CoachChatResponse, dependencies=[Depends(require_ai_access)])
 def send_coach_message(
     project_id: str,
     req: CoachChatRequest,
