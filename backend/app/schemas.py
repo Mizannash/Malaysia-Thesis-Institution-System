@@ -20,6 +20,7 @@ class TenantResponse(BaseModel):
 class UserResponse(BaseModel):
     id: str
     tenant_id: str
+    tenant_name: Optional[str] = None
     name: str
     email: str
     role: str

@@ -39,7 +39,7 @@ class Settings(BaseSettings):
 
     # ── Account → University Mapping ──
     # Comma-separated "domain:tenant_id" pairs; other emails join INDEPENDENT_TENANT_ID
-    TENANT_EMAIL_DOMAINS: str = "utm.my:tenant-utm-001"
+    TENANT_EMAIL_DOMAINS: str = ""  # optional override; the institution list lives in the database
 
     # ── Data Source Settings ──
     # Polite-pool email for live OpenAlex queries (free, NOT a secret)

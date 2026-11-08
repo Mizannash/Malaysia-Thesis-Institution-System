@@ -93,6 +93,13 @@ def init_db():
                     conn.execute(text("ALTER TABLE tenants ADD COLUMN encrypted_api_key TEXT"))
                 if "key_preview" not in t_cols:
                     conn.execute(text("ALTER TABLE tenants ADD COLUMN key_preview VARCHAR(32)"))
+                if "email_domain" not in t_cols:
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN email_domain VARCHAR(255)"))
+                    conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS ix_tenants_email_domain ON tenants (email_domain)"))
+                if "short_name" not in t_cols:
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN short_name VARCHAR(64)"))
+                if "kind" not in t_cols:
+                    conn.execute(text("ALTER TABLE tenants ADD COLUMN kind VARCHAR(16)"))
         if insp.has_table("users"):
             u_cols = [c["name"] for c in insp.get_columns("users")]
             with engine.begin() as conn:
@@ -212,6 +219,10 @@ def init_db():
                 demo_student, demo_supervisor, demo_admin, demo_alex, demo_tan, demo_project
             ])
             db.commit()
+
+        # Malaysian institutions (after the demo seed, so UTM's existing row just gets its domain)
+        from app.institutions import seed_institutions
+        seed_institutions(db)
 
 
 # Ensure tables and seeds are initialized

@@ -55,12 +55,13 @@ def _supabase_signing_key(kid: Optional[str]) -> Optional[Dict[str, Any]]:
 INDEPENDENT_TENANT_ID = "tenant-independent"
 
 
-def tenant_for_new_user(payload: Dict[str, Any]) -> str:
+def tenant_for_new_user(payload: Dict[str, Any], db: Optional[Session] = None) -> str:
     """
-    Chooses the university for a new Supabase user, server-side:
+    Chooses the institution for a new Supabase user, server-side:
     1. app_metadata.tenant_id (only admins / the server can write it)
-    2. the email domain or any of its subdomains (TENANT_EMAIL_DOMAINS)
-    3. otherwise the Independent Researchers tenant.
+    2. the TENANT_EMAIL_DOMAINS override (email domain or any of its subdomains)
+    3. the institution list in the database; unknown .edu.my domains are created automatically
+    4. otherwise the Independent Researchers tenant.
     user_metadata is user-writable and is never trusted for this.
     """
     admin_tenant = (payload.get("app_metadata") or {}).get("tenant_id")
@@ -71,6 +72,11 @@ def tenant_for_new_user(payload: Dict[str, Any]) -> str:
     for domain, tenant_id in settings.tenant_email_domains.items():
         if host == domain or host.endswith("." + domain):
             return tenant_id
+    if db is not None:
+        from app.institutions import resolve_institution
+        institution = resolve_institution(db, email)
+        if institution:
+            return institution
     return INDEPENDENT_TENANT_ID
 
 
@@ -155,8 +161,8 @@ def get_current_user(
         user_meta = payload.get("user_metadata") or {}
         name = (user_meta.get("full_name") or payload.get("name") or email.split("@")[0]).strip()[:255]
         if "app_metadata" in payload or "user_metadata" in payload:
-            tenant_id = tenant_for_new_user(payload)
-        tenant_id = tenant_id or "tenant-utm-001"
+            tenant_id = tenant_for_new_user(payload, db)
+        tenant_id = tenant_id or INDEPENDENT_TENANT_ID
 
         user = User(
             id=user_id,

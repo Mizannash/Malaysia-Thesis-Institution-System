@@ -74,6 +74,7 @@ export default function DashboardPage() {
   // Admin Management State
   const [adminView, setAdminView] = useState<"workspace" | "admin">("workspace");
   const [adminUsers, setAdminUsers] = useState<any[]>([]);
+  const [institutions, setInstitutions] = useState<any[]>([]);
   const [adminStats, setAdminStats] = useState<any>(null);
   const [loadingAdmin, setLoadingAdmin] = useState(false);
   const [adminSearchFilter, setAdminSearchFilter] = useState("");
@@ -122,10 +123,14 @@ export default function DashboardPage() {
   const loadAdminData = async () => {
     setLoadingAdmin(true);
     try {
-      const [usersRes, statsRes] = await Promise.all([
+      const [usersRes, statsRes, instRes] = await Promise.all([
         fetchWithAuth("/api/admin/users"),
         fetchWithAuth("/api/admin/stats"),
+        fetchWithAuth("/api/admin/institutions"),
       ]);
+      if (instRes.ok) {
+        setInstitutions(await instRes.json());
+      }
       if (usersRes.ok) {
         const uList = await usersRes.json();
         setAdminUsers(uList);
@@ -206,6 +211,23 @@ export default function DashboardPage() {
       setAdminFeedback({ type: "error", msg: getApiErrorMessage(e, "Network error onboarding user") });
     } finally {
       setCreatingUser(false);
+    }
+  };
+
+  const handleRenameInstitution = async (inst: any) => {
+    const name = window.prompt(t("inst_rename_prompt"), inst.name);
+    if (!name || name.trim() === inst.name) return;
+    const shortName = window.prompt(t("inst_short_prompt"), inst.short_name || "") ?? inst.short_name;
+    try {
+      const res = await fetchWithAuth("/api/admin/institutions/" + encodeURIComponent(inst.id), {
+        method: "PATCH",
+        body: JSON.stringify({ name: name.trim(), short_name: shortName || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw data;
+      setInstitutions((prev) => prev.map((i) => (i.id === inst.id ? data : i)));
+    } catch (e: any) {
+      setAdminFeedback({ type: "error", msg: getApiErrorMessage(e, "Failed to rename institution") });
     }
   };
 
@@ -777,7 +799,9 @@ export default function DashboardPage() {
     );
   }
 
-  const tenantName = user?.tenant_id === "tenant-utm-001"
+  const tenantName = user?.tenant_name
+    ? (user.tenant_id === "tenant-independent" ? t("tenant_independent") : user.tenant_name)
+    : user?.tenant_id === "tenant-utm-001"
     ? "Universiti Teknologi Malaysia (UTM)"
     : user?.tenant_id === "tenant-independent"
     ? t("tenant_independent")
@@ -1220,10 +1244,18 @@ export default function DashboardPage() {
                         onChange={(e) => setNewUserTenant(e.target.value)}
                         className="input-control"
                       >
-                        {IS_LIVE
-                          ? <option value="tenant-independent">{t("tenant_independent")} (tenant-independent)</option>
-                          : <option value="tenant-demo-002">Demo University (tenant-demo-002)</option>}
-                        <option value="tenant-utm-001">Universiti Teknologi Malaysia (tenant-utm-001)</option>
+                        {institutions.length > 0 ? (
+                          institutions.map((i) => (
+                            <option key={i.id} value={i.id}>{i.name} ({i.id})</option>
+                          ))
+                        ) : (
+                          <>
+                            {IS_LIVE
+                              ? <option value="tenant-independent">{t("tenant_independent")} (tenant-independent)</option>
+                              : <option value="tenant-demo-002">Demo University (tenant-demo-002)</option>}
+                            <option value="tenant-utm-001">Universiti Teknologi Malaysia (tenant-utm-001)</option>
+                          </>
+                        )}
                       </select>
                     </div>
 
@@ -1238,6 +1270,47 @@ export default function DashboardPage() {
                   </form>
                 </div>
               </div>
+            )}
+
+            {/* Institutions: every campus that has (or may get) MTIS students */}
+            {institutions.length > 0 && (
+              <section className="card" style={{ marginTop: "1.5rem", padding: "1.25rem" }}>
+                <h3 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "0.35rem", display: "flex", alignItems: "center", gap: "0.45rem" }}>
+                  <Building2 size={16} color="var(--primary)" /> {t("inst_title")} ({institutions.length})
+                </h3>
+                <p style={{ fontSize: "0.8rem", color: "var(--on-surface-variant)", marginBottom: "0.85rem" }}>{t("inst_desc")}</p>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.82rem" }}>
+                    <thead>
+                      <tr style={{ textAlign: "left", color: "var(--outline)" }}>
+                        <th style={{ padding: "0.4rem" }}>{t("inst_col_name")}</th>
+                        <th style={{ padding: "0.4rem" }}>{t("inst_col_domain")}</th>
+                        <th style={{ padding: "0.4rem" }}>{t("inst_col_students")}</th>
+                        <th style={{ padding: "0.4rem" }}></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {institutions.map((i) => (
+                        <tr key={i.id} style={{ borderTop: "1px solid var(--border-subtle)" }}>
+                          <td style={{ padding: "0.4rem" }}>
+                            {i.id === "tenant-independent" ? t("tenant_independent") : i.name}
+                            {i.kind === "auto" && (
+                              <span className="badge badge-secondary" style={{ marginLeft: "0.4rem", padding: "0.05rem 0.4rem", fontSize: "0.68rem" }}>{t("inst_auto_badge")}</span>
+                            )}
+                          </td>
+                          <td style={{ padding: "0.4rem", fontFamily: "var(--font-code)" }}>{i.email_domain || "-"}</td>
+                          <td style={{ padding: "0.4rem", fontWeight: 600 }}>{i.student_count}</td>
+                          <td style={{ padding: "0.4rem", textAlign: "right" }}>
+                            <button type="button" className="btn-secondary" style={{ fontSize: "0.72rem", padding: "0.2rem 0.55rem" }} onClick={() => handleRenameInstitution(i)}>
+                              {t("inst_rename_btn")}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
             )}
           </div>
         ) : (

@@ -194,7 +194,9 @@ function PlanViewContent() {
     );
   }
 
-  const tenantName = user?.tenant_id === "tenant-utm-001"
+  const tenantName = user?.tenant_name
+    ? (user.tenant_id === "tenant-independent" ? t("tenant_independent") : user.tenant_name)
+    : user?.tenant_id === "tenant-utm-001"
     ? "Universiti Teknologi Malaysia (UTM)"
     : user?.tenant_id === "tenant-independent"
     ? t("tenant_independent")

@@ -160,3 +160,58 @@ def get_system_stats(
         demo_mode=getattr(settings, "DEMO_MODE", True),
         service_status="healthy",
     )
+
+
+class InstitutionItem(BaseModel):
+    id: str
+    name: str
+    short_name: Optional[str] = None
+    email_domain: Optional[str] = None
+    kind: Optional[str] = None
+    student_count: int
+
+
+class RenameInstitutionRequest(BaseModel):
+    name: str = Field(..., min_length=2, max_length=255)
+    short_name: Optional[str] = Field(None, max_length=64)
+
+
+def _institution_item(tenant: Tenant, count: int) -> InstitutionItem:
+    return InstitutionItem(
+        id=tenant.id, name=tenant.name, short_name=tenant.short_name,
+        email_domain=tenant.email_domain, kind=tenant.kind, student_count=count,
+    )
+
+
+@router.get("/institutions", response_model=List[InstitutionItem])
+def list_institutions(
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Every institution with its number of students, most active first (Admin only)."""
+    from sqlalchemy import func
+
+    counts = dict(
+        db.query(User.tenant_id, func.count(User.id)).filter(User.role == "student").group_by(User.tenant_id).all()
+    )
+    items = [_institution_item(t, counts.get(t.id, 0)) for t in db.query(Tenant).all()]
+    return sorted(items, key=lambda i: (-i.student_count, i.name.lower()))
+
+
+@router.patch("/institutions/{tenant_id}", response_model=InstitutionItem)
+def rename_institution(
+    tenant_id: str,
+    req: RenameInstitutionRequest,
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Rename an institution, e.g. one created automatically from a new .edu.my domain (Admin only)."""
+    tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+    if tenant is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Institution not found")
+    tenant.name = req.name.strip()
+    if req.short_name is not None:
+        tenant.short_name = req.short_name.strip() or None
+    db.commit()
+    count = db.query(User).filter(User.tenant_id == tenant.id, User.role == "student").count()
+    return _institution_item(tenant, count)

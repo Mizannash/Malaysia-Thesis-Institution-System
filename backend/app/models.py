@@ -25,6 +25,10 @@ class Tenant(Base):
     llm_provider = Column(String(32), default="deepseek", nullable=False)
     encrypted_api_key = Column(Text, nullable=True)
     key_preview = Column(String(32), nullable=True)
+    # Institution identity: students whose confirmed email ends in this domain join this tenant
+    email_domain = Column(String(255), nullable=True, unique=True, index=True)
+    short_name = Column(String(64), nullable=True)
+    kind = Column(String(16), nullable=True)  # public | private | auto | other
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     users = relationship("User", back_populates="tenant", cascade="all, delete-orphan")
@@ -53,6 +57,10 @@ class User(Base):
 
     tenant = relationship("Tenant", back_populates="users")
     projects = relationship("Project", back_populates="user", cascade="all, delete-orphan")
+
+    @property
+    def tenant_name(self) -> Optional[str]:
+        return self.tenant.name if self.tenant else None
 
     __table_args__ = (
         CheckConstraint("role IN ('student', 'supervisor', 'admin')", name="check_user_role"),
