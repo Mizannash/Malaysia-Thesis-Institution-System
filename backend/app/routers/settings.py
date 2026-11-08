@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db, set_tenant_context
 from app.models import User, Tenant
-from app.auth import get_current_user
+from app.auth import require_staff
 from app.config import settings
 from app.security import encrypt_api_key, decrypt_api_key, mask_api_key
 
@@ -39,7 +39,7 @@ class ToggleDemoModeRequest(BaseModel):
 
 @router.get("/keys", response_model=ApiKeyStatusResponse)
 def get_api_key_status(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_staff),
     db: Session = Depends(get_db),
 ):
     """Retrieves current tenant's API key status without exposing the secret."""
@@ -67,7 +67,7 @@ def get_api_key_status(
 @router.post("/keys")
 def save_tenant_api_key(
     req: ApiKeyUpdateRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_staff),
     db: Session = Depends(get_db),
 ):
     """
@@ -103,7 +103,7 @@ def save_tenant_api_key(
 
 @router.delete("/keys")
 def delete_tenant_api_key(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_staff),
     db: Session = Depends(get_db),
 ):
     """Removes the stored encrypted API key for the current tenant."""
@@ -130,9 +130,12 @@ def delete_tenant_api_key(
 @router.post("/mode")
 def toggle_demo_mode(
     req: ToggleDemoModeRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_staff),
 ):
     """Toggles global DEMO_MODE state for testing zero-key vs live API execution."""
+    if settings.is_production:
+        # On the live server the mode comes only from the DEMO_MODE environment variable
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Mode switching is disabled in production")
     settings.DEMO_MODE = req.demo_mode
     return {
         "demo_mode": settings.DEMO_MODE,

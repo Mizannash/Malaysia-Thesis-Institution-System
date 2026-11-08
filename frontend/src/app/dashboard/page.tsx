@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { clearToken, fetchWithAuth, getToken, getApiErrorMessage } from "@/lib/api";
+import { IS_LIVE, clearToken, fetchWithAuth, getToken, getApiErrorMessage } from "@/lib/api";
 import { 
   Search, 
   Sparkles, 
@@ -68,6 +68,8 @@ export default function DashboardPage() {
   const [projects, setProjects] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [slowLoad, setSlowLoad] = useState(false);
 
   // Admin Management State
   const [adminView, setAdminView] = useState<"workspace" | "admin">("workspace");
@@ -85,7 +87,7 @@ export default function DashboardPage() {
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserRole, setNewUserRole] = useState("student");
   const [newUserPlan, setNewUserPlan] = useState("free");
-  const [newUserTenant, setNewUserTenant] = useState("tenant-demo-002");
+  const [newUserTenant, setNewUserTenant] = useState(IS_LIVE ? "tenant-independent" : "tenant-demo-002");
   const [creatingUser, setCreatingUser] = useState(false);
 
   // Settings & API Key modal state
@@ -208,6 +210,11 @@ export default function DashboardPage() {
   };
 
   const loadUserData = async () => {
+    setLoadError(null);
+    setLoading(true);
+    setSlowLoad(false);
+    // A sleeping free server can take up to a minute to answer the first request
+    const slowTimer = setTimeout(() => setSlowLoad(true), 4000);
     try {
       const res = await fetchWithAuth("/auth/me");
       if (!res.ok) {
@@ -240,11 +247,15 @@ export default function DashboardPage() {
         }
       }
 
-      // Fetch Key Settings
-      loadKeySettings();
+      // Tenant key settings are for staff only on the live site
+      if (!IS_LIVE || userData.role === "admin" || userData.role === "supervisor") {
+        loadKeySettings();
+      }
     } catch (err) {
       console.error(err);
+      setLoadError(getApiErrorMessage(err, t("dash_load_failed")));
     } finally {
+      clearTimeout(slowTimer);
       setLoading(false);
     }
   };
@@ -749,19 +760,36 @@ export default function DashboardPage() {
     }
   };
 
-  if (loading) {
+  if (loading || loadError) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", backgroundColor: "var(--surface-canvas)" }}>
-        <p style={{ color: "var(--on-surface-variant)", fontSize: "1.05rem" }}>{t("dash_loading_workspace")}</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem", justifyContent: "center", alignItems: "center", minHeight: "100vh", backgroundColor: "var(--surface-canvas)", padding: "1rem", textAlign: "center" }}>
+        {loadError ? (
+          <>
+            <p role="alert" style={{ color: "var(--on-surface-variant)", fontSize: "1.05rem" }}>{loadError}</p>
+            <button className="btn-primary" onClick={loadUserData}>{t("dash_retry")}</button>
+          </>
+        ) : (
+          <p style={{ color: "var(--on-surface-variant)", fontSize: "1.05rem" }}>
+            {slowLoad && IS_LIVE ? t("dash_waking_server") : t("dash_loading_workspace")}
+          </p>
+        )}
       </div>
     );
   }
 
-  const tenantName = user?.tenant_id === "tenant-utm-001" 
-    ? "Universiti Teknologi Malaysia (UTM)" 
+  const tenantName = user?.tenant_id === "tenant-utm-001"
+    ? "Universiti Teknologi Malaysia (UTM)"
+    : user?.tenant_id === "tenant-independent"
+    ? t("tenant_independent")
+    : IS_LIVE
+    ? (user?.tenant_id ?? "")
     : "Demo University";
 
   const isAdmin = user?.role === "admin";
+  const isStaff = isAdmin || user?.role === "supervisor";
+  // Demo-only controls (mode switch, quota refill, tenant key) stay off for students on the live site
+  const canManageKeys = !IS_LIVE || isStaff;
+  const canRefill = !IS_LIVE || isAdmin;
 
   // Active stage determination
   const curStage = selectedProject?.stage || "search";
@@ -850,6 +878,7 @@ export default function DashboardPage() {
             </Link>
 
             {/* Mode & Key Management Trigger */}
+            {canManageKeys && (
             <button
               onClick={() => {
                 setShowSettingsModal(true);
@@ -867,6 +896,7 @@ export default function DashboardPage() {
                   : t("dash_mode_settings_btn")}
               </span>
             </button>
+            )}
 
             <button onClick={handleLogout} className="btn-secondary" style={{ padding: "0.45rem 0.85rem", fontSize: "0.82rem" }}>
               <LogOut size={14} /> {t("nav_signout")}
@@ -917,7 +947,7 @@ export default function DashboardPage() {
                   {adminStats?.total_users || adminUsers.length || "238"}
                 </div>
                 <div style={{ fontSize: "0.75rem", color: "var(--on-surface-variant)", marginTop: "0.2rem" }}>
-                  Across UTM &amp; Demo University
+                  {IS_LIVE ? t("dash_across_institutions") : "Across UTM & Demo University"}
                 </div>
               </div>
 
@@ -1038,7 +1068,7 @@ export default function DashboardPage() {
                             </td>
                             <td style={{ padding: "0.85rem" }}>
                               <span className="badge badge-tenant" style={{ fontSize: "0.74rem" }}>
-                                {u.tenant_id === "tenant-utm-001" ? "UTM Campus" : "Demo University"}
+                                {u.tenant_id === "tenant-utm-001" ? "UTM Campus" : u.tenant_id === "tenant-independent" ? t("tenant_independent") : IS_LIVE ? u.tenant_id : "Demo University"}
                               </span>
                             </td>
                             <td style={{ padding: "0.85rem" }}>
@@ -1190,7 +1220,9 @@ export default function DashboardPage() {
                         onChange={(e) => setNewUserTenant(e.target.value)}
                         className="input-control"
                       >
-                        <option value="tenant-demo-002">Demo University (tenant-demo-002)</option>
+                        {IS_LIVE
+                          ? <option value="tenant-independent">{t("tenant_independent")} (tenant-independent)</option>
+                          : <option value="tenant-demo-002">Demo University (tenant-demo-002)</option>}
                         <option value="tenant-utm-001">Universiti Teknologi Malaysia (tenant-utm-001)</option>
                       </select>
                     </div>
@@ -1227,6 +1259,7 @@ export default function DashboardPage() {
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <span className="badge badge-primary" style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", paddingRight: "0.4rem" }}>
                 {t("dash_quota_left_label")}: {user?.quota_remaining ?? 0} / 5 {t("dash_left")}
+                {canRefill && (
                 <button
                   onClick={handleRefillQuota}
                   title="Refill quota to 20 requests"
@@ -1244,10 +1277,13 @@ export default function DashboardPage() {
                 >
                   {t("dash_refill_btn")}
                 </button>
+                )}
               </span>
+              {canManageKeys && (
               <span className="badge badge-secondary">
                 {keySettings?.demo_mode ? t("dash_fast_mode") : t("dash_live_key_badge")}
               </span>
+              )}
             </div>
           </div>
 
@@ -1635,7 +1671,7 @@ export default function DashboardPage() {
                   {pipelineMessage.type === "success" ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
                   <span>{typeof pipelineMessage.text === "string" ? pipelineMessage.text : JSON.stringify(pipelineMessage.text)}</span>
                 </div>
-                {(pipelineMessage.text?.toLowerCase?.().includes("quota") || user?.quota_remaining === 0) && (
+                {canRefill && (pipelineMessage.text?.toLowerCase?.().includes("quota") || user?.quota_remaining === 0) && (
                   <button
                     onClick={handleRefillQuota}
                     className="btn-primary"
@@ -1899,6 +1935,7 @@ export default function DashboardPage() {
                 {t("dash_role_label")}: <span className="badge badge-student" style={{ padding: "0.1rem 0.4rem" }}>{user?.role}</span>
               </p>
 
+              {(!IS_LIVE || isAdmin) && (<>
               <button
                 onClick={handleTestCrossTenant}
                 disabled={isolationTestStatus === "testing"}
@@ -1921,6 +1958,7 @@ export default function DashboardPage() {
                   {isolationTestResult}
                 </div>
               )}
+              </>)}
             </div>
           </div>
         </div>
@@ -2073,7 +2111,8 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* Mode Toggle Banner */}
+            {/* Mode Toggle Banner (local demo only: the live server's mode is set on Render) */}
+            {!IS_LIVE && (
             <div style={{ background: "var(--surface-low)", border: "1px solid var(--border-subtle)", borderRadius: "8px", padding: "1rem", marginBottom: "1.25rem" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
@@ -2097,6 +2136,7 @@ export default function DashboardPage() {
                 </button>
               </div>
             </div>
+            )}
 
             {/* Stored Key Status */}
             <div style={{ marginBottom: "1.25rem" }}>

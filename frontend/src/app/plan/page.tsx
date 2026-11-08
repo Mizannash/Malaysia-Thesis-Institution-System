@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { clearToken, fetchWithAuth, getToken, getApiErrorMessage } from "@/lib/api";
+import { IS_LIVE, clearToken, fetchWithAuth, getToken, getApiErrorMessage } from "@/lib/api";
 import FloatingCoach, { useCoachOpen } from "@/components/FloatingCoach";
 import {
   FileText,
@@ -194,8 +194,12 @@ function PlanViewContent() {
     );
   }
 
-  const tenantName = user?.tenant_id === "tenant-utm-001" 
-    ? "Universiti Teknologi Malaysia (UTM)" 
+  const tenantName = user?.tenant_id === "tenant-utm-001"
+    ? "Universiti Teknologi Malaysia (UTM)"
+    : user?.tenant_id === "tenant-independent"
+    ? t("tenant_independent")
+    : IS_LIVE
+    ? (user?.tenant_id ?? "")
     : "Demo University";
 
   return (

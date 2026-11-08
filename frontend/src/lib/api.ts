@@ -11,6 +11,33 @@ import {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+/** True when the site talks to a real hosted backend (e.g. Render): no demo data is ever shown. */
+export const IS_LIVE = !/localhost|127\.0\.0\.1/.test(API_BASE);
+
+export const SERVER_UNREACHABLE = "Cannot reach the MTIS server. Please try again in a minute.";
+
+// Waits between GET retries while a sleeping free server wakes up (~60s in total)
+const WAKE_RETRY_DELAYS_MS = [3000, 6000, 12000, 20000, 20000];
+
+/**
+ * Live-backend fetch. GETs are retried on network failure (server waking up);
+ * other methods are not retried, so an AI call is never charged twice.
+ */
+async function fetchLive(url: string, init: RequestInit): Promise<Response> {
+  const method = (init.method || "GET").toUpperCase();
+  const delays = method === "GET" ? WAKE_RETRY_DELAYS_MS : [];
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fetch(url, init);
+    } catch {
+      if (attempt >= delays.length) {
+        throw { detail: SERVER_UNREACHABLE, message: SERVER_UNREACHABLE };
+      }
+      await new Promise((r) => setTimeout(r, delays[attempt]));
+    }
+  }
+}
+
 export interface CoachMessage {
   role: "user" | "assistant";
   content: string;
@@ -605,6 +632,11 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
 
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  // A real backend is configured: never answer with demo fixtures
+  if (IS_LIVE) {
+    return await fetchLive(`${API_BASE}${endpoint}`, { ...options, headers });
   }
 
   // Detect if running on cloud deployment without a configured live backend

@@ -78,6 +78,8 @@ export function authErrorKey(err: any): string {
   if (code === "user_already_exists" || msg.includes("already registered")) return "auth_err_exists";
   if (code === "weak_password" || msg.includes("password should")) return "auth_err_weak";
   if (code.includes("rate_limit") || msg.includes("rate limit") || err?.status === 429) return "auth_err_rate";
+  // fetch() network failures: "Failed to fetch" (Chrome), "NetworkError…" (Firefox), "Load failed" (Safari)
+  if (err?.name === "AuthRetryableFetchError" || /failed to fetch|networkerror|load failed/.test(msg)) return "auth_err_network";
   return "auth_err_generic";
 }
 

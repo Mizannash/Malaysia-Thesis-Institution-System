@@ -211,6 +211,16 @@ def require_admin(current_user: User = Depends(get_current_user)) -> User:
     return current_user
 
 
+def require_staff(current_user: User = Depends(get_current_user)) -> User:
+    """Admins and supervisors only: tenant-wide settings such as the API key."""
+    if current_user.role not in ("admin", "supervisor"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: staff privilege required",
+        )
+    return current_user
+
+
 def get_current_user_optional(
     authorization: Optional[str] = Header(None),
     db: Session = Depends(get_db),

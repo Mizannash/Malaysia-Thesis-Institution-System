@@ -94,6 +94,8 @@ def refill_quota(
     db: Session = Depends(get_db),
 ):
     """Refills quota balance for the current user (convenience for demo evaluation)."""
+    if settings.is_production and current_user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Quota refill is not available")
     current_user.quota_remaining = 20 if current_user.role == "student" else 99
     db.commit()
     db.refresh(current_user)

@@ -149,10 +149,12 @@ export default function LoginPage() {
             <Link href="/pricing" style={{ color: "var(--on-surface-variant)", fontSize: "0.9rem", fontWeight: 500 }}>
               {t("nav_pricing")}
             </Link>
+            {!isSupabaseConfigured && (
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", color: "var(--secondary)", background: "var(--secondary-container)", padding: "0.25rem 0.65rem", borderRadius: "9999px" }}>
               <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--secondary)" }}></span>
               {t("nav_demo_badge")}
             </div>
+            )}
           </div>
         </div>
       </header>
@@ -262,7 +264,8 @@ export default function LoginPage() {
           </div>
           </>)}
 
-          {/* Coach Guidance Note */}
+          {/* Coach Guidance Note (explains the demo personas, so demo mode only) */}
+          {!isSupabaseConfigured && (
           <div className="coach-card" style={{ marginTop: "1.5rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 600, marginBottom: "0.25rem" }}>
               <Sparkles size={14} color="var(--tertiary)" />
@@ -270,6 +273,7 @@ export default function LoginPage() {
             </div>
             {t("login_coach_note")}
           </div>
+          )}
         </div>
       </main>
     </div>
